@@ -61,6 +61,5 @@ public final class EventDispatchService
 			// we shouldnt get errors here as we handle them all within the chains
 			e.printStackTrace();
 		}
-		//SwingUtilities.invokeLater(command);
 	}
 }

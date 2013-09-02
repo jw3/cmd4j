@@ -1,6 +1,6 @@
 package chain4j.test;
 
-import chain4j.IChainable;
+import chain4j.IChainable2;
 
 /**
  * 
@@ -9,18 +9,24 @@ import chain4j.IChainable;
  *
  */
 abstract public class Say
-	implements IChainable {
+	implements IChainable2 {
 
-	public static Say now(final String what) {
+	public static Say what(final Object o) {
 		return new Say() {
-			public void invoke()
-				throws InterruptedException {
+			public void invoke(Object dto) {
+				final StringBuilder buffer = new StringBuilder();
+				buffer.append("[ ").append(Thread.currentThread().getName()).append(" ]").append("\t");
+				buffer.append(o).append(" ");
 
-				if ("hello".equals(what)) {
-					System.out.println(Thread.currentThread().getName());
-					//Thread.sleep(5000);
+				if (dto != null) {
+					buffer.append(String.valueOf(dto));
 				}
-				System.out.println(what + "\t" + Thread.currentThread().getName());
+				System.out.println(buffer.toString());
+			}
+
+
+			public void invoke() {
+				this.invoke(null);
 			}
 		};
 	}
@@ -30,7 +36,12 @@ abstract public class Say
 		return new Say() {
 			public void invoke()
 				throws Exception {
+				this.invoke(null);
+			}
 
+
+			public void invoke(Object dto)
+				throws Exception {
 				throw new Exception("boom");
 			}
 		};

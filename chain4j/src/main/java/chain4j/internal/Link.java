@@ -3,6 +3,7 @@ package chain4j.internal;
 import java.util.concurrent.Callable;
 
 import chain4j.IChainable;
+import chain4j.IChainable2;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 
@@ -20,31 +21,32 @@ public class Link
 	private final Link next;
 
 	private boolean failsafe;
+	private Object dto;
 
 
-	public Link(IChainable chainable) {
+	public Link(final IChainable chainable) {
 		this(chainable, null, null);
 	}
 
 
-	public Link(IChainable chainable, Link next) {
+	public Link(final IChainable chainable, final Link next) {
 		this(chainable, next, null);
 	}
 
 
-	public Link(IChainable chainable, ListeningExecutorService executor) {
+	public Link(final IChainable chainable, final ListeningExecutorService executor) {
 		this(chainable, null, executor);
 	}
 
 
-	public Link(IChainable chainable, Link next, ListeningExecutorService executor) {
+	public Link(final IChainable chainable, Link next, final ListeningExecutorService executor) {
 		this.chainable = chainable;
 		this.next = next;
 		this.executor = executor;
 	}
 
 
-	public ListeningExecutorService getExecutor() {
+	public ListeningExecutorService executor() {
 		return executor;
 	}
 
@@ -54,9 +56,22 @@ public class Link
 	}
 
 
-	public Link setFailsafe(boolean failsafe) {
+	public Link setFailsafe(final boolean failsafe) {
 		this.failsafe = failsafe;
 		return this;
+	}
+
+
+	public Link dto(final Object dto) {
+		if (chainable instanceof IChainable2) {
+			this.dto = dto;
+		}
+		return this;
+	}
+
+
+	IChainable chainable() {
+		return chainable;
 	}
 
 
@@ -67,7 +82,12 @@ public class Link
 		throws Exception {
 
 		try {
-			chainable.invoke();
+			if (dto != null) {
+				((IChainable2)chainable).invoke(dto);
+			}
+			else {
+				chainable.invoke();
+			}
 			return next;
 		}
 		catch (Exception e) {

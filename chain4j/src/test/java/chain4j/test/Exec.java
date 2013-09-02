@@ -2,6 +2,7 @@ package chain4j.test;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import chain4j.internal.EventDispatchService;
 
@@ -13,14 +14,30 @@ import chain4j.internal.EventDispatchService;
  */
 public enum Exec {
 	edt(EventDispatchService.create()),
+	persistence(true),
 	a,
-	b,
-	c;
+	b;
 
 	private ExecutorService executor;
 
 
 	private Exec() {
+	}
+
+
+	private Exec(boolean daemon) {
+		Executors.newSingleThreadExecutor(new ThreadFactory() {
+			private Thread thread;
+
+
+			public Thread newThread(Runnable r) {
+				if (thread == null) {
+					thread = new Thread(Exec.this.name());
+					thread.setDaemon(true);
+				}
+				return thread;
+			}
+		});
 	}
 
 
