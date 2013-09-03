@@ -6,7 +6,7 @@ package chain4j;
  * @author wassj
  *
  */
-public interface IChainable {
+public interface ICommand {
 
 	void invoke()
 		throws Exception;

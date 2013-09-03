@@ -3,7 +3,7 @@ package chain4j.builder;
 import java.util.concurrent.ExecutorService;
 
 import chain4j.IChain;
-import chain4j.IChainable;
+import chain4j.ICommand;
 import chain4j.internal.AbstractChain;
 import chain4j.internal.Link;
 import chain4j.internal.Linker;
@@ -35,12 +35,12 @@ final public class ChainBuilder {
 
 
 	/**
-	 * create and initialize a builder with the passed chainable as the starting point
-	 * @param chainable
+	 * create and initialize a builder with the passed command as the starting point
+	 * @param command
 	 * @return
 	 */
-	public static ChainBuilder create(final IChainable chainable) {
-		return new ChainBuilder().init(new LinkBuilder(chainable));
+	public static ChainBuilder create(final ICommand command) {
+		return new ChainBuilder().init(new LinkBuilder(command));
 	}
 
 
@@ -57,26 +57,26 @@ final public class ChainBuilder {
 
 
 	/**
-	 * add the chainable to the end of the chain
-	 * @param chainable
+	 * add the command to the end of the chain
+	 * @param command
 	 * @return
 	 */
-	public ChainBuilder add(final IChainable chainable) {
-		if (chainable != null) {
-			tail = tail != null ? tail.add(chainable) : new LinkBuilder(chainable);
+	public ChainBuilder add(final ICommand command) {
+		if (command != null) {
+			tail = tail != null ? tail.add(command) : new LinkBuilder(command);
 		}
 		return this;
 	}
 
 
 	/**
-	 * add the chainable as a 'finally' chainable
-	 * @param chainable
+	 * add the command as a 'finally' command
+	 * @param command
 	 * @return
 	 */
-	public ChainBuilder addFinally(final IChainable chainable) {
-		if (chainable != null) {
-			finallys = finallys != null ? finallys.add(chainable) : new LinkBuilder(chainable);
+	public ChainBuilder addFinally(final ICommand command) {
+		if (command != null) {
+			finallys = finallys != null ? finallys.add(command) : new LinkBuilder(command);
 		}
 		return this;
 	}
@@ -120,7 +120,7 @@ final public class ChainBuilder {
 
 
 	/**
-	 * construct an {@link IChain} object from the {@link IChainable}s that have been added to this builder
+	 * construct an {@link IChain} object from the {@link ICommand}s that have been added to this builder
 	 * @return
 	 */
 	public IChain build() {

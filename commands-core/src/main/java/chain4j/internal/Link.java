@@ -2,13 +2,13 @@ package chain4j.internal;
 
 import java.util.concurrent.Callable;
 
-import chain4j.IChainable;
-import chain4j.IChainable2;
+import chain4j.ICommand;
+import chain4j.ICommand2;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 
 /**
- * Provides the context in which an {@link IChainable} executes.  Can combine together with other Links to form a chain.
+ * Provides the context in which an {@link ICommand} executes.  Can combine together with other Links to form a chain.
  *
  * @author wassj
  *
@@ -17,30 +17,30 @@ public class Link
 	implements Callable<Link> {
 
 	private final ListeningExecutorService executor;
-	private final IChainable chainable;
+	private final ICommand command;
 	private final Link next;
 
 	private boolean failsafe;
 	private Object dto;
 
 
-	public Link(final IChainable chainable) {
-		this(chainable, null, null);
+	public Link(final ICommand command) {
+		this(command, null, null);
 	}
 
 
-	public Link(final IChainable chainable, final Link next) {
-		this(chainable, next, null);
+	public Link(final ICommand command, final Link next) {
+		this(command, next, null);
 	}
 
 
-	public Link(final IChainable chainable, final ListeningExecutorService executor) {
-		this(chainable, null, executor);
+	public Link(final ICommand command, final ListeningExecutorService executor) {
+		this(command, null, executor);
 	}
 
 
-	public Link(final IChainable chainable, Link next, final ListeningExecutorService executor) {
-		this.chainable = chainable;
+	public Link(final ICommand command, Link next, final ListeningExecutorService executor) {
+		this.command = command;
 		this.next = next;
 		this.executor = executor;
 	}
@@ -63,7 +63,7 @@ public class Link
 
 
 	public Link dto(final Object dto) {
-		if (chainable instanceof IChainable2) {
+		if (command instanceof ICommand2) {
 			this.dto = dto;
 		}
 		return this;
@@ -75,23 +75,23 @@ public class Link
 	}
 
 
-	IChainable chainable() {
-		return chainable;
+	ICommand command() {
+		return command;
 	}
 
 
 	/**
-	 * Execute the {@link IChainable} and return the next link
+	 * Execute the {@link ICommand} and return the next link
 	 */
 	public Link call()
 		throws Exception {
 
 		try {
 			if (dto != null) {
-				((IChainable2)chainable).invoke(dto);
+				((ICommand2)command).invoke(dto);
 			}
 			else {
-				chainable.invoke();
+				command.invoke();
 			}
 			return next();
 		}

@@ -3,7 +3,7 @@ package chain4j.internal;
 import java.util.concurrent.ExecutorService;
 
 import chain4j.IChain;
-import chain4j.IChainable2;
+import chain4j.ICommand2;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -11,8 +11,8 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
 /**
- * A Next instance is the traverser of {@link Link}s in a {@link IChain}.  It controls the execution flow from link
- * to link and ensures that each link is run on the appropriate executor service.
+ * The traverser of {@link Link}s in a {@link IChain}.  It controls the execution flow from link
+ * to link and ensures that each command is run by the appropriate executor.
  *
  * @author wassj
  *
@@ -54,7 +54,7 @@ public class Linker
 
 
 	private void execute(final Link link) {
-		if (link.chainable() instanceof IChainable2) {
+		if (link.command() instanceof ICommand2) {
 			link.dto(dto);
 		}
 		System.out.println("submit to " + this.executorOf(link));

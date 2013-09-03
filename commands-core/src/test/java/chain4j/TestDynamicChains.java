@@ -57,8 +57,8 @@ public class TestDynamicChains {
 		}
 
 
-		private IChainable say(final String what, final Link next) {
-			return new IChainable() {
+		private ICommand say(final String what, final Link next) {
+			return new ICommand() {
 				public void invoke() {
 					buffer.append(what);
 					next(next);
@@ -78,7 +78,7 @@ public class TestDynamicChains {
 
 
 		public Link c() {
-			return Links.create(new IChainable() {
+			return Links.create(new ICommand() {
 				public void invoke() {
 					buffer.append("c");
 					final Link next = ++count < rounds ? a() : null;

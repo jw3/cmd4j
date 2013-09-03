@@ -3,10 +3,10 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<name>Java Thread Chains</name>
-	<groupId>com.github</groupId>
-	<artifactId>chain4j</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<name>Commands Core</name>
+	<groupId>command4j</groupId>
+	<artifactId>commands-core</artifactId>
+	<version>0.0.2-SNAPSHOT</version>
 
 	<dependencies>
 		<dependency>

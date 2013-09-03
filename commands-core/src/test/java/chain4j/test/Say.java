@@ -1,6 +1,6 @@
 package chain4j.test;
 
-import chain4j.IChainable2;
+import chain4j.ICommand2;
 
 /**
  * 
@@ -9,7 +9,7 @@ import chain4j.IChainable2;
  *
  */
 abstract public class Say
-	implements IChainable2 {
+	implements ICommand2 {
 
 	public static Say what(final Object o) {
 		return new Say() {

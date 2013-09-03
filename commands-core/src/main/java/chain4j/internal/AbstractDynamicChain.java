@@ -1,15 +1,15 @@
 package chain4j.internal;
 
 import chain4j.IChain;
-import chain4j.IChainable;
-import chain4j.IChainable2;
+import chain4j.ICommand;
+import chain4j.ICommand2;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListeningExecutorService;
 
 /**
- * Composition of multiple {@link IChainable}s into a single context which allows mutable flows
+ * Composition of multiple {@link ICommand}s into a single context which allows mutable flows
  * 
  * @author wassj
  *
@@ -54,7 +54,7 @@ abstract public class AbstractDynamicChain
 
 
 	private void executeLink(final Link link) {
-		if (link.chainable() instanceof IChainable2) {
+		if (link.command() instanceof ICommand2) {
 			link.dto(dto);
 		}
 		Futures.addCallback(this.executorOf(link).submit(link), this);
@@ -77,7 +77,7 @@ abstract public class AbstractDynamicChain
 		extends Link {
 
 		public InitializerLink() {
-			super(new IChainable() {
+			super(new ICommand() {
 				public void invoke() {
 					System.out.println("fsm init");
 				}

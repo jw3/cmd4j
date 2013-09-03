@@ -2,7 +2,7 @@ package chain4j.builder;
 
 import java.util.concurrent.ExecutorService;
 
-import chain4j.IChainable;
+import chain4j.ICommand;
 import chain4j.internal.Link;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -15,7 +15,7 @@ import com.google.common.util.concurrent.MoreExecutors;
  *
  */
 final public class LinkBuilder {
-	private final IChainable chainable;
+	private final ICommand command;
 	private LinkBuilder next;
 	private LinkBuilder finallys;
 
@@ -23,8 +23,8 @@ final public class LinkBuilder {
 	private Object dto;
 
 
-	LinkBuilder(final IChainable chainable) {
-		this.chainable = chainable;
+	LinkBuilder(final ICommand command) {
+		this.command = command;
 	}
 
 
@@ -34,8 +34,8 @@ final public class LinkBuilder {
 	}
 
 
-	public LinkBuilder add(final IChainable chainable) {
-		next = new LinkBuilder(chainable);
+	public LinkBuilder add(final ICommand command) {
+		next = new LinkBuilder(command);
 		return next;
 	}
 
@@ -46,8 +46,8 @@ final public class LinkBuilder {
 	}
 
 
-	public LinkBuilder addFinally(final IChainable chainable) {
-		finallys = finallys != null ? finallys.add(chainable) : new LinkBuilder(chainable);
+	public LinkBuilder addFinally(final ICommand command) {
+		finallys = finallys != null ? finallys.add(command) : new LinkBuilder(command);
 		return this;
 	}
 
@@ -59,6 +59,6 @@ final public class LinkBuilder {
 
 
 	Link build() {
-		return new Link(chainable, next != null ? next.build() : null, executor).dto(dto);
+		return new Link(command, next != null ? next.build() : null, executor).dto(dto);
 	}
 }
