@@ -70,6 +70,11 @@ public class Link
 	}
 
 
+	protected Link next() {
+		return next;
+	}
+
+
 	IChainable chainable() {
 		return chainable;
 	}
@@ -88,11 +93,11 @@ public class Link
 			else {
 				chainable.invoke();
 			}
-			return next;
+			return next();
 		}
 		catch (Exception e) {
 			if (failsafe) {
-				return next;
+				return next();
 			}
 			throw e;
 		}
