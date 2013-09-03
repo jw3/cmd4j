@@ -4,7 +4,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-import chain4j.internal.EventDispatchService;
+import chain4j.internal.EventDispatchExecutorService;
 
 /**
  * Manage a set of executors for tests; 
@@ -13,7 +13,7 @@ import chain4j.internal.EventDispatchService;
  *
  */
 public enum Exec {
-	edt(EventDispatchService.create()),
+	edt(EventDispatchExecutorService.create()),
 	persistence(true),
 	a,
 	b;
