@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutorService;
 import chain4j.IChain;
 import chain4j.IChainable;
 import chain4j.internal.AbstractChain;
-import chain4j.internal.EmptyChain;
+import chain4j.internal.Link;
 import chain4j.internal.Linker;
 
 /**
@@ -18,6 +18,11 @@ final public class ChainBuilder {
 	private LinkBuilder head;
 	private LinkBuilder tail;
 	private LinkBuilder finallys;
+
+
+	public static IChain empty() {
+		return new EmptyChain();
+	}
 
 
 	/**
@@ -130,5 +135,39 @@ final public class ChainBuilder {
 			};
 		}
 		return new EmptyChain();
+	}
+
+
+	/**
+	 * An empty {@link IChain} implementation that will be used as a placeholder
+	 * 
+	 * @author wassj
+	 *
+	 */
+	private static class EmptyChain
+		implements IChain {
+
+		public void exec() {
+		}
+
+
+		public boolean isEmpty() {
+			return true;
+		}
+
+
+		public Link head() {
+			return null;
+		}
+
+
+		public IChain dto(Object dto) {
+			return this;
+		}
+
+
+		public IChain executor(ExecutorService executor) {
+			return this;
+		}
 	}
 }
