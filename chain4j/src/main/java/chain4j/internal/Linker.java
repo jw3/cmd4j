@@ -25,7 +25,7 @@ public class Linker
 
 
 	public static void begin(final Link link, final ExecutorService executor, final Object dto) {
-		new Linker(dto, executor).exec(link);
+		new Linker(dto, executor).execute(link);
 	}
 
 
@@ -38,7 +38,7 @@ public class Linker
 	/**
 	 * {@link FutureCallback} failure handler
 	 */
-	public void onFailure(final Throwable t) {
+	final public void onFailure(final Throwable t) {
 		t.printStackTrace();
 	}
 
@@ -46,14 +46,14 @@ public class Linker
 	/**
 	 * {@link FutureCallback} success handler
 	 */
-	public void onSuccess(final Link next) {
+	final public void onSuccess(final Link next) {
 		if (next != null) {
-			this.exec(next);
+			this.execute(next);
 		}
 	}
 
 
-	private void exec(final Link link) {
+	private void execute(final Link link) {
 		if (link.chainable() instanceof IChainable2) {
 			link.dto(dto);
 		}
