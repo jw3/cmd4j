@@ -18,13 +18,20 @@ abstract public class AbstractChain
 	implements IChain {
 
 	private final Link head;
+	private final boolean unthreaded;
 
 	private ListeningExecutorService executor;
 	private Object dto;
 
 
 	protected AbstractChain(final Link head) {
+		this(head, false);
+	}
+
+
+	protected AbstractChain(final Link head, final boolean unthreaded) {
 		this.head = head;
+		this.unthreaded = unthreaded;
 	}
 
 
@@ -35,6 +42,11 @@ abstract public class AbstractChain
 
 	public boolean isEmpty() {
 		return head != null;
+	}
+
+
+	public boolean isUnthreaded() {
+		return unthreaded;
 	}
 
 
@@ -56,7 +68,7 @@ abstract public class AbstractChain
 
 	protected ListeningExecutorService executor() {
 		if (executor == null) {
-			executor = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
+			executor = MoreExecutors.listeningDecorator(unthreaded ? MoreExecutors.sameThreadExecutor() : Executors.newSingleThreadExecutor());
 		}
 		return executor;
 	}
@@ -68,6 +80,9 @@ abstract public class AbstractChain
 	 * @return
 	 */
 	public IChain executor(final ExecutorService executor) {
+		if (unthreaded) {
+			throw new IllegalStateException("cannot set executor when chain is unthreaded");
+		}
 		this.executor = MoreExecutors.listeningDecorator(executor);
 		return this;
 	}

@@ -16,6 +16,9 @@ public interface IChain {
 	boolean isEmpty();
 
 
+	boolean isUnthreaded();
+
+
 	IChain dto(final Object dto);
 
 

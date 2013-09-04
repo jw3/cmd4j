@@ -5,7 +5,6 @@ import java.util.concurrent.ExecutorService;
 import chain4j.IChain;
 import chain4j.ICommand;
 import chain4j.internal.AbstractChain;
-import chain4j.internal.Link;
 import chain4j.internal.Linker;
 
 /**
@@ -18,6 +17,8 @@ final public class ChainBuilder {
 	private LinkBuilder head;
 	private LinkBuilder tail;
 	private LinkBuilder finallys;
+
+	private boolean unthreaded;
 
 
 	public static IChain empty() {
@@ -110,6 +111,12 @@ final public class ChainBuilder {
 	}
 
 
+	public ChainBuilder unthreaded(final boolean unthreaded) {
+		this.unthreaded = unthreaded;
+		return this;
+	}
+
+
 	/**
 	 * get the {@link LinkBuilder} for tail
 	 * @return
@@ -128,9 +135,9 @@ final public class ChainBuilder {
 			if (finallys != null) {
 				tail.add(finallys);
 			}
-			return new AbstractChain(head.build()) {
+			return new AbstractChain(head.build(), unthreaded) {
 				public void exec() {
-					Linker.begin(this.head(), this.executor(), this.dto());
+					Linker.begin(this.head(), this.dto(), this.isUnthreaded(), this.executor());
 				}
 			};
 		}
@@ -156,11 +163,6 @@ final public class ChainBuilder {
 		}
 
 
-		public Link head() {
-			return null;
-		}
-
-
 		public IChain dto(Object dto) {
 			return this;
 		}
@@ -168,6 +170,11 @@ final public class ChainBuilder {
 
 		public IChain executor(ExecutorService executor) {
 			return this;
+		}
+
+
+		public boolean isUnthreaded() {
+			return true;
 		}
 	}
 }

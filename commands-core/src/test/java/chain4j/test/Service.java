@@ -12,7 +12,7 @@ import chain4j.internal.EventDispatchExecutorService;
  * @author wassj
  *
  */
-public enum Exec {
+public enum Service {
 	edt(EventDispatchExecutorService.create()),
 	persistence(true),
 	a,
@@ -21,18 +21,18 @@ public enum Exec {
 	private ExecutorService executor;
 
 
-	private Exec() {
+	private Service() {
 	}
 
 
-	private Exec(boolean daemon) {
+	private Service(boolean daemon) {
 		Executors.newSingleThreadExecutor(new ThreadFactory() {
 			private Thread thread;
 
 
 			public Thread newThread(Runnable r) {
 				if (thread == null) {
-					thread = new Thread(Exec.this.name());
+					thread = new Thread(Service.this.name());
 					thread.setDaemon(true);
 				}
 				return thread;
@@ -41,7 +41,7 @@ public enum Exec {
 	}
 
 
-	private Exec(ExecutorService executor) {
+	private Service(ExecutorService executor) {
 		this.executor = executor;
 	}
 
@@ -55,7 +55,7 @@ public enum Exec {
 
 
 	public static void shutdown() {
-		for (Exec t : Exec.values()) {
+		for (Service t : Service.values()) {
 			t.executor.shutdownNow();
 		}
 	}

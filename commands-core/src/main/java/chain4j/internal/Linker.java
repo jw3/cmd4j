@@ -20,17 +20,19 @@ import com.google.common.util.concurrent.MoreExecutors;
 public class Linker
 	implements FutureCallback<Link> {
 
-	private final ListeningExecutorService executor;
 	private final Object dto;
+	private final boolean unthreaded;
+	private final ListeningExecutorService executor;
 
 
-	public static void begin(final Link link, final ExecutorService executor, final Object dto) {
-		new Linker(dto, executor).execute(link);
+	public static void begin(final Link link, final Object dto, final boolean unthreaded, final ExecutorService executor) {
+		new Linker(dto, unthreaded, executor).execute(link);
 	}
 
 
-	private Linker(final Object dto, final ExecutorService executor) {
+	private Linker(final Object dto, final boolean unthreaded, final ExecutorService executor) {
 		this.dto = dto;
+		this.unthreaded = unthreaded;
 		this.executor = MoreExecutors.listeningDecorator(executor);
 	}
 
@@ -63,6 +65,6 @@ public class Linker
 
 
 	private ListeningExecutorService executorOf(final Link link) {
-		return link.executor() != null ? link.executor() : this.executor;
+		return !unthreaded && link.executor() != null ? link.executor() : this.executor;
 	}
 }

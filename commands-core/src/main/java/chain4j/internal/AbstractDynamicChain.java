@@ -23,7 +23,12 @@ abstract public class AbstractDynamicChain
 
 
 	protected AbstractDynamicChain() {
-		super(new InitializerLink());
+		super(new InitializerLink(), false);
+	}
+
+
+	protected AbstractDynamicChain(final boolean unthreaded) {
+		super(new InitializerLink(), unthreaded);
 	}
 
 

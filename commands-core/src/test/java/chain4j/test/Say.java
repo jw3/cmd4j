@@ -1,5 +1,8 @@
 package chain4j.test;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
+
 import chain4j.ICommand2;
 
 /**
@@ -11,17 +14,43 @@ import chain4j.ICommand2;
 abstract public class Say
 	implements ICommand2 {
 
-	public static Say what(final Object o) {
+	private OutputStream output = System.out;
+
+
+	public Say into(OutputStream output) {
+		this.output = output;
+		return this;
+	}
+
+
+	public OutputStream into() {
+		return output;
+	}
+
+
+	public static Say nothing() {
 		return new Say() {
-			public void invoke(Object dto) {
+			public void invoke(final Object dto) {
+			}
+
+
+			public void invoke() {
+			}
+		};
+	}
+
+
+	public static Say what(final Object toSay) {
+		return new Say() {
+			public void invoke(final Object dto) {
 				final StringBuilder buffer = new StringBuilder();
 				buffer.append("[ ").append(Thread.currentThread().getName()).append(" ]").append("\t");
-				buffer.append(o).append(" ");
+				buffer.append(toSay).append(" ");
 
 				if (dto != null) {
 					buffer.append(String.valueOf(dto));
 				}
-				System.out.println(buffer.toString());
+				new PrintStream(into()).println(buffer.toString());
 			}
 
 
@@ -40,8 +69,9 @@ abstract public class Say
 			}
 
 
-			public void invoke(Object dto)
+			public void invoke(final Object dto)
 				throws Exception {
+
 				throw new Exception("boom");
 			}
 		};
