@@ -3,6 +3,8 @@ package chain4j.internal;
 import chain4j.IChain;
 import chain4j.ICommand;
 import chain4j.ICommand2;
+import chain4j.ILink;
+import chain4j.ILink2;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -16,9 +18,9 @@ import com.google.common.util.concurrent.ListeningExecutorService;
  */
 abstract public class AbstractDynamicChain
 	extends AbstractChain
-	implements IChain, FutureCallback<Link> {
+	implements IChain, FutureCallback<ILink> {
 
-	private Link next;
+	private ILink next;
 	private Object dto;
 
 
@@ -32,13 +34,13 @@ abstract public class AbstractDynamicChain
 	}
 
 
-	protected void next(final Link next) {
+	protected void next(final ILink next) {
 		this.next = next;
 	}
 
 
-	public void onSuccess(final Link result) {
-		final Link next = result != null ? result : this.next;
+	public void onSuccess(final ILink result) {
+		final ILink next = result != null ? result : this.next;
 		if (next != null) {
 			this.executeLink(next);
 		}
@@ -58,8 +60,9 @@ abstract public class AbstractDynamicChain
 	}
 
 
-	private void executeLink(final Link link) {
-		if (link.command() instanceof ICommand2) {
+	private void executeLink(final ILink link) {
+		final ICommand command = link.iterator().next();
+		if (command instanceof ICommand2) {
 			link.dto(dto);
 		}
 		Futures.addCallback(this.executorOf(link).submit(link), this);
@@ -67,8 +70,11 @@ abstract public class AbstractDynamicChain
 	}
 
 
-	private ListeningExecutorService executorOf(final Link link) {
-		return link.executor() != null ? link.executor() : this.executor();
+	private ListeningExecutorService executorOf(final ILink link) {
+		if (link instanceof ILink2) {
+			return ((ILink2)link).executor() != null ? ((ILink2)link).executor() : this.executor();
+		}
+		return this.executor();
 	}
 
 

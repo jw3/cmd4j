@@ -4,6 +4,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import chain4j.IChain;
+import chain4j.ILink;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -17,25 +18,25 @@ import com.google.common.util.concurrent.MoreExecutors;
 abstract public class AbstractChain
 	implements IChain {
 
-	private final Link head;
+	private final ILink head;
 	private final boolean unthreaded;
 
 	private ListeningExecutorService executor;
 	private Object dto;
 
 
-	protected AbstractChain(final Link head) {
+	protected AbstractChain(final ILink head) {
 		this(head, false);
 	}
 
 
-	protected AbstractChain(final Link head, final boolean unthreaded) {
+	protected AbstractChain(final ILink head, final boolean unthreaded) {
 		this.head = head;
 		this.unthreaded = unthreaded;
 	}
 
 
-	public Link head() {
+	public ILink head() {
 		return head;
 	}
 

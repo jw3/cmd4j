@@ -4,7 +4,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import chain4j.builder.Links;
-import chain4j.internal.Link;
 
 /**
  * Basic tests of {@link DynamicChain} chain flow
@@ -29,6 +28,7 @@ public class TestDynamicChains {
 			fsm.exec();
 			Thread.sleep(100);
 			Assert.assertEquals(fsm.buffer.toString(), expected.toString());
+			System.out.println(fsm.buffer.toString());
 		}
 	}
 
@@ -52,12 +52,12 @@ public class TestDynamicChains {
 
 		public Fsm(int rounds) {
 			this.rounds = rounds;
-			final Link next = count < rounds ? a() : null;
+			final ILink next = count < rounds ? a() : null;
 			next(next);
 		}
 
 
-		private ICommand say(final String what, final Link next) {
+		private ICommand say(final String what, final ILink next) {
 			return new ICommand() {
 				public void invoke() {
 					buffer.append(what);
@@ -67,21 +67,21 @@ public class TestDynamicChains {
 		}
 
 
-		public Link a() {
+		public ILink a() {
 			return Links.create(say("a", b()));
 		}
 
 
-		public Link b() {
+		public ILink b() {
 			return Links.create(say("b", c()));
 		}
 
 
-		public Link c() {
+		public ILink c() {
 			return Links.create(new ICommand() {
 				public void invoke() {
 					buffer.append("c");
-					final Link next = ++count < rounds ? a() : null;
+					final ILink next = ++count < rounds ? a() : null;
 					next(next);
 				}
 			});

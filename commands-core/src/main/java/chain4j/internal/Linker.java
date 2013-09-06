@@ -3,7 +3,10 @@ package chain4j.internal;
 import java.util.concurrent.ExecutorService;
 
 import chain4j.IChain;
+import chain4j.ICommand;
 import chain4j.ICommand2;
+import chain4j.ILink;
+import chain4j.ILink2;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -18,14 +21,14 @@ import com.google.common.util.concurrent.MoreExecutors;
  *
  */
 public class Linker
-	implements FutureCallback<Link> {
+	implements FutureCallback<ILink> {
 
 	private final Object dto;
 	private final boolean unthreaded;
 	private final ListeningExecutorService executor;
 
 
-	public static void begin(final Link link, final Object dto, final boolean unthreaded, final ExecutorService executor) {
+	public static void begin(final ILink link, final Object dto, final boolean unthreaded, final ExecutorService executor) {
 		new Linker(dto, unthreaded, executor).execute(link);
 	}
 
@@ -48,15 +51,16 @@ public class Linker
 	/**
 	 * {@link FutureCallback} success handler
 	 */
-	final public void onSuccess(final Link next) {
+	final public void onSuccess(final ILink next) {
 		if (next != null) {
 			this.execute(next);
 		}
 	}
 
 
-	private void execute(final Link link) {
-		if (link.command() instanceof ICommand2) {
+	private void execute(final ILink link) {
+		final ICommand command = link.iterator().next();
+		if (command instanceof ICommand2) {
 			link.dto(dto);
 		}
 		System.out.println("submit to " + this.executorOf(link));
@@ -64,7 +68,10 @@ public class Linker
 	}
 
 
-	private ListeningExecutorService executorOf(final Link link) {
-		return !unthreaded && link.executor() != null ? link.executor() : this.executor;
+	private ListeningExecutorService executorOf(final ILink link) {
+		if (!unthreaded && link instanceof ILink2) {
+			return ((ILink2)link).executor() != null ? ((ILink2)link).executor() : executor;
+		}
+		return executor;
 	}
 }

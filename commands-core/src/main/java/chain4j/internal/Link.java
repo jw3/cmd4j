@@ -1,10 +1,12 @@
 package chain4j.internal;
 
-import java.util.concurrent.Callable;
+import java.util.Iterator;
 
 import chain4j.ICommand;
 import chain4j.ICommand2;
+import chain4j.ILink;
 
+import com.google.common.collect.Iterators;
 import com.google.common.util.concurrent.ListeningExecutorService;
 
 /**
@@ -14,11 +16,11 @@ import com.google.common.util.concurrent.ListeningExecutorService;
  *
  */
 public class Link
-	implements Callable<Link> {
+	implements ILink {
 
 	private final ListeningExecutorService executor;
 	private final ICommand command;
-	private final Link next;
+	private final ILink next;
 
 	private boolean failsafe;
 	private Object dto;
@@ -39,7 +41,7 @@ public class Link
 	}
 
 
-	public Link(final ICommand command, Link next, final ListeningExecutorService executor) {
+	public Link(final ICommand command, ILink next, final ListeningExecutorService executor) {
 		this.command = command;
 		this.next = next;
 		this.executor = executor;
@@ -62,6 +64,11 @@ public class Link
 	}
 
 
+	public Object dto() {
+		return dto;
+	}
+
+
 	public Link dto(final Object dto) {
 		if (command instanceof ICommand2) {
 			this.dto = dto;
@@ -70,7 +77,7 @@ public class Link
 	}
 
 
-	protected Link next() {
+	public ILink next() {
 		return next;
 	}
 
@@ -83,7 +90,7 @@ public class Link
 	/**
 	 * Execute the {@link ICommand} and return the next link
 	 */
-	public Link call()
+	public ILink call()
 		throws Exception {
 
 		try {
@@ -101,5 +108,10 @@ public class Link
 			}
 			throw e;
 		}
+	}
+
+
+	public Iterator<ICommand> iterator() {
+		return Iterators.singletonIterator(command);
 	}
 }
