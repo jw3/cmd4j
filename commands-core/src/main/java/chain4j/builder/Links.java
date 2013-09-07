@@ -12,7 +12,8 @@ import chain4j.internal.Link;
  * @author wassj
  *
  */
-public class Links {
+public enum Links {
+	/*singleton-enum*/;
 
 	public static ILink create(final ICommand command) {
 		return new LinkBuilder(command).build();
