@@ -4,6 +4,7 @@ import java.util.concurrent.ExecutorService;
 
 import chain4j.ICommand;
 import chain4j.ILink;
+import chain4j.decorator.LinkThreadingDecorator;
 import chain4j.internal.Link;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -60,6 +61,10 @@ final public class LinkBuilder {
 
 
 	ILink build() {
-		return new Link(command, next != null ? next.build() : null, executor).dto(dto);
+		final ILink link = new Link(command, next != null ? next.build() : null).dto(dto);
+		if (executor != null) {
+			return new LinkThreadingDecorator(link, executor);
+		}
+		return link;
 	}
 }

@@ -1,9 +1,12 @@
 package chain4j.builder;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import chain4j.IChain;
 import chain4j.ICommand;
+import chain4j.ILink;
+import chain4j.decorator.ChainThreadingDecorator;
 import chain4j.internal.AbstractChain;
 import chain4j.internal.Linker;
 
@@ -17,8 +20,6 @@ final public class ChainBuilder {
 	private LinkBuilder head;
 	private LinkBuilder tail;
 	private LinkBuilder finallys;
-
-	private boolean unthreaded;
 
 
 	public static IChain empty() {
@@ -111,12 +112,6 @@ final public class ChainBuilder {
 	}
 
 
-	public ChainBuilder unthreaded(final boolean unthreaded) {
-		this.unthreaded = unthreaded;
-		return this;
-	}
-
-
 	/**
 	 * get the {@link LinkBuilder} for tail
 	 * @return
@@ -131,13 +126,33 @@ final public class ChainBuilder {
 	 * @return
 	 */
 	public IChain build() {
+		return new ChainThreadingDecorator(this.buildImpl(), Executors.newSingleThreadExecutor());
+	}
+
+
+	/**
+	 * pass null to specify unthreaded execution
+	 * @param executor
+	 * @return
+	 */
+	public IChain build(final ExecutorService executor) {
+		return new ChainThreadingDecorator(this.buildImpl(), executor);
+	}
+
+
+	public IChain buildUnthreaded() {
+		return this.buildImpl();
+	}
+
+
+	private IChain buildImpl() {
 		if (head != null) {
 			if (finallys != null) {
 				tail.add(finallys);
 			}
-			return new AbstractChain(head.build(), unthreaded) {
+			return new AbstractChain(head.build()) {
 				public void exec() {
-					Linker.begin(this.head(), this.dto(), this.isUnthreaded(), this.executor());
+					Linker.begin(this.head(), this.dto());
 				}
 			};
 		}
@@ -146,7 +161,7 @@ final public class ChainBuilder {
 
 
 	/**
-	 * An empty {@link IChain} implementation that will be used as a placeholder
+	 * An empty {@link IChain} implementation
 	 * 
 	 * @author wassj
 	 *
@@ -154,7 +169,15 @@ final public class ChainBuilder {
 	private static class EmptyChain
 		implements IChain {
 
+		private Object dto;
+
+
 		public void exec() {
+		}
+
+
+		public ILink head() {
+			return null;
 		}
 
 
@@ -163,18 +186,14 @@ final public class ChainBuilder {
 		}
 
 
+		public Object dto() {
+			return dto;
+		}
+
+
 		public IChain dto(Object dto) {
+			this.dto = dto;
 			return this;
-		}
-
-
-		public IChain executor(ExecutorService executor) {
-			return this;
-		}
-
-
-		public boolean isUnthreaded() {
-			return true;
 		}
 	}
 }

@@ -2,8 +2,6 @@ package chain4j;
 
 import java.util.concurrent.Callable;
 
-import com.google.common.util.concurrent.ListeningExecutorService;
-
 /**
  *
  *
@@ -20,7 +18,4 @@ public interface ILink
 
 
 	ILink dto(final Object dto);
-
-
-	ListeningExecutorService executor();
 }

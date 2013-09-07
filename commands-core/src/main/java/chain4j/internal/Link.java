@@ -7,7 +7,6 @@ import chain4j.ICommand2;
 import chain4j.ILink;
 
 import com.google.common.collect.Iterators;
-import com.google.common.util.concurrent.ListeningExecutorService;
 
 /**
  * Provides the context in which an {@link ICommand} executes.  Can combine together with other Links to form a chain.
@@ -18,7 +17,6 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 public class Link
 	implements ILink {
 
-	private final ListeningExecutorService executor;
 	private final ICommand command;
 	private final ILink next;
 
@@ -27,29 +25,13 @@ public class Link
 
 
 	public Link(final ICommand command) {
-		this(command, null, null);
+		this(command, null);
 	}
 
 
-	public Link(final ICommand command, final Link next) {
-		this(command, next, null);
-	}
-
-
-	public Link(final ICommand command, final ListeningExecutorService executor) {
-		this(command, null, executor);
-	}
-
-
-	public Link(final ICommand command, ILink next, final ListeningExecutorService executor) {
+	public Link(final ICommand command, final ILink next) {
 		this.command = command;
 		this.next = next;
-		this.executor = executor;
-	}
-
-
-	public ListeningExecutorService executor() {
-		return executor;
 	}
 
 

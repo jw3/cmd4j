@@ -1,7 +1,5 @@
 package chain4j;
 
-import java.util.concurrent.ExecutorService;
-
 /**
  * 
  *
@@ -13,14 +11,14 @@ public interface IChain {
 	void exec();
 
 
+	ILink head();
+
+
 	boolean isEmpty();
 
 
-	boolean isUnthreaded();
+	Object dto();
 
 
 	IChain dto(final Object dto);
-
-
-	IChain executor(final ExecutorService executor);
 }
