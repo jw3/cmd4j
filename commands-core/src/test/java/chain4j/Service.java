@@ -1,4 +1,4 @@
-package chain4j.test;
+package chain4j;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

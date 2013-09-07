@@ -1,13 +1,13 @@
 /**
  * 
  */
-package chain4j;
+package chain4j.builder;
 
 import org.testng.annotations.Test;
 
+import chain4j.Say;
+import chain4j.Service;
 import chain4j.builder.ChainBuilder;
-import chain4j.test.Service;
-import chain4j.test.Say;
 
 /**
  * @author wassj

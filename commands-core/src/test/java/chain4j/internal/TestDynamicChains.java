@@ -1,8 +1,10 @@
-package chain4j;
+package chain4j.internal;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import chain4j.ICommand;
+import chain4j.ILink;
 import chain4j.builder.Links;
 import chain4j.internal.DynamicChain;
 

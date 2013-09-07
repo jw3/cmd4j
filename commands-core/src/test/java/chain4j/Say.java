@@ -1,4 +1,4 @@
-package chain4j.test;
+package chain4j;
 
 import java.io.OutputStream;
 import java.io.PrintStream;

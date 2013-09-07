@@ -1,4 +1,4 @@
-package chain4j;
+package chain4j.fsm;
 
 import org.testng.annotations.Test;
 
