@@ -1,7 +1,9 @@
-package chain4j;
+package chain4j.internal;
 
-import chain4j.internal.AbstractChain;
-import chain4j.internal.Link;
+import chain4j.IChain;
+import chain4j.ICommand;
+import chain4j.ICommand2;
+import chain4j.ILink;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -39,7 +41,11 @@ abstract public class DynamicChain
 
 
 	public void onSuccess(final ILink result) {
-		final ILink next = result != null ? result : this.next;
+		final ILink next = result != null ? result : this.next();
+
+		// clear out the member next so the end can be detected
+		this.next(null);
+
 		if (next != null) {
 			this.executeLink(next);
 		}
@@ -59,7 +65,7 @@ abstract public class DynamicChain
 	}
 
 
-	protected void executeLink(final ILink link) {
+	private void executeLink(final ILink link) {
 		final ICommand command = link.iterator().next();
 		if (command instanceof ICommand2) {
 			link.dto(dto);

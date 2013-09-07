@@ -4,6 +4,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import chain4j.builder.Links;
+import chain4j.internal.DynamicChain;
 
 /**
  * Basic tests of {@link DynamicChain} chain flow
