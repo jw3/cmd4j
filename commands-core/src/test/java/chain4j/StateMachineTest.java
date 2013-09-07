@@ -28,6 +28,6 @@ public class StateMachineTest {
 		};
 		final StateMachine m = new StateMachine();
 		m.setStart(print);
-		m.exec();
+		m.run();
 	}
 }

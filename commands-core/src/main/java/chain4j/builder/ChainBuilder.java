@@ -160,7 +160,7 @@ final public class ChainBuilder {
 				tail.add(finallys);
 			}
 			return new AbstractChain(head.build()) {
-				public void exec() {
+				public void run() {
 					Linker.begin(this.head(), this.dto());
 				}
 			};
@@ -183,7 +183,7 @@ final public class ChainBuilder {
 		}
 
 
-		public void exec() {
+		public void run() {
 			System.out.println("executed empty chain");
 		}
 	}

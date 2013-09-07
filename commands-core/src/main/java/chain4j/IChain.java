@@ -8,7 +8,7 @@ package chain4j;
  */
 public interface IChain {
 
-	void exec();
+	void run();
 
 
 	ILink head();

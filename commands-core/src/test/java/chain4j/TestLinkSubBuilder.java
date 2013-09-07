@@ -15,7 +15,7 @@ public class TestLinkSubBuilder {
 	@Test
 	public void test()
 		throws InterruptedException {
-		ChainBuilder.create(Say.what(1)).add(Say.what("...")).executor(Service.a.get()).add(Say.what(2)).build().dto("mississippi").exec();
+		ChainBuilder.create(Say.what(1)).add(Say.what("...")).executor(Service.a.get()).add(Say.what(2)).build().dto("mississippi").run();
 		System.out.println("done");
 	}
 }

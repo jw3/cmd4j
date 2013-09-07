@@ -60,7 +60,7 @@ abstract public class DynamicChain
 	/**
 	 * execute this chain
 	 */
-	final public void exec() {
+	final public void run() {
 		this.executeLink(this.head());
 	}
 

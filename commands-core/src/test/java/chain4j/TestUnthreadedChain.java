@@ -27,6 +27,6 @@ public class TestUnthreadedChain {
 			//
 			.dto("mississippi")
 			//
-			.exec();
+			.run();
 	}
 }

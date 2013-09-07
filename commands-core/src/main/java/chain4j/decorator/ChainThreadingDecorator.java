@@ -55,7 +55,7 @@ public class ChainThreadingDecorator
 	}
 
 
-	public void exec() {
+	public void run() {
 		Linker.begin(chain.head(), chain.dto(), this.executor());
 	}
 

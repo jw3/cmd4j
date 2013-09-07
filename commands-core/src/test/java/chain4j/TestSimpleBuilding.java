@@ -17,6 +17,6 @@ public class TestSimpleBuilding {
 
 	@Test
 	public void firstTest() {
-		ChainBuilder.create(Say.what("hello")).executor(Service.edt.get()).add(Say.what("world")).executor(Service.b.get()).add(Say.what("!")).executor(Service.a.get()).build().exec();
+		ChainBuilder.create(Say.what("hello")).executor(Service.edt.get()).add(Say.what("world")).executor(Service.b.get()).add(Say.what("!")).executor(Service.a.get()).build().run();
 	}
 }
