@@ -5,13 +5,14 @@ import java.util.concurrent.Executors;
 
 import chain4j.IChain;
 import chain4j.ICommand;
-import chain4j.ILink;
 import chain4j.decorator.ChainThreadingDecorator;
 import chain4j.internal.AbstractChain;
 import chain4j.internal.Linker;
 
 /**
- * Builder of {@link IChain} objects
+ * Builder pattern implementation for creating {@link IChain} objects
+ * 
+ * There are two types of {@link IChain}s that can be created, static and dynamic.  This builder will assemble a static 
  *
  * @author wassj
  *
@@ -22,14 +23,18 @@ final public class ChainBuilder {
 	private LinkBuilder finallys;
 
 
+	/**
+	 * creates an empty {@link IChain} which can be used in any operation a normal chain would, but will not do anything
+	 * @return {@link IChain} the empty chain
+	 */
 	public static IChain empty() {
 		return new EmptyChain();
 	}
 
 
 	/**
-	 * create an empty builder
-	 * @return
+	 * creates a new {@link ChainBuilder}
+	 * @return {@link ChainBuilder} a new builder
 	 */
 	public static ChainBuilder create() {
 		return new ChainBuilder();
@@ -37,11 +42,15 @@ final public class ChainBuilder {
 
 
 	/**
-	 * create and initialize a builder with the passed command as the starting point
-	 * @param command
-	 * @return
+	 * creates a new {@link ChainBuilder} with the passed {@link ICommand} used as head
+	 * @param command becomes the head command in the chain
+	 * @return new {@link ChainBuilder}
+	 * @throws IllegalArgumentException if command is null
 	 */
 	public static ChainBuilder create(final ICommand command) {
+		if (command == null) {
+			throw new IllegalArgumentException("command cannot be null");
+		}
 		return new ChainBuilder().init(new LinkBuilder(command));
 	}
 
@@ -167,33 +176,15 @@ final public class ChainBuilder {
 	 *
 	 */
 	private static class EmptyChain
-		implements IChain {
+		extends AbstractChain {
 
-		private Object dto;
+		public EmptyChain() {
+			super(LinkBuilder.empty());
+		}
 
 
 		public void exec() {
-		}
-
-
-		public ILink head() {
-			return null;
-		}
-
-
-		public boolean isEmpty() {
-			return true;
-		}
-
-
-		public Object dto() {
-			return dto;
-		}
-
-
-		public IChain dto(Object dto) {
-			this.dto = dto;
-			return this;
+			System.out.println("executed empty chain");
 		}
 	}
 }

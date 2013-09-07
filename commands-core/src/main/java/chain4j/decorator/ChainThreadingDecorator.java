@@ -60,11 +60,6 @@ public class ChainThreadingDecorator
 	}
 
 
-	public boolean isEmpty() {
-		return chain.isEmpty();
-	}
-
-
 	public IChain dto(Object dto) {
 		chain.dto(dto);
 		return this;

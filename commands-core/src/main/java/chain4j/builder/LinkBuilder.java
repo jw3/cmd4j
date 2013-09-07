@@ -1,5 +1,6 @@
 package chain4j.builder;
 
+import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 
 import chain4j.ICommand;
@@ -7,6 +8,7 @@ import chain4j.ILink;
 import chain4j.decorator.LinkThreadingDecorator;
 import chain4j.internal.Link;
 
+import com.google.common.collect.Iterators;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -25,11 +27,29 @@ final public class LinkBuilder {
 	private Object dto;
 
 
+	/**
+	 * creates an empty {@link ILink} that can be used anywhere a normal link is used but will not do anything 
+	 * @return
+	 */
+	static ILink empty() {
+		return new EmptyLink();
+	}
+
+
+	/**
+	 * creates a new builder. package private as only the {@link ChainBuilder} should create these
+	 * @param command
+	 */
 	LinkBuilder(final ICommand command) {
 		this.command = command;
 	}
 
 
+	/**
+	 * sets the executor for the link
+	 * @param executor
+	 * @return
+	 */
 	public LinkBuilder executor(final ExecutorService executor) {
 		this.executor = MoreExecutors.listeningDecorator(executor);
 		return this;
@@ -66,5 +86,37 @@ final public class LinkBuilder {
 			return new LinkThreadingDecorator(link, executor);
 		}
 		return link;
+	}
+
+
+	private static class EmptyLink
+		implements ILink {
+
+		public ILink call() {
+			return null;
+		}
+
+
+		public Iterator<ICommand> iterator() {
+			return Iterators.<ICommand> singletonIterator(new ICommand() {
+				public void invoke() {
+				}
+			});
+		}
+
+
+		public ILink next() {
+			return null;
+		}
+
+
+		public Object dto() {
+			return null;
+		}
+
+
+		public ILink dto(Object dto) {
+			return null;
+		}
 	}
 }

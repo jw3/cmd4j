@@ -14,9 +14,6 @@ public interface IChain {
 	ILink head();
 
 
-	boolean isEmpty();
-
-
 	Object dto();
 
 
