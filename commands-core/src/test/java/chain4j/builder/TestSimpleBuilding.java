@@ -7,7 +7,6 @@ import org.testng.annotations.Test;
 
 import chain4j.Say;
 import chain4j.Service;
-import chain4j.builder.ChainBuilder;
 
 /**
  * @author wassj
@@ -16,7 +15,9 @@ import chain4j.builder.ChainBuilder;
 public class TestSimpleBuilding {
 
 	@Test
-	public void firstTest() {
-		ChainBuilder.create(Say.what("hello")).executor(Service.edt.get()).add(Say.what("world")).executor(Service.b.get()).add(Say.what("!")).executor(Service.a.get()).build().run();
+	public void firstTest()
+		throws Exception {
+
+		ChainBuilder.create(Say.what("hello")).executor(Service.edt.get()).add(Say.what("world")).executor(Service.b.get()).add(Say.what("!")).executor(Service.a.get()).build().invoke();
 	}
 }

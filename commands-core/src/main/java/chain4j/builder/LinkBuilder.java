@@ -8,7 +8,6 @@ import chain4j.ILink;
 import chain4j.decorator.LinkThreadingDecorator;
 import chain4j.internal.Link;
 
-import com.google.common.collect.Iterators;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -62,7 +61,7 @@ final public class LinkBuilder {
 	}
 
 
-	public LinkBuilder add(final LinkBuilder builder) {
+	LinkBuilder add(final LinkBuilder builder) {
 		next = builder;
 		return builder.next;
 	}
@@ -98,10 +97,7 @@ final public class LinkBuilder {
 
 
 		public Iterator<ICommand> iterator() {
-			return Iterators.<ICommand> singletonIterator(new ICommand() {
-				public void invoke() {
-				}
-			});
+			return Commands.nopIterator();
 		}
 
 

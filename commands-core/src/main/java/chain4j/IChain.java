@@ -6,16 +6,8 @@ package chain4j;
  * @author wassj
  *
  */
-public interface IChain {
-
-	void run();
-
+public interface IChain
+	extends ICommand2 {
 
 	ILink head();
-
-
-	Object dto();
-
-
-	IChain dto(final Object dto);
 }

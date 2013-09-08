@@ -21,7 +21,6 @@ abstract public class DynamicChain
 	implements IChain, FutureCallback<ILink> {
 
 	private ILink next;
-	private Object dto;
 	private ListeningExecutorService executor;
 
 
@@ -47,7 +46,7 @@ abstract public class DynamicChain
 		this.next(null);
 
 		if (next != null) {
-			this.executeLink(next);
+			this.executeLink(next, next.dto());
 		}
 	}
 
@@ -60,12 +59,20 @@ abstract public class DynamicChain
 	/**
 	 * execute this chain
 	 */
-	final public void run() {
-		this.executeLink(this.head());
+	final public void invoke() {
+		this.invoke(null);
 	}
 
 
-	private void executeLink(final ILink link) {
+	/**
+	 * execute this chain
+	 */
+	final public void invoke(final Object dto) {
+		this.executeLink(this.head(), dto);
+	}
+
+
+	private void executeLink(final ILink link, final Object dto) {
 		final ICommand command = link.iterator().next();
 		if (command instanceof ICommand2) {
 			link.dto(dto);

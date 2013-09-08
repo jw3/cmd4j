@@ -4,7 +4,6 @@ import org.testng.annotations.Test;
 
 import chain4j.Say;
 import chain4j.Service;
-import chain4j.builder.ChainBuilder;
 
 /**
  * @author wassj
@@ -14,8 +13,8 @@ public class TestLinkSubBuilder {
 
 	@Test
 	public void test()
-		throws InterruptedException {
-		ChainBuilder.create(Say.what(1)).add(Say.what("...")).executor(Service.a.get()).add(Say.what(2)).build().dto("mississippi").run();
+		throws Exception {
+		ChainBuilder.create(Say.what(1)).add(Say.what("...")).executor(Service.a.get()).add(Say.what(2)).build().invoke("mississippi");
 		System.out.println("done");
 	}
 }

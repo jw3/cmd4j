@@ -2,9 +2,6 @@ package chain4j.fsm;
 
 import org.testng.annotations.Test;
 
-import chain4j.fsm.State;
-import chain4j.fsm.StateMachine;
-
 /**
  *
  *
@@ -28,6 +25,6 @@ public class StateMachineTest {
 		};
 		final StateMachine m = new StateMachine();
 		m.setStart(print);
-		m.run();
+		m.invoke();
 	}
 }

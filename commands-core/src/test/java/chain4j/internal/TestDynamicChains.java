@@ -6,7 +6,6 @@ import org.testng.annotations.Test;
 import chain4j.ICommand;
 import chain4j.ILink;
 import chain4j.builder.Links;
-import chain4j.internal.DynamicChain;
 
 /**
  * Basic tests of {@link DynamicChain} chain flow
@@ -28,7 +27,7 @@ public class TestDynamicChains {
 			}
 
 			final Fsm fsm = new Fsm(i);
-			fsm.run();
+			fsm.invoke();
 			Thread.sleep(100);
 			Assert.assertEquals(fsm.buffer.toString(), expected.toString());
 			System.out.println(fsm.buffer.toString());

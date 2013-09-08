@@ -73,7 +73,15 @@ final public class ChainBuilder {
 	 * @return
 	 */
 	public ChainBuilder add(final ICommand command) {
-		if (command != null) {
+		if (command == null) {
+			throw new IllegalArgumentException("command cannot be null");
+		}
+
+		// if created with the noarg create() method it will need initd on the first add
+		if (head == null) {
+			this.init(new LinkBuilder(command));
+		}
+		else {
 			tail = tail != null ? tail.add(command) : new LinkBuilder(command);
 		}
 		return this;
@@ -160,12 +168,17 @@ final public class ChainBuilder {
 				tail.add(finallys);
 			}
 			return new AbstractChain(head.build()) {
-				public void run() {
-					Linker.begin(this.head(), this.dto());
+				public void invoke() {
+					this.invoke(null);
+				}
+
+
+				public void invoke(final Object dto) {
+					Linker.begin(this.head(), dto);
 				}
 			};
 		}
-		return new EmptyChain();
+		return ChainBuilder.empty();
 	}
 
 
@@ -183,8 +196,11 @@ final public class ChainBuilder {
 		}
 
 
-		public void run() {
-			System.out.println("executed empty chain");
+		public void invoke() {
+		}
+
+
+		public void invoke(Object dto) {
 		}
 	}
 }

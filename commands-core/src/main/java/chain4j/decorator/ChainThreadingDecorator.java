@@ -55,13 +55,12 @@ public class ChainThreadingDecorator
 	}
 
 
-	public void run() {
-		Linker.begin(chain.head(), chain.dto(), this.executor());
+	public void invoke() {
+		this.invoke(null);
 	}
 
 
-	public IChain dto(Object dto) {
-		chain.dto(dto);
-		return this;
+	public void invoke(Object dto) {
+		Linker.begin(chain.head(), dto, this.executor());
 	}
 }

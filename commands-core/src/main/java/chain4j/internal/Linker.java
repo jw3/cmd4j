@@ -74,7 +74,6 @@ public class Linker
 		if (command instanceof ICommand2) {
 			link.dto(dto);
 		}
-		System.out.println("submit to " + this.executorOf(link));
 		Futures.addCallback(this.executorOf(link).submit(link), this);
 	}
 
