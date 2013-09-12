@@ -7,7 +7,7 @@ package chain4j;
  *
  */
 public interface IChain
-	extends ICommand2 {
+	extends ICommand2<Object> {
 
 	ILink head();
 }

@@ -11,9 +11,9 @@ package chain4j;
  * @author wassj
  *
  */
-public interface ICommand2
+public interface ICommand2<T>
 	extends ICommand {
 
-	void invoke(Object dto)
+	void invoke(T dto)
 		throws Exception;
 }
