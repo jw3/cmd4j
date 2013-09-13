@@ -26,8 +26,10 @@ public class ChainedChainsTest {
 			//
 			.add(chain2)
 			//
-			.buildUnthreaded()
+			.build()
 			//
 			.invoke("mississippi");
+
+		System.out.println("done");
 	}
 }

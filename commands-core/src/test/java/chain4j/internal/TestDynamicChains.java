@@ -28,7 +28,7 @@ public class TestDynamicChains {
 
 			final Fsm fsm = new Fsm(i);
 			fsm.invoke();
-			Thread.sleep(100);
+
 			Assert.assertEquals(fsm.buffer.toString(), expected.toString());
 			System.out.println(fsm.buffer.toString());
 		}

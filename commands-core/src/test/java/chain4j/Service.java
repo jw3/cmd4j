@@ -59,4 +59,9 @@ public enum Service {
 			t.executor.shutdownNow();
 		}
 	}
+
+
+	public static ExecutorService wrap(final ThreadFactory factory) {
+		return Executors.newSingleThreadExecutor(factory);
+	}
 }

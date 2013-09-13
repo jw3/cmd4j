@@ -2,7 +2,7 @@ package chain4j;
 
 import javax.swing.SwingUtilities;
 
-import junit.framework.Assert;
+import org.testng.Assert;
 
 /**
  * Utility factory class for making assertions about what thread a given point in a chain is executing on
@@ -39,7 +39,7 @@ public class AssertThread
 	public static AssertThread isEDT() {
 		return new AssertThread() {
 			public void invoke() {
-				Assert.assertTrue("expected to be run on EDT, was run on " + Thread.currentThread().getName(), SwingUtilities.isEventDispatchThread());
+				Assert.assertTrue(SwingUtilities.isEventDispatchThread(), "expected to be run on EDT, was run on " + Thread.currentThread().getName());
 			}
 		};
 	}
@@ -52,17 +52,21 @@ public class AssertThread
 		throws Exception {
 
 		final Thread current = Thread.currentThread();
-		Assert.assertEquals(expected.getId(), current.getId());
+		Assert.assertEquals(this.getExpected().getId(), current.getId());
 	}
 
 
-	private AssertThread() {
+	AssertThread() {
 		this.expected = null;
 	}
 
 
-	private AssertThread(final Thread thread) {
+	AssertThread(final Thread thread) {
 		this.expected = thread;
 	}
 
+
+	public Thread getExpected() {
+		return expected;
+	}
 }
