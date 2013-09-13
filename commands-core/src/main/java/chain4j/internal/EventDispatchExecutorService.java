@@ -55,7 +55,18 @@ public final class EventDispatchExecutorService
 
 	public void execute(Runnable command) {
 		try {
-			SwingUtilities.invokeAndWait(command);
+			if (SwingUtilities.isEventDispatchThread()) {
+				/*
+				 * the safest thing to do here is to run the command and return.  on the surface it might not appear to be fair
+				 * to run the command without scheduling it with the EventQueue, but it is. the whole reason we got this time (right now) 
+				 * on the EDT was to run the command, it doesnt make sense to give up our position by scheduling it at the end of the queue.
+				 * besides like i mentioned it is not inherently safe to schedule from here.
+				 */
+				command.run();
+			}
+			else {
+				SwingUtilities.invokeAndWait(command);
+			}
 		}
 		catch (Throwable e) {
 			// we shouldnt get errors here as we handle them all within the chains
