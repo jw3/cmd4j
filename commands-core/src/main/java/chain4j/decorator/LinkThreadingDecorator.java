@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutorService;
 
 import chain4j.ICommand;
 import chain4j.ILink;
-import chain4j.IThreaded;
+import chain4j.common.IThreaded;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 
