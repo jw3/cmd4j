@@ -6,7 +6,7 @@
 	<name>Commands Core</name>
 	<groupId>command4j</groupId>
 	<artifactId>commands-core</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.3-SNAPSHOT</version>
 
 	<dependencies>
 		<dependency>
