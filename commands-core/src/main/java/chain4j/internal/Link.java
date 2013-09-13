@@ -52,9 +52,7 @@ public class Link
 
 
 	public Link dto(final Object dto) {
-		if (command instanceof ICommand2) {
-			this.dto = dto;
-		}
+		this.dto = dto;
 		return this;
 	}
 
@@ -75,21 +73,21 @@ public class Link
 	public ILink call()
 		throws Exception {
 
-		try {
-			if (dto != null) {
-				((ICommand2)command).invoke(dto);
-			}
-			else {
-				command.invoke();
-			}
-			return next();
+		//		try {
+		if (command instanceof ICommand2) {
+			((ICommand2)command).invoke(dto);
 		}
-		catch (Exception e) {
-			if (failsafe) {
-				return next();
-			}
-			throw e;
+		else {
+			command.invoke();
 		}
+		return next();
+		//		}
+		//		catch (Exception e) {
+		//			if (failsafe) {
+		//				return next();
+		//			}
+		//			throw e;
+		//		}
 	}
 
 

@@ -3,7 +3,7 @@ package chain4j.decorator;
 import java.util.concurrent.ExecutorService;
 
 import chain4j.IChain;
-import chain4j.IThreaded;
+import chain4j.common.IThreaded;
 import chain4j.internal.AbstractChain;
 import chain4j.internal.Linker;
 
@@ -21,7 +21,6 @@ public class ChainThreadingDecorator
 	implements IChain, IThreaded {
 
 	private final IChain chain;
-	private final boolean unthreaded;
 	private ListeningExecutorService executor;
 
 
@@ -32,8 +31,7 @@ public class ChainThreadingDecorator
 	public ChainThreadingDecorator(final IChain chain, final ExecutorService executor) {
 		super(chain.head());
 		this.chain = chain;
-		this.unthreaded = executor == null;
-		this.executor = !this.unthreaded ? MoreExecutors.listeningDecorator(executor) : null;
+		this.executor = MoreExecutors.listeningDecorator(executor);
 	}
 
 
@@ -45,22 +43,16 @@ public class ChainThreadingDecorator
 	}
 
 
-	//	public ChainThreadingDecorator executor(final ExecutorService executor) {
-	//		this.executor = MoreExecutors.listeningDecorator(executor);
-	//		return this;
-	//	}
+	public void invoke()
+		throws Exception {
 
-	public boolean isUnthreaded() {
-		return unthreaded;
-	}
-
-
-	public void invoke() {
 		this.invoke(null);
 	}
 
 
-	public void invoke(Object dto) {
-		Linker.begin(chain.head(), dto, this.executor());
+	public void invoke(Object dto)
+		throws Exception {
+
+		this.executor.submit(Linker.create(chain.head(), dto)).get();
 	}
 }

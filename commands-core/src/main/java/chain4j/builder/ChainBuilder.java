@@ -9,6 +9,8 @@ import chain4j.decorator.ChainThreadingDecorator;
 import chain4j.internal.AbstractChain;
 import chain4j.internal.Linker;
 
+import com.google.common.util.concurrent.MoreExecutors;
+
 /**
  * Builder pattern implementation for creating {@link IChain} objects
  * 
@@ -148,11 +150,13 @@ final public class ChainBuilder {
 
 
 	/**
-	 * pass null to specify unthreaded execution
 	 * @param executor
 	 * @return
 	 */
 	public IChain build(final ExecutorService executor) {
+		if (executor == null) {
+			throw new IllegalArgumentException("executor cannot be null");
+		}
 		return new ChainThreadingDecorator(this.buildImpl(), executor);
 	}
 
@@ -168,13 +172,18 @@ final public class ChainBuilder {
 				tail.add(finallys);
 			}
 			return new AbstractChain(head.build()) {
-				public void invoke() {
+				public void invoke()
+					throws Exception {
+
 					this.invoke(null);
 				}
 
 
-				public void invoke(final Object dto) {
-					Linker.begin(this.head(), dto);
+				public void invoke(final Object dto)
+					throws Exception {
+
+					final Linker linker = Linker.unthreaded(this.head(), dto);
+					MoreExecutors.sameThreadExecutor().submit(linker).get();
 				}
 			};
 		}

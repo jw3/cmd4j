@@ -1,4 +1,4 @@
-package chain4j;
+package chain4j.common;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 

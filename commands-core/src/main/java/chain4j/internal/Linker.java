@@ -1,15 +1,15 @@
 package chain4j.internal;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
 import chain4j.IChain;
 import chain4j.ICommand;
 import chain4j.ICommand2;
 import chain4j.ILink;
-import chain4j.IThreaded;
+import chain4j.common.IThreaded;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -21,60 +21,52 @@ import com.google.common.util.concurrent.MoreExecutors;
  *
  */
 public class Linker
-	implements FutureCallback<ILink> {
+	implements Callable<Void> {
 
 	private final Object dto;
+	private final ILink head;
 	private final boolean unthreaded;
-	private final ListeningExecutorService executor;
+	private final ListeningExecutorService executor = MoreExecutors.sameThreadExecutor();//MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
 
 
-	public static void begin(final ILink link, final Object dto) {
-		new Linker(dto, null).execute(link);
+	public static Linker create(final ILink head, final Object dto)
+		throws Exception {
+
+		return new Linker(head, dto, false);
 	}
 
 
-	/**
-	 * begin executing a link using the specified executor service
-	 * @param link
-	 * @param dto
-	 * @param executor the default {@link ExecutorService} to use if the curent {@link ILink} is not {@link IThreaded}.  Pass null to specify unthreaded execution. 
-	 */
-	public static void begin(final ILink link, final Object dto, final ExecutorService executor) {
-		new Linker(dto, executor).execute(link);
+	public static Linker unthreaded(final ILink head, final Object dto)
+		throws Exception {
+
+		return new Linker(head, dto, true);
 	}
 
 
-	private Linker(final Object dto, final ExecutorService executor) {
+	private Linker(final ILink head, final Object dto, final boolean unthreaded) {
+		this.head = head;
 		this.dto = dto;
-		this.unthreaded = executor == null;
-		this.executor = !this.unthreaded ? MoreExecutors.listeningDecorator(executor) : MoreExecutors.sameThreadExecutor();
+		this.unthreaded = unthreaded;
 	}
 
 
-	/**
-	 * {@link FutureCallback} failure handler
-	 */
-	final public void onFailure(final Throwable t) {
-		t.printStackTrace();
-	}
+	public Void call()
+		throws Exception {
 
-
-	/**
-	 * {@link FutureCallback} success handler
-	 */
-	final public void onSuccess(final ILink next) {
-		if (next != null) {
-			this.execute(next);
-		}
-	}
-
-
-	private void execute(final ILink link) {
-		final ICommand command = link.iterator().next();
+		final ICommand command = head.iterator().next();
 		if (command instanceof ICommand2) {
-			link.dto(dto);
+			head.dto(dto);
 		}
-		Futures.addCallback(this.executorOf(link).submit(link), this);
+		ILink next = head;
+		while (next != null) {
+			final ListeningExecutorService executor = this.executorOf(next);
+			final ListenableFuture<ILink> future = executor.submit(next);
+			//			if (next instanceof FutureCallback<?>) {
+			//				Futures.addCallback(future, (FutureCallback<ILink>)next);
+			//			}
+			next = future.get();
+		}
+		return null;
 	}
 
 
