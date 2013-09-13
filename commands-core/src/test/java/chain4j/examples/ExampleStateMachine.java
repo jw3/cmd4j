@@ -11,12 +11,12 @@ import chain4j.fsm.StateMachine;
  * @author wassj
  *
  */
-public class ExampleFiniteStateMachine
+public class ExampleStateMachine
 	extends StateMachine {
 
 	@Test
 	public void test() {
-		new ExampleFiniteStateMachine().invoke();
+		new ExampleStateMachine().invoke();
 	}
 
 	/*
@@ -28,7 +28,7 @@ public class ExampleFiniteStateMachine
 	private long count;
 
 
-	public ExampleFiniteStateMachine() {
+	public ExampleStateMachine() {
 		this.setStart(configure);
 	}
 

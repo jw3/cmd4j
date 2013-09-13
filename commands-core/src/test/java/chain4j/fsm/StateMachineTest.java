@@ -27,4 +27,16 @@ public class StateMachineTest {
 		m.setStart(print);
 		m.invoke();
 	}
+
+
+	public void executePath() {
+	}
+
+
+	public void executionAbortedDueToException() {
+	}
+
+
+	public void executePathIgnoringException() {
+	}
 }
