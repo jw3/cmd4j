@@ -1,5 +1,6 @@
 package chain4j.fsm;
 
+import chain4j.ILink;
 import chain4j.internal.Link;
 
 /**
@@ -16,7 +17,7 @@ abstract public class State
 	}
 
 
-	final public Link call()
+	final public ILink call()
 		throws Exception {
 
 		return run(this.dto());
@@ -26,6 +27,6 @@ abstract public class State
 	/**
 	 * provide the code to be executed by this state
 	 */
-	abstract public State run(Object dto)
+	abstract public ILink run(Object dto)
 		throws Exception;
 }
