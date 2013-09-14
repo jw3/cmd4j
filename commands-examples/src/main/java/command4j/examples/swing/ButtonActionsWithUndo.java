@@ -13,7 +13,13 @@ import javax.swing.JPanel;
 
 import chain4j.IChain;
 import chain4j.ICommand;
+import chain4j.ILink;
 import chain4j.builder.ChainBuilder;
+import chain4j.builder.Links;
+import chain4j.fsm.State;
+import chain4j.fsm.StateMachine;
+
+import command4j.swing.event.ChainAction;
 
 /**
  *
@@ -33,14 +39,7 @@ public class ButtonActionsWithUndo {
 		buttons.add(createColorButton(Color.red, panel));
 		buttons.add(createColorButton(Color.green, panel));
 		buttons.add(createColorButton(Color.blue, panel));
-		buttons.add(new JButton(new AbstractAction("undo") {
-			public void actionPerformed(ActionEvent e) {
-				if (!undo.isEmpty()) {
-					final IChain chain = undo.pop();
-					//// revisit fill in undo
-				}
-			}
-		}));
+		buttons.add(new JButton(ChainAction.create(new UndoChain()).setValue(ChainAction.NAME, "undo")));
 
 		final JFrame frame = Examples.createFrame();
 		frame.add(panel, BorderLayout.CENTER);
@@ -95,5 +94,26 @@ public class ButtonActionsWithUndo {
 		public void invoke() {
 			target.setBackground(color);
 		}
+	}
+
+
+	/*
+	 * simple implementation of a state machine that pops and executes a chain from the undo stack
+	 */
+	private static class UndoChain
+		extends StateMachine {
+
+		public UndoChain() {
+			setStart(start);
+		}
+
+		private final ILink start = new State() {
+			public ILink run(Object dto) {
+				if (!undo.isEmpty()) {
+					return Links.create(undo.pop());
+				}
+				return null;
+			};
+		};
 	}
 }

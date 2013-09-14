@@ -2,11 +2,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<name>Command Examples</name>
-	<description>examples</description>
+	<name>Command4j Swing Components</name>
+	<description>Swing Utilities</description>
 
 	<groupId>command4j</groupId>
-	<artifactId>command4j-examples</artifactId>
+	<artifactId>commands-swing</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
 	<dependencies>
@@ -14,11 +14,6 @@
 			<groupId>command4j</groupId>
 			<artifactId>commands-core</artifactId>
 			<version>0.0.3-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>command4j</groupId>
-			<artifactId>commands-swing</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
