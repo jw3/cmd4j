@@ -29,17 +29,18 @@ public class Linker
 	private final ListeningExecutorService executor = MoreExecutors.sameThreadExecutor();//MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
 
 
-	public static Linker create(final ILink head, final Object dto)
-		throws Exception {
-
+	public static Linker create(final ILink head, final Object dto) {
 		return new Linker(head, dto, false);
 	}
 
 
-	public static Linker unthreaded(final ILink head, final Object dto)
-		throws Exception {
-
+	public static Linker unthreaded(final ILink head, final Object dto) {
 		return new Linker(head, dto, true);
+	}
+
+
+	public static Linker undo(final ILink head, final Object dto) {
+		return new UndoLinker(head, dto, false);
 	}
 
 
@@ -59,14 +60,21 @@ public class Linker
 		}
 		ILink next = head;
 		while (next != null) {
-			final ListeningExecutorService executor = this.executorOf(next);
-			final ListenableFuture<ILink> future = executor.submit(next);
-			//			if (next instanceof FutureCallback<?>) {
-			//				Futures.addCallback(future, (FutureCallback<ILink>)next);
-			//			}
-			next = future.get();
+			next = callImpl(next);
 		}
 		return null;
+	}
+
+
+	protected ILink callImpl(final ILink link)
+		throws Exception {
+
+		final ListeningExecutorService executor = this.executorOf(link);
+		final ListenableFuture<ILink> future = executor.submit(link);
+		//			if (next instanceof FutureCallback<?>) {
+		//				Futures.addCallback(future, (FutureCallback<ILink>)next);
+		//			}
+		return future.get();
 	}
 
 
@@ -76,5 +84,21 @@ public class Linker
 			return threaded.executor() != null ? threaded.executor() : executor;
 		}
 		return executor;
+	}
+
+
+	private static class UndoLinker
+		extends Linker {
+
+		private UndoLinker(final ILink head, final Object dto, final boolean unthreaded) {
+			super(head, dto, unthreaded);
+		}
+
+
+		protected ILink callImpl(ILink link)
+			throws Exception {
+
+			return super.callImpl(LinkUndoDecorator.decorate(link));
+		}
 	}
 }
