@@ -1,7 +1,7 @@
 package chain4j.common;
 
 /**
- * Test the {@link ILinkListener} functionality
+ * Test the {@link IDoneListener} functionality
  *
  * @author wassj
  *

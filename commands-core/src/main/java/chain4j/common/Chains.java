@@ -22,21 +22,32 @@ import com.google.common.util.concurrent.MoreExecutors;
 public enum Chains {
 	/*singleton-enum*/;
 
+	/**
+	 * create a {@link IChain} that contains the given {@link ICommand}
+	 * @param command
+	 * @return {@link IChain}
+	 */
 	public static IChain create(final ICommand command) {
-		return builder(command).build();
+		return ChainBuilder.create(command).build();
 	}
 
 
-	public static ChainBuilder builder(final ICommand command) {
-		return ChainBuilder.create(command);
-	}
-
-
+	/**
+	 * specify that the {@link IChain} will run on the given {@link ExecutorService}
+	 * @param chain
+	 * @param executor
+	 * @return
+	 */
 	public static IChain makeThreaded(final IChain chain, final ExecutorService executor) {
 		return new ChainThreadingDecorator(chain, executor);
 	}
 
 
+	/**
+	 * add undo support to a {@link IChain}
+	 * @param chain
+	 * @return
+	 */
 	public static IChain makeUndoable(IChain chain) {
 		return new UndoChainDecorator(chain);
 	}
@@ -67,8 +78,7 @@ public enum Chains {
 
 
 	/**
-	 * 
-	 *
+	 * Decorator that provides undo capabiltiy for an {@link IChain}
 	 *
 	 * @author wassj
 	 *
@@ -84,6 +94,9 @@ public enum Chains {
 		}
 
 
+		/**
+		 * override the call to the Linker invoking the undo method
+		 */
 		public void invoke(Object dto)
 			throws Exception {
 

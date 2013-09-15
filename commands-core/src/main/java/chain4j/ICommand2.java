@@ -1,12 +1,10 @@
 package chain4j;
 
 /**
- * @note consider that which invoke version the {@link ILink} calls would be based on the state of two things
- *   1) the dto nullity: if dto is null the noarg {@link ICommand#invoke()} will be called, if non null {@link ICommand2#invoke(Object)} will be called
- *   2) << REVISIT i think this has to do with the dto fitting into the param type of the invoke method >>
+ * An {@link ICommand} implementation that supports having a Data Transfer Object (dto) passed in at execution time.
+ * The containing {@link ILink} is responsible for providing the dto to the command at the time it is invoked.
  * 
- * @note also considering typing this and using an abstract class which extends {@link ICommand}
- * this would allow for reflective type inspection, but would be a burden for implementors by not having an interface for dao use
+ * The dto may or may not be null, there is no guarantee provided in that regard.
  * 
  * @author wassj
  *
@@ -14,6 +12,11 @@ package chain4j;
 public interface ICommand2<T>
 	extends ICommand {
 
+	/**
+	 * invoke this command
+	 * @param dto Data Transfer Object
+	 * @throws Exception
+	 */
 	void invoke(T dto)
 		throws Exception;
 }

@@ -45,7 +45,7 @@ public enum Links {
 	}
 
 
-	public static ILink handleCompletion(final ILink link, final ILinkListener listener) {
+	public static ILink handleCompletion(final ILink link, final IDoneListener listener) {
 		return new LinkCallbackDecorator(link, listener);
 	}
 
@@ -100,10 +100,10 @@ public enum Links {
 		implements ILink, FutureCallback<ILink> {
 
 		private final ILink link;
-		private final ILinkListener listener;
+		private final IDoneListener listener;
 
 
-		public LinkCallbackDecorator(final ILink link, final ILinkListener listener) {
+		public LinkCallbackDecorator(final ILink link, final IDoneListener listener) {
 			this.link = link;
 			this.listener = listener;
 		}
