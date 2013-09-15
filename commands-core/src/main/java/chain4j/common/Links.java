@@ -91,13 +91,6 @@ public enum Links {
 		public ILink dto(Object dto) {
 			return link.dto(dto);
 		}
-
-
-		public ILink call()
-			throws Exception {
-
-			return link.call();
-		}
 	}
 
 
@@ -127,13 +120,6 @@ public enum Links {
 
 		public void onFailure(Throwable t) {
 			completionHandler.onFailure(t);
-		}
-
-
-		public ILink call()
-			throws Exception {
-
-			return link.call();
 		}
 
 

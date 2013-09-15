@@ -5,7 +5,9 @@ import java.util.concurrent.ExecutorService;
 
 import chain4j.IChain;
 import chain4j.ICommand;
+import chain4j.ICommand1;
 import chain4j.ICommand2;
+import chain4j.ICommand3;
 import chain4j.ILink;
 import chain4j.common.ICommandUndo;
 import chain4j.common.IThreaded;
@@ -71,11 +73,16 @@ public class Linker
 		throws Exception {
 
 		final ListeningExecutorService executor = this.executorOf(link);
-		final ListenableFuture<ILink> future = executor.submit(link);
+		final ListenableFuture<ILink> future = executor.submit(this.toCallable(link));
 		//			if (next instanceof FutureCallback<?>) {
 		//				Futures.addCallback(future, (FutureCallback<ILink>)next);
 		//			}
 		return future.get();
+	}
+
+
+	protected Callable<ILink> toCallable(final ILink link) {
+		return CallableLinkDecorator.decorate(link);
 	}
 
 
@@ -88,6 +95,12 @@ public class Linker
 	}
 
 
+	/**
+	 *
+	 *
+	 * @author wassj
+	 *
+	 */
 	private static class UndoLinker
 		extends Linker {
 
@@ -96,11 +109,57 @@ public class Linker
 		}
 
 
-		protected ILink callImpl(ILink link)
+		@Override
+		protected Callable<ILink> toCallable(ILink link) {
+			return LinkUndoDecorator.decorate(link);
+		}
+	}
+
+
+	/**
+	 * Defer the callable implementation until execution time
+	 * when it is installed by this decorator.
+	 *
+	 * @author wassj
+	 *
+	 */
+	private static class CallableLinkDecorator
+		implements Callable<ILink> {
+
+		private final ILink link;
+
+
+		public static Callable<ILink> decorate(ILink link) {
+			return new CallableLinkDecorator(link);
+		}
+
+
+		private CallableLinkDecorator(final ILink link) {
+			this.link = link;
+		}
+
+
+		/**
+		 * Execute the {@link ICommand} and return the next link
+		 */
+		public ILink call()
 			throws Exception {
 
-			return super.callImpl(LinkUndoDecorator.decorate(link));
+			//		try {
+			ICommand command = link.cmd();
+			while (command != null) {
+				command = invokeCommand(command, link.dto());
+			}
+			return link.next();
+			//		}
+			//		catch (Exception e) {
+			//			if (failsafe) {
+			//				return next();
+			//			}
+			//			throw e;
+			//		}
 		}
+
 	}
 
 
@@ -111,12 +170,12 @@ public class Linker
 	 *
 	 */
 	private static class LinkUndoDecorator
-		implements ILink {
+		implements Callable<ILink> {
 
 		private final ILink link;
 
 
-		public static ILink decorate(ILink link) {
+		public static LinkUndoDecorator decorate(ILink link) {
 			return new LinkUndoDecorator(link);
 		}
 
@@ -135,31 +194,33 @@ public class Linker
 			}
 			else {
 				while (command != null) {
-					command = Link.invokeCommand(command, dto());
+					command = invokeCommand(command, link.dto());
 				}
 			}
-			return next();
-		}
-
-
-		public ILink next() {
 			return link.next();
 		}
+	}
 
 
-		public Object dto() {
-			return link.dto();
+	/**
+	 * util for executing and handling any return value from a given {@link ICommand}
+	 * @param command
+	 * @param dto
+	 * @return
+	 * @throws Exception
+	 */
+	static ICommand invokeCommand(final ICommand command, final Object dto)
+		throws Exception {
+
+		if (command instanceof ICommand3) {
+			return ((ICommand3)command).invoke(dto);
 		}
-
-
-		public ICommand cmd() {
-			return link.cmd();
+		else if (command instanceof ICommand2) {
+			((ICommand2)command).invoke(dto);
 		}
-
-
-		public ILink dto(Object dto) {
-			link.dto(dto);
-			return this;
+		else if (command instanceof ICommand1) {
+			((ICommand1)command).invoke();
 		}
+		return null;
 	}
 }
