@@ -1,6 +1,5 @@
 package chain4j.internal;
 
-import java.util.Iterator;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -56,7 +55,7 @@ public class Linker
 	public Void call()
 		throws Exception {
 
-		final ICommand command = head.iterator().next();
+		final ICommand command = head.cmd();
 		if (command instanceof ICommand2) {
 			head.dto(dto);
 		}
@@ -130,7 +129,7 @@ public class Linker
 		public ILink call()
 			throws Exception {
 
-			ICommand command = link.iterator().next();
+			ICommand command = link.cmd();
 			if (command instanceof ICommandUndo) {
 				((ICommandUndo)command).undo();
 			}
@@ -143,11 +142,6 @@ public class Linker
 		}
 
 
-		public Iterator<ICommand> iterator() {
-			return link.iterator();
-		}
-
-
 		public ILink next() {
 			return link.next();
 		}
@@ -155,6 +149,11 @@ public class Linker
 
 		public Object dto() {
 			return link.dto();
+		}
+
+
+		public ICommand cmd() {
+			return link.cmd();
 		}
 
 

@@ -1,11 +1,9 @@
 package chain4j.builder;
 
-import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 
 import chain4j.ICommand;
 import chain4j.ILink;
-import chain4j.common.Commands;
 import chain4j.common.Links;
 import chain4j.internal.Link;
 
@@ -97,17 +95,17 @@ final public class LinkBuilder {
 		}
 
 
-		public Iterator<ICommand> iterator() {
-			return Commands.nopIterator();
-		}
-
-
 		public ILink next() {
 			return null;
 		}
 
 
 		public Object dto() {
+			return null;
+		}
+
+
+		public ICommand cmd() {
 			return null;
 		}
 

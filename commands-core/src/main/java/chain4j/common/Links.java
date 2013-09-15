@@ -1,6 +1,5 @@
 package chain4j.common;
 
-import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 
 import chain4j.ICommand;
@@ -79,6 +78,11 @@ public enum Links {
 		}
 
 
+		public ICommand cmd() {
+			return link.cmd();
+		}
+
+
 		public Object dto() {
 			return link.dto();
 		}
@@ -93,11 +97,6 @@ public enum Links {
 			throws Exception {
 
 			return link.call();
-		}
-
-
-		public Iterator<ICommand> iterator() {
-			return link.iterator();
 		}
 	}
 
@@ -138,13 +137,13 @@ public enum Links {
 		}
 
 
-		public Iterator<ICommand> iterator() {
-			return link.iterator();
+		public ILink next() {
+			return link.next();
 		}
 
 
-		public ILink next() {
-			return link.next();
+		public ICommand cmd() {
+			return link.cmd();
 		}
 
 

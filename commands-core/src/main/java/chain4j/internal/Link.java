@@ -59,6 +59,11 @@ public class Link
 	}
 
 
+	public ICommand cmd() {
+		return command;
+	}
+
+
 	public ILink next() {
 		return next;
 	}

@@ -3,6 +3,7 @@ package chain4j.common;
 import java.util.Iterator;
 
 import chain4j.ICommand;
+import chain4j.ICommand1;
 import chain4j.ICommand2;
 import chain4j.ILink;
 
@@ -26,7 +27,7 @@ public enum Commands {
 
 
 	public static ICommand nop() {
-		return new ICommand() {
+		return new ICommand1() {
 			public void invoke() {
 			}
 		};
@@ -35,10 +36,6 @@ public enum Commands {
 
 	public static ICommand nop2() {
 		return new ICommand2() {
-			public void invoke() {
-			}
-
-
 			public void invoke(Object dto) {
 			}
 		};

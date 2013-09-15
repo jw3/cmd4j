@@ -9,12 +9,15 @@ import java.util.concurrent.Callable;
  *
  */
 public interface ILink
-	extends Callable<ILink>, Iterable<ICommand> {
+	extends Callable<ILink> {
 
 	ILink next();
 
 
 	Object dto();
+
+
+	ICommand cmd();
 
 
 	ILink dto(final Object dto);
