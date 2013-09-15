@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 import chain4j.IChain;
 import chain4j.Say;
 import chain4j.Service;
-import chain4j.builder.ChainBuilder;
+import chain4j.common.ChainBuilder;
 
 /**
  * Here is an example of blocking the calling thread but not actually blocking the calling thread

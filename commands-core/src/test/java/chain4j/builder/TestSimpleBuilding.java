@@ -7,6 +7,7 @@ import org.testng.annotations.Test;
 
 import chain4j.Say;
 import chain4j.Service;
+import chain4j.common.ChainBuilder;
 
 /**
  * @author wassj

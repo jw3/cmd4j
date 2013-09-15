@@ -4,6 +4,7 @@ import org.testng.annotations.Test;
 
 import chain4j.AssertThread;
 import chain4j.Service;
+import chain4j.common.ChainBuilder;
 
 import com.google.common.util.concurrent.MoreExecutors;
 

@@ -6,6 +6,7 @@ import org.testng.annotations.Test;
 
 import chain4j.AssertThread;
 import chain4j.Service;
+import chain4j.common.ChainBuilder;
 
 /**
  * A test of the scenarios when we will block the calling thread

@@ -1,11 +1,10 @@
-package chain4j.builder;
+package chain4j.common;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import chain4j.IChain;
 import chain4j.ICommand;
-import chain4j.common.Chains;
 import chain4j.internal.AbstractChain;
 import chain4j.internal.Linker;
 

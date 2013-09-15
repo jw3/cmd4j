@@ -14,10 +14,9 @@ import chain4j.IChain;
 import chain4j.ICommand;
 import chain4j.ICommand1;
 import chain4j.ICommand3;
-import chain4j.builder.ChainBuilder;
+import chain4j.common.ChainBuilder;
 import chain4j.common.Chains;
 import chain4j.common.IUndo;
-
 import command4j.swing.event.ChainAction;
 
 /**

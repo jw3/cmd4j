@@ -11,7 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import chain4j.ICommand;
-import chain4j.builder.ChainBuilder;
+import chain4j.common.ChainBuilder;
 
 /**
  * A basic example to show how to tie commands into a JButton action listener

@@ -1,10 +1,9 @@
-package chain4j.builder;
+package chain4j.common;
 
 import java.util.concurrent.ExecutorService;
 
 import chain4j.ICommand;
 import chain4j.ILink;
-import chain4j.common.Links;
 import chain4j.internal.Link;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -38,7 +37,7 @@ final public class LinkBuilder {
 	 * creates a new builder. package private as only the {@link ChainBuilder} should create these
 	 * @param command
 	 */
-	public LinkBuilder(final ICommand command) {
+	LinkBuilder(final ICommand command) {
 		this.command = command;
 	}
 
@@ -78,7 +77,7 @@ final public class LinkBuilder {
 	}
 
 
-	public ILink build() {
+	ILink build() {
 		final ILink link = new Link(command, next != null ? next.build() : null).dto(dto);
 		if (executor != null) {
 			return Links.makeThreaded(link, executor);
@@ -89,11 +88,6 @@ final public class LinkBuilder {
 
 	private static class EmptyLink
 		implements ILink {
-
-		public ILink call() {
-			return null;
-		}
-
 
 		public ILink next() {
 			return null;
@@ -106,11 +100,6 @@ final public class LinkBuilder {
 
 
 		public ICommand cmd() {
-			return null;
-		}
-
-
-		public ILink dto(Object dto) {
 			return null;
 		}
 	}

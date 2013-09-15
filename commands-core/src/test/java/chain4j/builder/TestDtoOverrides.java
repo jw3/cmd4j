@@ -3,6 +3,7 @@ package chain4j.builder;
 import org.testng.annotations.Test;
 
 import chain4j.Say;
+import chain4j.common.ChainBuilder;
 
 /**
  * Test the function of specifying a DTO for a link while the chain has a different DTO specified.

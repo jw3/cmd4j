@@ -4,7 +4,6 @@ import java.util.concurrent.ExecutorService;
 
 import chain4j.ICommand;
 import chain4j.ILink;
-import chain4j.builder.LinkBuilder;
 import chain4j.internal.Link;
 import chain4j.internal.Linker;
 import chain4j.internal.Linker.IThreaded;
