@@ -5,18 +5,18 @@
 	<name>Command Examples</name>
 	<description>examples</description>
 
-	<groupId>command4j</groupId>
-	<artifactId>command4j-examples</artifactId>
+	<groupId>cmd4j</groupId>
+	<artifactId>commands-examples</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
 	<dependencies>
 		<dependency>
-			<groupId>command4j</groupId>
+			<groupId>cmd4j</groupId>
 			<artifactId>commands-core</artifactId>
-			<version>0.0.4-SNAPSHOT</version>
+			<version>0.0.5-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>command4j</groupId>
+			<groupId>cmd4j</groupId>
 			<artifactId>commands-swing</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>

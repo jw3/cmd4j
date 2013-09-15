@@ -5,15 +5,15 @@
 	<name>Command4j Swing Components</name>
 	<description>Swing Utilities</description>
 
-	<groupId>command4j</groupId>
+	<groupId>cmd4j</groupId>
 	<artifactId>commands-swing</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
 	<dependencies>
 		<dependency>
-			<groupId>command4j</groupId>
+			<groupId>cmd4j</groupId>
 			<artifactId>commands-core</artifactId>
-			<version>0.0.4-SNAPSHOT</version>
+			<version>0.0.5-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
