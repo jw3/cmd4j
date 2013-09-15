@@ -16,9 +16,13 @@ abstract public class Say
 		return new Say() {
 			public void invoke(final Object dto) {
 			}
+		};
+	}
 
 
-			public void invoke() {
+	public static Say dto() {
+		return new Say() {
+			public void invoke(final Object dto) {
 			}
 		};
 	}
@@ -43,13 +47,6 @@ abstract public class Say
 						out.write(buffer.toString());
 					}
 				}
-			}
-
-
-			public void invoke()
-				throws IOException {
-
-				this.invoke(null);
 			}
 		};
 	}
@@ -81,25 +78,12 @@ abstract public class Say
 					}
 				}
 			}
-
-
-			public void invoke()
-				throws IOException {
-
-				this.invoke(null);
-			}
 		};
 	}
 
 
 	public static Say boom() {
 		return new Say() {
-			public void invoke()
-				throws Exception {
-				this.invoke(null);
-			}
-
-
 			public void invoke(final Object dto)
 				throws Exception {
 
