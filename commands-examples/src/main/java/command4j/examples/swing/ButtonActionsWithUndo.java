@@ -2,10 +2,9 @@ package command4j.examples.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.event.ActionEvent;
 import java.util.Stack;
 
-import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -22,25 +21,18 @@ import chain4j.common.IUndo;
 import command4j.swing.event.ChainAction;
 
 /**
- *
+ * example of a small ui with some actions tied into undoable commands
  *
  * @author wassj
  *
  */
 public class ButtonActionsWithUndo {
-
 	private static final Stack<IChain> undoStack = new Stack<IChain>();
 
-	private static final ICommand3 undo = new ICommand3() {
-		public ICommand invoke(Object dto) {
-			if (!undoStack.isEmpty()) {
-				return Chains.makeUndoable(undoStack.pop());
-			}
-			return null;
-		}
-	};
 
-
+	/*
+	 * 
+	 */
 	public static void main(String[] args) {
 		final JPanel panel = new JPanel();
 
@@ -48,7 +40,7 @@ public class ButtonActionsWithUndo {
 		buttons.add(createColorButton(Color.red, panel));
 		buttons.add(createColorButton(Color.green, panel));
 		buttons.add(createColorButton(Color.blue, panel));
-		buttons.add(new JButton(ChainAction.create(Chains.create(undo)).setValue(ChainAction.NAME, "undo")));
+		buttons.add(new JButton(new UndoAction().setValue(ChainAction.NAME, "undo")));
 
 		final JFrame frame = Examples.createFrame();
 		frame.add(panel, BorderLayout.CENTER);
@@ -59,90 +51,109 @@ public class ButtonActionsWithUndo {
 
 
 	public static JButton createColorButton(final Color color, final JComponent target) {
-		final JButton button = new JButton(color.getRed() + "," + color.getGreen() + "," + color.getBlue());
+		final JButton button = new JButton(new SetColorAction(color, target).setValue(Action.NAME, colorString(color)));
 		button.setBackground(color);
-		button.addActionListener(new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					final ICommand change = new CommandUndoDecorator(new ChangeColor(color, target), new ChangeColor(target.getBackground(), target));
-					final IChain chain = ChainBuilder.create(change).build();
-					chain.invoke();
-					undoStack.push(chain);
-				}
-				catch (Exception e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
 
 		return button;
 	}
 
 
-	public static JFrame createFrame() {
-		final JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(500, 500);
-		frame.setLayout(new BorderLayout());
-		return frame;
-	}
-
-
-	public static class ChangeColor
-		implements ICommand1 {
+	/**
+	 * An example of an undoable command
+	 *
+	 * @author wassj
+	 *
+	 */
+	private static class UndoableChangeColor
+		implements IUndo {
 
 		private final Color color;
+		private final Color original;
 		private final JComponent target;
 
 
-		public ChangeColor(final Color color, final JComponent target) {
+		public UndoableChangeColor(final Color color, final JComponent target) {
 			this.color = color;
+			this.original = target.getBackground();
 			this.target = target;
-			System.out.println("command to " + color);
 		}
 
 
 		public void invoke() {
-			System.out.println("set color to " + color);
+			this.setColor(color);
+		}
+
+
+		public void undo() {
+			this.setColor(original);
+		}
+
+
+		private void setColor(final Color color) {
 			target.setBackground(color);
 		}
 	}
 
 
 	/**
-	 * A decorator that allows a Chain to be undone/redone
+	 * example implementation of a {@link ChainAction} which sets the component color using an {@link IUndo} {@link ICommand}
 	 *
 	 * @author wassj
 	 *
 	 */
-	private static class CommandUndoDecorator
-		implements IUndo {
+	private static final class SetColorAction
+		extends ChainAction {
 
-		private final ICommand command;
-		private final ICommand undo;
+		private final Color color;
+		private final JComponent target;
 
 
-		public CommandUndoDecorator(final ICommand command, final ICommand undo) {
-			this.command = command;
-			this.undo = undo;
+		public SetColorAction(final Color color, final JComponent target) {
+			this.color = color;
+			this.target = target;
 		}
 
 
-		public void invoke()
-			throws Exception {
+		public IChain getChain() {
+			return Chains.create(new ICommand1() {
+				public void invoke()
+					throws Exception {
 
-			// REVISIT assuming command1
-			((ICommand1)command).invoke();
+					final ICommand change = new UndoableChangeColor(color, target);
+
+					final IChain chain = ChainBuilder.create(change).build();
+					chain.invoke(); // we can block here!
+
+					undoStack.push(chain);
+				}
+			});
 		}
+	}
 
 
-		public void undo()
-			throws Exception {
+	/**
+	 * {@link ChainAction} that pops and invokes {@link IChain}s from the undo stack
+	 *
+	 * @author wassj
+	 *
+	 */
+	private static final class UndoAction
+		extends ChainAction {
 
-			if (undo != null) {
-				// REVISIT assuming command1
-				((ICommand1)undo).invoke();
-			}
+		public IChain getChain() {
+			return Chains.create(new ICommand3() {
+				public ICommand invoke(Object dto) {
+					if (!undoStack.isEmpty()) {
+						return Chains.makeUndoable(undoStack.pop());
+					}
+					return null;
+				}
+			});
 		}
+	}
+
+
+	private static String colorString(final Color color) {
+		return color.getRed() + "," + color.getGreen() + "," + color.getBlue();
 	}
 }

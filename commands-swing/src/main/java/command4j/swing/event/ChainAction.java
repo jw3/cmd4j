@@ -13,14 +13,14 @@ import chain4j.common.Chains;
  * @author wassj
  *
  */
-public class ChainAction
+abstract public class ChainAction
 	extends AbstractAction {
 
-	private IChain chain;
+	//private IChain chain;
 
-
-	public static ChainAction create() {
-		return new ChainAction();
+	/*public static ChainAction create() {
+		return new ChainAction() {
+		};
 	}
 
 
@@ -28,21 +28,13 @@ public class ChainAction
 		final ChainAction chainAction = new ChainAction();
 		chainAction.setChain(chain);
 		return chainAction;
-	}
-
+	}*/
 
 	protected ChainAction() {
 	}
 
 
-	public IChain getChain() {
-		return chain;
-	}
-
-
-	public void setChain(IChain chain) {
-		this.chain = chain;
-	}
+	abstract public IChain getChain();
 
 
 	final public void actionPerformed(ActionEvent e) {
