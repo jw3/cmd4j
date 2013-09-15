@@ -6,7 +6,7 @@ import chain4j.IBranch;
 import chain4j.ICommand;
 import chain4j.ICommand2;
 import chain4j.ILink;
-import chain4j.builder.Links;
+import chain4j.common.Links;
 
 /**
  * Example of using {@link IBranch} to create states with dynamic flow.
