@@ -15,7 +15,4 @@ public interface ILink {
 
 
 	ICommand cmd();
-
-
-	ILink dto(final Object dto);
 }

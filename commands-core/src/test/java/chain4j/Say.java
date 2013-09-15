@@ -20,9 +20,19 @@ abstract public class Say
 	}
 
 
-	public static Say dto() {
+	public static Say dto(final Writer... into) {
 		return new Say() {
-			public void invoke(final Object dto) {
+			public void invoke(final Object dto)
+				throws Exception {
+
+				if (into.length == 0) {
+					System.out.println(String.valueOf(dto));
+				}
+				else {
+					for (Writer out : into) {
+						out.write(String.valueOf(dto));
+					}
+				}
 			}
 		};
 	}

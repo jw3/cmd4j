@@ -87,11 +87,6 @@ public enum Links {
 		public Object dto() {
 			return link.dto();
 		}
-
-
-		public ILink dto(Object dto) {
-			return link.dto(dto);
-		}
 	}
 
 
@@ -136,12 +131,6 @@ public enum Links {
 
 		public Object dto() {
 			return link.dto();
-		}
-
-
-		public ILink dto(Object dto) {
-			link.dto(dto);
-			return this;
 		}
 	}
 }

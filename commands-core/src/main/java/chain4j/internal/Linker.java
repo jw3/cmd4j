@@ -56,10 +56,6 @@ public class Linker
 	public Void call()
 		throws Exception {
 
-		final ICommand command = head.cmd();
-		if (command instanceof ICommand2) {
-			head.dto(dto);
-		}
 		ILink next = head;
 		while (next != null) {
 			next = callImpl(next);
@@ -81,7 +77,7 @@ public class Linker
 
 
 	protected Callable<ILink> toCallable(final ILink link) {
-		return CallableLinkDecorator.decorate(link);
+		return CallableLinkDecorator.decorate(link, dto);
 	}
 
 
@@ -91,6 +87,11 @@ public class Linker
 			return threaded.executor() != null ? threaded.executor() : executor;
 		}
 		return executor;
+	}
+
+
+	protected Object linkerDto() {
+		return dto;
 	}
 
 
@@ -110,7 +111,7 @@ public class Linker
 
 		@Override
 		protected Callable<ILink> toCallable(ILink link) {
-			return LinkUndoDecorator.decorate(link);
+			return LinkUndoDecorator.decorate(link, this.linkerDto());
 		}
 	}
 
@@ -126,15 +127,17 @@ public class Linker
 		implements Callable<ILink> {
 
 		private final ILink link;
+		private final Object dto;
 
 
-		public static Callable<ILink> decorate(ILink link) {
-			return new CallableLinkDecorator(link);
+		public static Callable<ILink> decorate(final ILink link, final Object dto) {
+			return new CallableLinkDecorator(link, dto);
 		}
 
 
-		private CallableLinkDecorator(final ILink link) {
+		private CallableLinkDecorator(final ILink link, final Object dto) {
 			this.link = link;
+			this.dto = dto;
 		}
 
 
@@ -147,7 +150,8 @@ public class Linker
 			//		try {
 			ICommand command = link.cmd();
 			while (command != null) {
-				command = invokeCommand(command, link.dto());
+				final Object dto = link.dto() != null ? link.dto() : this.dto;
+				command = invokeCommand(command, dto);
 			}
 			return link.next();
 			//		}
@@ -172,15 +176,17 @@ public class Linker
 		implements Callable<ILink> {
 
 		private final ILink link;
+		private final Object dto;
 
 
-		public static LinkUndoDecorator decorate(ILink link) {
-			return new LinkUndoDecorator(link);
+		public static LinkUndoDecorator decorate(final ILink link, final Object dto) {
+			return new LinkUndoDecorator(link, dto);
 		}
 
 
-		private LinkUndoDecorator(final ILink link) {
+		private LinkUndoDecorator(final ILink link, final Object dto) {
 			this.link = link;
+			this.dto = dto;
 		}
 
 
@@ -193,7 +199,8 @@ public class Linker
 			}
 			else {
 				while (command != null) {
-					command = invokeCommand(command, link.dto());
+					final Object dto = link.dto() != null ? link.dto() : this.dto;
+					command = invokeCommand(command, dto);
 				}
 			}
 			return link.next();
