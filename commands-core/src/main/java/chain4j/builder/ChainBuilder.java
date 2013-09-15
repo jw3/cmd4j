@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 
 import chain4j.IChain;
 import chain4j.ICommand;
-import chain4j.decorator.ChainThreadingDecorator;
+import chain4j.common.Chains;
 import chain4j.internal.AbstractChain;
 import chain4j.internal.Linker;
 
@@ -145,7 +145,7 @@ final public class ChainBuilder {
 	 * @return
 	 */
 	public IChain build() {
-		return new ChainThreadingDecorator(this.buildImpl(), Executors.newSingleThreadExecutor());
+		return Chains.makeThreaded(this.buildImpl(), Executors.newSingleThreadExecutor());
 	}
 
 
@@ -157,7 +157,7 @@ final public class ChainBuilder {
 		if (executor == null) {
 			throw new IllegalArgumentException("executor cannot be null");
 		}
-		return new ChainThreadingDecorator(this.buildImpl(), executor);
+		return Chains.makeThreaded(this.buildImpl(), executor);
 	}
 
 

@@ -1,4 +1,4 @@
-package chain4j.decorator;
+package chain4j.builder;
 
 import org.testng.annotations.Test;
 

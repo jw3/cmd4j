@@ -1,5 +1,6 @@
 package chain4j.internal;
 
+import java.util.Iterator;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -7,6 +8,7 @@ import chain4j.IChain;
 import chain4j.ICommand;
 import chain4j.ICommand2;
 import chain4j.ILink;
+import chain4j.common.ICommandUndo;
 import chain4j.common.IThreaded;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -99,6 +101,64 @@ public class Linker
 			throws Exception {
 
 			return super.callImpl(LinkUndoDecorator.decorate(link));
+		}
+	}
+
+
+	/**
+	 *
+	 *
+	 * @author wassj
+	 *
+	 */
+	private static class LinkUndoDecorator
+		implements ILink {
+
+		private final ILink link;
+
+
+		public static ILink decorate(ILink link) {
+			return new LinkUndoDecorator(link);
+		}
+
+
+		private LinkUndoDecorator(final ILink link) {
+			this.link = link;
+		}
+
+
+		public ILink call()
+			throws Exception {
+
+			final ICommand command = link.iterator().next();
+			if (command instanceof ICommandUndo) {
+				((ICommandUndo)command).undo();
+			}
+			else {
+				command.invoke();
+			}
+			return next();
+		}
+
+
+		public Iterator<ICommand> iterator() {
+			return link.iterator();
+		}
+
+
+		public ILink next() {
+			return link.next();
+		}
+
+
+		public Object dto() {
+			return link.dto();
+		}
+
+
+		public ILink dto(Object dto) {
+			link.dto(dto);
+			return this;
 		}
 	}
 }
