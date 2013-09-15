@@ -6,7 +6,7 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.swing.SwingUtilities;
 
-import chain4j.internal.EventDispatchExecutorService;
+import chain4j.internal.EventDispatchExecutor;
 
 /**
  * Manage a set of executors for tests; 
@@ -17,7 +17,7 @@ import chain4j.internal.EventDispatchExecutorService;
 public enum Service {
 	t1,
 	t2,
-	edt(EventDispatchExecutorService.create()) {
+	edt(EventDispatchExecutor.create()) {
 		@Override
 		public boolean isCurrent() {
 			return SwingUtilities.isEventDispatchThread();

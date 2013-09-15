@@ -13,18 +13,18 @@ import javax.swing.SwingUtilities;
  * @author wassj
  *
  */
-public final class EventDispatchExecutorService
+public final class EventDispatchExecutor
 	extends AbstractExecutorService {
 
 	private volatile boolean shutdown = false;
 
 
-	public static EventDispatchExecutorService create() {
-		return new EventDispatchExecutorService();
+	public static EventDispatchExecutor create() {
+		return new EventDispatchExecutor();
 	}
 
 
-	private EventDispatchExecutorService() {
+	private EventDispatchExecutor() {
 	}
 
 
