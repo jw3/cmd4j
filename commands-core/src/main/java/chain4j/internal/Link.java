@@ -3,7 +3,9 @@ package chain4j.internal;
 import java.util.Iterator;
 
 import chain4j.ICommand;
+import chain4j.ICommand1;
 import chain4j.ICommand2;
+import chain4j.ICommand3;
 import chain4j.ILink;
 
 import com.google.common.collect.Iterators;
@@ -74,11 +76,9 @@ public class Link
 		throws Exception {
 
 		//		try {
-		if (command instanceof ICommand2) {
-			((ICommand2)command).invoke(dto);
-		}
-		else {
-			command.invoke();
+		ICommand command = this.command;
+		while (command != null) {
+			command = Link.invokeCommand(command, dto());
 		}
 		return next();
 		//		}
@@ -93,5 +93,21 @@ public class Link
 
 	public Iterator<ICommand> iterator() {
 		return Iterators.singletonIterator(command);
+	}
+
+
+	static ICommand invokeCommand(final ICommand command, final Object dto)
+		throws Exception {
+
+		if (command instanceof ICommand3) {
+			return ((ICommand3)command).invoke(dto);
+		}
+		else if (command instanceof ICommand2) {
+			((ICommand2)command).invoke(dto);
+		}
+		else if (command instanceof ICommand1) {
+			((ICommand1)command).invoke();
+		}
+		return null;
 	}
 }

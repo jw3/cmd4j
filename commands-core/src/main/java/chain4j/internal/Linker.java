@@ -130,12 +130,14 @@ public class Linker
 		public ILink call()
 			throws Exception {
 
-			final ICommand command = link.iterator().next();
+			ICommand command = link.iterator().next();
 			if (command instanceof ICommandUndo) {
 				((ICommandUndo)command).undo();
 			}
 			else {
-				command.invoke();
+				while (command != null) {
+					command = Link.invokeCommand(command, dto());
+				}
 			}
 			return next();
 		}

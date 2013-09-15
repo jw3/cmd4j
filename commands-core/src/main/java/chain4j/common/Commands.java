@@ -1,9 +1,10 @@
-package chain4j.builder;
+package chain4j.common;
 
 import java.util.Iterator;
 
 import chain4j.ICommand;
 import chain4j.ICommand2;
+import chain4j.ILink;
 
 import com.google.common.collect.Iterators;
 
@@ -15,6 +16,14 @@ import com.google.common.collect.Iterators;
  */
 public enum Commands {
 	/*singleton-enum*/;
+
+	public static void execute(ICommand command)
+		throws Exception {
+
+		final ILink link = Links.create(command);
+		Links.execute(link);
+	}
+
 
 	public static ICommand nop() {
 		return new ICommand() {

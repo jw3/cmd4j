@@ -13,11 +13,11 @@ import javax.swing.JPanel;
 
 import chain4j.IChain;
 import chain4j.ICommand;
-import chain4j.ILink;
+import chain4j.ICommand1;
+import chain4j.ICommand3;
 import chain4j.builder.ChainBuilder;
-import chain4j.builder.Links;
-import chain4j.fsm.State;
-import chain4j.fsm.StateMachine;
+import chain4j.common.Chains;
+import chain4j.common.ICommandUndo;
 
 import command4j.swing.event.ChainAction;
 
@@ -29,7 +29,16 @@ import command4j.swing.event.ChainAction;
  */
 public class ButtonActionsWithUndo {
 
-	private static final Stack<IChain> undo = new Stack<IChain>();
+	private static final Stack<IChain> undoStack = new Stack<IChain>();
+
+	private static final ICommand3 undo = new ICommand3() {
+		public ICommand invoke(Object dto) {
+			if (!undoStack.isEmpty()) {
+				return Chains.makeUndoable(undoStack.pop());
+			}
+			return null;
+		}
+	};
 
 
 	public static void main(String[] args) {
@@ -39,7 +48,7 @@ public class ButtonActionsWithUndo {
 		buttons.add(createColorButton(Color.red, panel));
 		buttons.add(createColorButton(Color.green, panel));
 		buttons.add(createColorButton(Color.blue, panel));
-		buttons.add(new JButton(ChainAction.create(new UndoChain()).setValue(ChainAction.NAME, "undo")));
+		buttons.add(new JButton(ChainAction.create(Chains.create(undo)).setValue(ChainAction.NAME, "undo")));
 
 		final JFrame frame = Examples.createFrame();
 		frame.add(panel, BorderLayout.CENTER);
@@ -55,9 +64,10 @@ public class ButtonActionsWithUndo {
 		button.addActionListener(new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					final IChain chain = ChainBuilder.create(new ChangeColor(color, target)).build();
+					final ICommand change = new CommandUndoDecorator(new ChangeColor(color, target), new ChangeColor(target.getBackground(), target));
+					final IChain chain = ChainBuilder.create(change).build();
 					chain.invoke();
-					undo.push(chain);
+					undoStack.push(chain);
 				}
 				catch (Exception e1) {
 					e1.printStackTrace();
@@ -79,7 +89,7 @@ public class ButtonActionsWithUndo {
 
 
 	public static class ChangeColor
-		implements ICommand {
+		implements ICommand1 {
 
 		private final Color color;
 		private final JComponent target;
@@ -88,32 +98,51 @@ public class ButtonActionsWithUndo {
 		public ChangeColor(final Color color, final JComponent target) {
 			this.color = color;
 			this.target = target;
+			System.out.println("command to " + color);
 		}
 
 
 		public void invoke() {
+			System.out.println("set color to " + color);
 			target.setBackground(color);
 		}
 	}
 
 
-	/*
-	 * simple implementation of a state machine that pops and executes a chain from the undo stack
+	/**
+	 * A decorator that allows a Chain to be undone/redone
+	 *
+	 * @author wassj
+	 *
 	 */
-	private static class UndoChain
-		extends StateMachine {
+	private static class CommandUndoDecorator
+		implements ICommandUndo {
 
-		public UndoChain() {
-			setStart(start);
+		private final ICommand command;
+		private final ICommand undo;
+
+
+		public CommandUndoDecorator(final ICommand command, final ICommand undo) {
+			this.command = command;
+			this.undo = undo;
 		}
 
-		private final ILink start = new State() {
-			public ILink run(Object dto) {
-				if (!undo.isEmpty()) {
-					return Links.create(undo.pop());
-				}
-				return null;
-			};
-		};
+
+		public void invoke()
+			throws Exception {
+
+			// REVISIT assuming command1
+			((ICommand1)command).invoke();
+		}
+
+
+		public void undo()
+			throws Exception {
+
+			if (undo != null) {
+				// REVISIT assuming command1
+				((ICommand1)undo).invoke();
+			}
+		}
 	}
 }

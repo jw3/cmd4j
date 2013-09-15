@@ -3,7 +3,9 @@ package chain4j.common;
 import java.util.concurrent.ExecutorService;
 
 import chain4j.IChain;
+import chain4j.ICommand;
 import chain4j.ILink;
+import chain4j.builder.ChainBuilder;
 import chain4j.internal.AbstractChain;
 import chain4j.internal.Linker;
 
@@ -19,8 +21,23 @@ import com.google.common.util.concurrent.MoreExecutors;
 public enum Chains {
 	/*singleton-enum*/;
 
+	public static IChain create(final ICommand command) {
+		return builder(command).build();
+	}
+
+
+	public static ChainBuilder builder(final ICommand command) {
+		return ChainBuilder.create(command);
+	}
+
+
 	public static IChain makeThreaded(final IChain chain, final ExecutorService executor) {
 		return new ChainThreadingDecorator(chain, executor);
+	}
+
+
+	public static IChain makeUndoable(IChain chain) {
+		return new UndoChainDecorator(chain);
 	}
 
 
@@ -45,11 +62,6 @@ public enum Chains {
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-
-	public static IChain undo(IChain chain) {
-		return new UndoChainDecorator(chain);
 	}
 
 

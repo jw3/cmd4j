@@ -2,11 +2,10 @@ package chain4j.examples;
 
 import org.testng.annotations.Test;
 
-import chain4j.IBranch;
 import chain4j.ICommand;
 import chain4j.ICommand2;
-import chain4j.ILink;
-import chain4j.common.Links;
+import chain4j.ICommand3;
+import chain4j.common.Commands;
 
 /**
  * Example of using {@link IBranch} to create states with dynamic flow.
@@ -32,19 +31,19 @@ public class ExampleStateMachine {
 	private long current;
 	private long count;
 
-	private final IBranch configure = new IBranch() {
-		public ILink invoke(Object dto) {
+	private final ICommand3 configure = new ICommand3() {
+		public ICommand invoke(Object dto) {
 			current = seed = System.currentTimeMillis();
 			return divide;
 		}
 	};
 
-	private final IBranch divide = new IBranch() {
-		public ILink invoke(Object dto) {
+	private final ICommand3 divide = new ICommand3() {
+		public ICommand invoke(Object dto) {
 			++count;
 			current = current / 2;
 			System.out.println(current);
-			return current > 10 ? divide : Links.create(print);
+			return current > 10 ? divide : print;
 		}
 	};
 
@@ -52,17 +51,12 @@ public class ExampleStateMachine {
 		public void invoke(Object dto) {
 			System.out.println("trimmed from " + seed + " to " + current + " in " + count + " loops");
 		}
-
-
-		public void invoke() {
-			this.invoke(null);
-		}
 	};
 
 
 	public void runThisStateMachine()
 		throws Exception {
 
-		Links.execute(configure);
+		Commands.execute(configure);
 	}
 }

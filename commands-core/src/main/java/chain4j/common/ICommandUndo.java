@@ -1,6 +1,6 @@
 package chain4j.common;
 
-import chain4j.ICommand;
+import chain4j.ICommand1;
 
 /**
  *
@@ -9,7 +9,7 @@ import chain4j.ICommand;
  *
  */
 public interface ICommandUndo
-	extends ICommand {
+	extends ICommand1 {
 
 	void undo()
 		throws Exception;
