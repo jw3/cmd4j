@@ -9,8 +9,7 @@ import chain4j.ICommand1;
 import chain4j.ICommand2;
 import chain4j.ICommand3;
 import chain4j.ILink;
-import chain4j.common.ICommandUndo;
-import chain4j.common.IThreaded;
+import chain4j.common.IUndo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -189,8 +188,8 @@ public class Linker
 			throws Exception {
 
 			ICommand command = link.cmd();
-			if (command instanceof ICommandUndo) {
-				((ICommandUndo)command).undo();
+			if (command instanceof IUndo) {
+				((IUndo)command).undo();
 			}
 			else {
 				while (command != null) {
@@ -222,5 +221,17 @@ public class Linker
 			((ICommand1)command).invoke();
 		}
 		return null;
+	}
+
+
+	/**
+	 * Marks an object for execution by a specified {@link ListeningExecutorService}
+	 *
+	 * @author wassj
+	 *
+	 */
+	public interface IThreaded {
+
+		ListeningExecutorService executor();
 	}
 }

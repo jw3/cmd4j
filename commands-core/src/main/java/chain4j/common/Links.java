@@ -7,6 +7,7 @@ import chain4j.ILink;
 import chain4j.builder.LinkBuilder;
 import chain4j.internal.Link;
 import chain4j.internal.Linker;
+import chain4j.internal.Linker.IThreaded;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -44,8 +45,8 @@ public enum Links {
 	}
 
 
-	public static ILink handleCompletion(final ILink link, final ICompletionHandler handler) {
-		return new LinkCallbackDecorator(link, handler);
+	public static ILink handleCompletion(final ILink link, final ILinkListener listener) {
+		return new LinkCallbackDecorator(link, listener);
 	}
 
 
@@ -104,22 +105,22 @@ public enum Links {
 		implements ILink, FutureCallback<ILink> {
 
 		private final ILink link;
-		private final ICompletionHandler completionHandler;
+		private final ILinkListener listener;
 
 
-		public LinkCallbackDecorator(final ILink link, final ICompletionHandler completionHandler) {
+		public LinkCallbackDecorator(final ILink link, final ILinkListener listener) {
 			this.link = link;
-			this.completionHandler = completionHandler;
+			this.listener = listener;
 		}
 
 
 		public void onSuccess(ILink result) {
-			completionHandler.onSuccess();
+			listener.onSuccess();
 		}
 
 
 		public void onFailure(Throwable t) {
-			completionHandler.onFailure(t);
+			listener.onException(t);
 		}
 
 

@@ -6,10 +6,10 @@ package chain4j.common;
  * @author wassj
  *
  */
-public interface ICompletionHandler {
+public interface ILinkListener {
 
 	void onSuccess();
 
 
-	void onFailure(Throwable cause);
+	void onException(Throwable cause);
 }

@@ -8,6 +8,7 @@ import chain4j.ILink;
 import chain4j.builder.ChainBuilder;
 import chain4j.internal.AbstractChain;
 import chain4j.internal.Linker;
+import chain4j.internal.Linker.IThreaded;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;

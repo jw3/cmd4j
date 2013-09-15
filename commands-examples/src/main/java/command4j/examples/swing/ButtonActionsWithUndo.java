@@ -17,7 +17,7 @@ import chain4j.ICommand1;
 import chain4j.ICommand3;
 import chain4j.builder.ChainBuilder;
 import chain4j.common.Chains;
-import chain4j.common.ICommandUndo;
+import chain4j.common.IUndo;
 
 import command4j.swing.event.ChainAction;
 
@@ -116,7 +116,7 @@ public class ButtonActionsWithUndo {
 	 *
 	 */
 	private static class CommandUndoDecorator
-		implements ICommandUndo {
+		implements IUndo {
 
 		private final ICommand command;
 		private final ICommand undo;

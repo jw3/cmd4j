@@ -8,7 +8,7 @@ import chain4j.ICommand1;
  * @author wassj
  *
  */
-public interface ICommandUndo
+public interface IUndo
 	extends ICommand1 {
 
 	void undo()
