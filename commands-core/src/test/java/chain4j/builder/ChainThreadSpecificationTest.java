@@ -3,9 +3,7 @@ package chain4j.builder;
 import org.testng.annotations.Test;
 
 import chain4j.AssertThread;
-import chain4j.AssertableThreadFactory;
 import chain4j.Service;
-import chain4j.builder.ChainBuilder;
 
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -25,7 +23,7 @@ public class ChainThreadSpecificationTest {
 	public void trivialEdtExecutionTest()
 		throws Exception {
 
-		ChainBuilder.create().add(AssertThread.isEDT()).executor(Service.edt.get()).build().invoke();
+		ChainBuilder.create().add(AssertThread.isEDT()).executor(Service.edt.executor()).build().invoke();
 	}
 
 
@@ -33,15 +31,13 @@ public class ChainThreadSpecificationTest {
 	public void trivialSwitching()
 		throws Exception {
 
-		final AssertableThreadFactory atf = AssertableThreadFactory.create();
-
 		ChainBuilder.create()
 		//
 			.add(AssertThread.isEDT())
-			.executor(Service.edt.get())
+			.executor(Service.edt.executor())
 			//
-			.add(atf.assertThis())
-			.executor(Service.wrap(atf))
+			.add(AssertThread.is(Service.t1))
+			.executor(Service.t1.executor())
 			//
 			.build()
 			.invoke();
@@ -68,16 +64,15 @@ public class ChainThreadSpecificationTest {
 	public void stripThreadingWithUnthreadedChain()
 		throws Exception {
 
-		final AssertableThreadFactory atf = AssertableThreadFactory.create();
 		ChainBuilder.create()//
-			.add(AssertThread.isCurrent())
-			.executor(Service.wrap(atf))
+			.add(AssertThread.is(Service.t1))
+			.executor(Service.t1.executor())
 
 			.add(AssertThread.isCurrent())
-			.executor(Service.edt.get())
+			.executor(Service.edt.executor())
 
-			.add(AssertThread.isCurrent())
-			.executor(Service.a.get())
+			.add(AssertThread.is(Service.t2))
+			.executor(Service.t2.executor())
 
 			.add(AssertThread.isCurrent())
 
@@ -94,8 +89,7 @@ public class ChainThreadSpecificationTest {
 	public void unspecifiedRunsOnChainThread1()
 		throws Exception {
 
-		final AssertableThreadFactory atf = AssertableThreadFactory.create();
-		ChainBuilder.create().add(atf.assertThis()).build(Service.wrap(atf)).invoke();
+		ChainBuilder.create().add(AssertThread.is(Service.t1)).build(Service.t1.executor()).invoke();
 	}
 
 
@@ -107,16 +101,15 @@ public class ChainThreadSpecificationTest {
 	public void unspecifiedRunsOnChainThread2()
 		throws Exception {
 
-		final AssertableThreadFactory atf = AssertableThreadFactory.create();
 		ChainBuilder.create()//
-			.add(atf.assertThis())
+			.add(AssertThread.is(Service.t1))
 
 			.add(AssertThread.isEDT())
-			.executor(Service.edt.get())
+			.executor(Service.edt.executor())
 
-			.add(atf.assertThis())
+			.add(AssertThread.is(Service.t1))
 
-			.build(Service.wrap(atf))
+			.build(Service.t1.executor())
 			.invoke();
 	}
 
@@ -150,7 +143,7 @@ public class ChainThreadSpecificationTest {
 
 			.add(AssertThread.isEDT())
 
-			.build(Service.edt.get())
+			.build(Service.edt.executor())
 			.invoke();
 	}
 
@@ -159,16 +152,15 @@ public class ChainThreadSpecificationTest {
 	public void specifyChainsThreadToForceAllUnspecifiedCommandsOntoIt3()
 		throws Exception {
 
-		final AssertableThreadFactory atf = AssertableThreadFactory.create();
 		ChainBuilder.create()
 		//
-			.add(atf.assertThis())
+			.add(AssertThread.is(Service.edt))
 
-			.add(atf.assertThis())
+			.add(AssertThread.is(Service.edt))
 
-			.add(atf.assertThis())
+			.add(AssertThread.is(Service.edt))
 
-			.build(Service.wrap(atf))
+			.build(Service.edt.executor())
 			.invoke();
 	}
 
@@ -177,19 +169,17 @@ public class ChainThreadSpecificationTest {
 	public void specifyChainsThreadEnsureAllSpecifiedsAreNotForcedOntoIt()
 		throws Exception {
 
-		final AssertableThreadFactory atf = AssertableThreadFactory.create();
-
 		ChainBuilder.create()
 		//
 			.add(AssertThread.isCurrent())
 
 			.add(AssertThread.isEDT())
-			.executor(Service.edt.get())
+			.executor(Service.edt.executor())
 
 			.add(AssertThread.isCurrent())
 
-			.add(atf.assertThis())
-			.executor(Service.wrap(atf))
+			.add(AssertThread.is(Service.t1))
+			.executor(Service.t1.executor())
 
 			.build(MoreExecutors.sameThreadExecutor())
 			.invoke();

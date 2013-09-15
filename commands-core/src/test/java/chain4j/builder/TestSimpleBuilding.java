@@ -18,6 +18,6 @@ public class TestSimpleBuilding {
 	public void firstTest()
 		throws Exception {
 
-		ChainBuilder.create(Say.what("hello")).executor(Service.edt.get()).add(Say.what("world")).executor(Service.b.get()).add(Say.what("!")).executor(Service.a.get()).build().invoke();
+		ChainBuilder.create(Say.what("hello")).executor(Service.edt.executor()).add(Say.what("world")).executor(Service.t2.executor()).add(Say.what("!")).executor(Service.t1.executor()).build().invoke();
 	}
 }

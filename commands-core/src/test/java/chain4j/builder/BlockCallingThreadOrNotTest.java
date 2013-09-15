@@ -4,9 +4,8 @@ import java.io.StringWriter;
 
 import org.testng.annotations.Test;
 
-import chain4j.AssertableThreadFactory;
+import chain4j.AssertThread;
 import chain4j.Service;
-import chain4j.builder.ChainBuilder;
 
 /**
  * A test of the scenarios when we will block the calling thread
@@ -23,8 +22,7 @@ public class BlockCallingThreadOrNotTest {
 		final StringWriter out = new StringWriter();
 
 		for (int i = 0; i < 10; ++i) {
-			final AssertableThreadFactory tf = AssertableThreadFactory.create();
-			ChainBuilder.create().add(tf.assertThis()).executor(Service.wrap(tf)).build().invoke();
+			ChainBuilder.create().add(AssertThread.is(Service.t1)).executor(Service.t1.executor()).build().invoke();
 		}
 
 		System.out.println(out.toString());

@@ -14,7 +14,7 @@ public class TestLinkSubBuilder {
 	@Test
 	public void test()
 		throws Exception {
-		ChainBuilder.create(Say.what(1)).add(Say.what("...")).executor(Service.a.get()).add(Say.what(2)).build().invoke("mississippi");
+		ChainBuilder.create(Say.what(1)).add(Say.what("...")).executor(Service.t1.executor()).add(Say.what(2)).build().invoke("mississippi");
 		System.out.println("done");
 	}
 }

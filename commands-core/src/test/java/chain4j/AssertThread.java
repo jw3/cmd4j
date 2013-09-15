@@ -1,7 +1,5 @@
 package chain4j;
 
-import javax.swing.SwingUtilities;
-
 import org.testng.Assert;
 
 /**
@@ -33,15 +31,20 @@ public class AssertThread
 	}
 
 
+	public static AssertThread is(final Service service) {
+		return new AssertThread() {
+			public void invoke() {
+				Assert.assertTrue(service.isCurrent(), "expected to be run on " + service.name() + ", was run on " + Thread.currentThread().getName());
+			}
+		};
+	}
+
+
 	/**
 	 * Assert that this assertion is run on the Event Dispatch Thread 
 	 */
 	public static AssertThread isEDT() {
-		return new AssertThread() {
-			public void invoke() {
-				Assert.assertTrue(SwingUtilities.isEventDispatchThread(), "expected to be run on EDT, was run on " + Thread.currentThread().getName());
-			}
-		};
+		return is(Service.edt);
 	}
 
 

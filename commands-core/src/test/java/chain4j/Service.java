@@ -4,6 +4,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
+import javax.swing.SwingUtilities;
+
 import chain4j.internal.EventDispatchExecutorService;
 
 /**
@@ -13,27 +15,24 @@ import chain4j.internal.EventDispatchExecutorService;
  *
  */
 public enum Service {
-	edt(EventDispatchExecutorService.create()),
-	persistence(true),
-	a,
-	b;
+	t1,
+	t2,
+	edt(EventDispatchExecutorService.create()) {
+		@Override
+		public boolean isCurrent() {
+			return SwingUtilities.isEventDispatchThread();
+		}
+	};
 
 	private ExecutorService executor;
+	private Thread thread;
 
 
 	private Service() {
-	}
-
-
-	private Service(boolean daemon) {
 		Executors.newSingleThreadExecutor(new ThreadFactory() {
-			private Thread thread;
-
-
 			public Thread newThread(Runnable r) {
 				if (thread == null) {
 					thread = new Thread(Service.this.name());
-					thread.setDaemon(true);
 				}
 				return thread;
 			}
@@ -46,7 +45,12 @@ public enum Service {
 	}
 
 
-	public ExecutorService get() {
+	public boolean isCurrent() {
+		return Thread.currentThread() == thread;
+	}
+
+
+	public ExecutorService executor() {
 		if (executor == null) {
 			executor = Executors.newSingleThreadExecutor();
 		}
@@ -64,4 +68,5 @@ public enum Service {
 	public static ExecutorService wrap(final ThreadFactory factory) {
 		return Executors.newSingleThreadExecutor(factory);
 	}
+
 }

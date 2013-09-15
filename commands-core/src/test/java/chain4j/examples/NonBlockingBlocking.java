@@ -31,9 +31,9 @@ public class NonBlockingBlocking {
 		buffer.append(0);
 
 		// create a chain that has a couple commands and runs on the EDT
-		final IChain chain1 = ChainBuilder.create().add(Say.thread()).add(Say.what(4, buffer)).add(Say.what("chain 1 done")).add(Say.what(5, buffer)).build(Service.edt.get());
-		final IChain chain2 = ChainBuilder.create().add(Say.thread()).add(Say.what(7, buffer)).add(Say.what("chain 2 done")).add(Say.what(8, buffer)).build(Service.edt.get());
-		final IChain chain3 = ChainBuilder.create().add(Say.thread()).add(Say.what(14, buffer)).add(Say.what("chain 3 done")).add(Say.what(15, buffer)).build(Service.edt.get());
+		final IChain chain1 = ChainBuilder.create().add(Say.thread()).add(Say.what(4, buffer)).add(Say.what("chain 1 done")).add(Say.what(5, buffer)).build(Service.edt.executor());
+		final IChain chain2 = ChainBuilder.create().add(Say.thread()).add(Say.what(7, buffer)).add(Say.what("chain 2 done")).add(Say.what(8, buffer)).build(Service.edt.executor());
+		final IChain chain3 = ChainBuilder.create().add(Say.thread()).add(Say.what(14, buffer)).add(Say.what("chain 3 done")).add(Say.what(15, buffer)).build(Service.edt.executor());
 
 		buffer.append(1);
 

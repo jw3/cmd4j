@@ -18,8 +18,8 @@ public class ChainedChainsTest {
 	public void test()
 		throws Exception {
 
-		final IChain chain1 = ChainBuilder.create(Say.what(1)).add(Say.what("...")).executor(Service.a.get()).add(Say.what(2)).build();
-		final IChain chain2 = ChainBuilder.create(Say.what(3)).add(Say.what("...")).executor(Service.a.get()).add(Say.what(4)).build();
+		final IChain chain1 = ChainBuilder.create(Say.what(1)).add(Say.what("...")).executor(Service.t1.executor()).add(Say.what(2)).build();
+		final IChain chain2 = ChainBuilder.create(Say.what(3)).add(Say.what("...")).executor(Service.t1.executor()).add(Say.what(4)).build();
 
 		ChainBuilder.create()//
 			.add(chain1)

@@ -20,7 +20,7 @@ public class TestUnthreadedChain {
 		ChainBuilder.create(Say.what(1))//
 			.add(Say.what("..."))
 			//
-			.executor(Service.a.get())
+			.executor(Service.t1.executor())
 			//
 			.add(Say.what(2))
 			//
