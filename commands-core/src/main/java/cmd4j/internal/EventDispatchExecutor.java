@@ -7,12 +7,15 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.SwingUtilities;
 
+import com.google.common.annotations.Beta;
+
 /**
  * An ignorantly simple implementation of an ExecutorService that runs things on the EDT
  *
  * @author wassj
  *
  */
+@Beta
 public final class EventDispatchExecutor
 	extends AbstractExecutorService {
 

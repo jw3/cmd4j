@@ -18,6 +18,9 @@ import com.google.common.util.concurrent.MoreExecutors;
 /**
  * The traverser of {@link Link}s in a {@link IChain}.  It controls the execution flow from link
  * to link and ensures that each command is run by the appropriate {@link ExecutorService}.
+ * 
+ * @dto A Linker contains the default dto that is used if an individual Link does not specify its own dto.
+ * @concurrency A Linker always executes on the thread it was called from.
  *
  * @author wassj
  *
@@ -28,7 +31,7 @@ public class Linker
 	private final Object dto;
 	private final ILink head;
 	private final boolean unthreaded;
-	private final ListeningExecutorService executor = MoreExecutors.sameThreadExecutor();//MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
+	private final ListeningExecutorService executor = MoreExecutors.sameThreadExecutor();
 
 
 	public static Linker create(final ILink head, final Object dto) {

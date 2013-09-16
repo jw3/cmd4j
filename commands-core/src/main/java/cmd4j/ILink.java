@@ -1,18 +1,34 @@
 package cmd4j;
 
 /**
- *
+ * The context in which an {@link ICommand} executes. 
  *
  * @author wassj
  *
  */
 public interface ILink {
 
+	/**
+	 * the {@link ILink} to be executed after this 
+	 * @return {@link ILink} or null
+	 */
 	ILink next();
 
 
+	/**
+	 * Data Transfer Object that is passed to {@link ICommand}s within this link.
+	 * This acts as an override to the {@link IChain} level dto.
+	 * @return Object the Data Transfer Object
+	 */
 	Object dto();
 
 
+	/**
+	 * the {@link ICommand} in this link.  The actual Command type will be determined 
+	 * at execution time.  It is possible that through the use of {@link ICommand3}
+	 * that this link could execute more than one Command.  So this property could
+	 * be thought of to represent the 'head' command for this link.
+	 * @return {@link ICommand}
+	 */
 	ICommand cmd();
 }

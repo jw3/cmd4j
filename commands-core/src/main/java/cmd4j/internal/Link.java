@@ -5,6 +5,9 @@ import cmd4j.ILink;
 
 /**
  * Provides the context in which an {@link ICommand} executes.  Can combine together with other Links to form a chain.
+ * 
+ * @dto A Link can provide an overriding dto that will be passed to commands executing withing the context of this Link.
+ * @concurrency A Link does not exhibit any concurrency behavior by default, but can be decorated to do so. 
  *
  * @author wassj
  *
