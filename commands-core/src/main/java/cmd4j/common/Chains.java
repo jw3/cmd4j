@@ -52,6 +52,16 @@ public enum Chains {
 	}
 
 
+	/**
+	 * enable visitor mode in a {@link IChain}
+	 * @param chain
+	 * @return
+	 */
+	public static IChain makeVisitable(IChain chain) {
+		return new VisitorModeDecorator(chain);
+	}
+
+
 	public static void invokeQuietly(final IChain chain)
 		throws RuntimeException {
 
@@ -160,6 +170,53 @@ public enum Chains {
 			throws Exception {
 
 			this.executor.submit(Linker.create(chain.head(), dto)).get();
+		}
+	}
+
+
+	/**
+	 * Decorator that provides Visitor Pattern like behavior for an {@link IChain}
+	 * 
+	 * This is visitor-like in the sense that we lift the requirement for all Data Transfer Object 
+	 * accepting {@link ICommand}s to have an assignable type to the dto that the Chain receives.
+	 * 
+	 * That allows you to create a chain of Commands, and pass a DTO to the chain, and have only
+	 * the applicable Commands process that object. So similar to the Visitor Pattern we base calling
+	 * on (1) The dynamic type of the element and (2) The dynamic type of the visitor.
+	 *
+	 * @author wassj
+	 *
+	 */
+	private static class VisitorModeDecorator
+		implements IChain {
+
+		private final IChain chain;
+
+
+		public VisitorModeDecorator(final IChain chain) {
+			this.chain = chain;
+		}
+
+
+		/**
+		 * override the call to the Linker invoking the undo method
+		 */
+		public void invoke(Object dto)
+			throws Exception {
+
+			MoreExecutors.sameThreadExecutor().submit(Linker.create(chain.head(), dto).visitable(true)).get();
+		}
+
+
+		public void invoke()
+			throws Exception {
+
+			this.invoke(null);
+		}
+
+
+		public ILink head() {
+			return chain.head();
 		}
 	}
 }

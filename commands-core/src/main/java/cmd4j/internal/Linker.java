@@ -1,5 +1,7 @@
 package cmd4j.internal;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
@@ -33,6 +35,20 @@ public class Linker
 	private final boolean unthreaded;
 	private final ListeningExecutorService executor = MoreExecutors.sameThreadExecutor();
 
+	private boolean visitable;
+
+
+	/**
+	 * Marks an object for execution by a specified {@link ListeningExecutorService}
+	 *
+	 * @author wassj
+	 *
+	 */
+	public interface IThreaded {
+
+		ListeningExecutorService executor();
+	}
+
 
 	public static Linker create(final ILink head, final Object dto) {
 		return new Linker(head, dto, false);
@@ -53,6 +69,19 @@ public class Linker
 		this.head = head;
 		this.dto = dto;
 		this.unthreaded = unthreaded;
+	}
+
+
+	/**
+	 * set this linker to visitable mode
+	 * this allows dto commands that do not match the chain type to be skipped by the chain
+	 * with visitable mode turned off a mismatched dto will result in an exception being thrown
+	 * @param visitable
+	 * @return
+	 */
+	public Linker visitable(final boolean visitable) {
+		this.visitable = visitable;
+		return this;
 	}
 
 
@@ -218,30 +247,55 @@ public class Linker
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
+	/// safely suppress here: we do some extra checking to ensure the dto fits in the invocation
 	static ICommand invokeCommand(final ICommand command, final Object dto)
 		throws Exception {
 
-		if (command instanceof ICommand3) {
-			return ((ICommand3)command).invoke(dto);
+		final boolean castable = dtoIsCastableForCommand(command, dto);
+		if (castable) {
+			if (command instanceof ICommand3) {
+				return ((ICommand3)command).invoke(dto);
+			}
+			else if (command instanceof ICommand2) {
+				((ICommand2)command).invoke(dto);
+			}
+			else if (command instanceof ICommand1) {
+				((ICommand1)command).invoke();
+			}
 		}
-		else if (command instanceof ICommand2) {
-			((ICommand2)command).invoke(dto);
-		}
-		else if (command instanceof ICommand1) {
-			((ICommand1)command).invoke();
+		else {
+			throw new IllegalArgumentException("dto does not fit");
 		}
 		return null;
 	}
 
 
 	/**
-	 * Marks an object for execution by a specified {@link ListeningExecutorService}
-	 *
-	 * @author wassj
-	 *
+	 * check that the passed dto fits into the passed commands invoke(T) method.
+	 *  
 	 */
-	public interface IThreaded {
+	static boolean dtoIsCastableForCommand(final ICommand command, final Object dto) {
+		final Class<?> cmdType = typedAs(command);
+		final Class<?> dtoType = dto.getClass();
+		return cmdType.isAssignableFrom(dtoType);
+	}
 
-		ListeningExecutorService executor();
+
+	/**
+	 * get the type parameter of the command
+	 * @param t
+	 * @return
+	 */
+	private static Class<?> typedAs(ICommand t) {
+		for (Type type : t.getClass().getGenericInterfaces()) {
+			if (type instanceof ParameterizedType) {
+				final Type paramType = ((ParameterizedType)type).getActualTypeArguments()[0];
+				if (paramType instanceof Class<?>) {
+					return (Class<?>)paramType;
+				}
+			}
+		}
+		return Object.class;
 	}
 }
