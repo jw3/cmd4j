@@ -276,9 +276,12 @@ public class Linker
 	 *  
 	 */
 	static boolean dtoIsCastableForCommand(final ICommand command, final Object dto) {
-		final Class<?> cmdType = typedAs(command);
-		final Class<?> dtoType = dto.getClass();
-		return cmdType.isAssignableFrom(dtoType);
+		if (dto != null) {
+			final Class<?> cmdType = typedAs(command);
+			final Class<?> dtoType = dto.getClass();
+			return cmdType.isAssignableFrom(dtoType);
+		}
+		return true;
 	}
 
 
