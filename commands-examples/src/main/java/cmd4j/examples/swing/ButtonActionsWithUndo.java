@@ -64,7 +64,7 @@ public class ButtonActionsWithUndo {
 	 *
 	 */
 	private static class UndoableChangeColor
-		implements IUndo {
+		implements ICommand1, IUndo {
 
 		private final Color color;
 		private final Color original;
