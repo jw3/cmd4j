@@ -9,18 +9,28 @@ package cmd4j;
 public enum Tests {
 	/*singleton-enum*/;
 
-	public ITestableCommand nop1() {
+	public static ITestableCommand nop1() {
 		return new TestableCommand1();
 	}
 
 
-	public ITestableCommand nop2() {
+	public static ITestableCommand nop2() {
 		return new TestableCommand2();
 	}
 
 
-	public ITestableCommand nop3() {
+	public static ITestableCommand nop3() {
 		return new TestableCommand3();
+	}
+
+
+	public static <T> Do set(final Variable<T> var, final T val) {
+		return new Do() {
+			public ICommand invoke(Object dto) {
+				var.value = val;
+				return null;
+			}
+		};
 	}
 
 
@@ -69,6 +79,29 @@ public enum Tests {
 		public ICommand invoke(final Object dto) {
 			invoked = true;
 			return null;
+		}
+	}
+
+
+	abstract static public class Do
+		extends TestableCommand3 {
+	}
+
+
+	/**
+	 * 
+	 *
+	 *
+	 * @author wassj
+	 *
+	 * @param <T>
+	 */
+	public static class Variable<T> {
+		private T value;
+
+
+		public T value() {
+			return value;
 		}
 	}
 }

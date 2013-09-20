@@ -2,8 +2,6 @@ package cmd4j;
 
 import org.testng.Assert;
 
-import cmd4j.ICommand;
-
 /**
  * Utility factory class for making assertions about what thread a given point in a chain is executing on
  *
@@ -33,7 +31,7 @@ public class AssertThread
 	}
 
 
-	public static AssertThread is(final Service service) {
+	public static AssertThread is(final IService service) {
 		return new AssertThread() {
 			public void invoke() {
 				Assert.assertTrue(service.isCurrent(), "expected to be run on " + service.name() + ", was run on " + Thread.currentThread().getName());
