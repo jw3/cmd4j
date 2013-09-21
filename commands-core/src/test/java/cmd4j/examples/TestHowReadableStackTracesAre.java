@@ -14,7 +14,7 @@ import cmd4j.common.ChainBuilder;
  */
 public class TestHowReadableStackTracesAre {
 
-	@Test
+	@Test(expectedExceptions = Exception.class)
 	public void tenChainsDeep()
 		throws Exception {
 
