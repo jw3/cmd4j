@@ -6,9 +6,11 @@ import java.lang.reflect.Type;
 import org.junit.Assert;
 import org.testng.annotations.Test;
 
+import cmd4j.IChain;
 import cmd4j.ICommand;
 import cmd4j.ICommand2;
 import cmd4j.common.ChainBuilder;
+import cmd4j.common.Chains;
 
 /**
  * Ensure that a DTO does not end up being passed to a {@link ICommand} that will not accept it.
@@ -66,7 +68,9 @@ public class DtoTypesafetyTest {
 	}
 
 
-	@Test
+	// REVISIT can narrow this exception after some work on the exception machinery
+	///@Test(expectedExceptions = IllegalArgumentException.class)
+	@Test(expectedExceptions = Exception.class)
 	public void testIncorrectTypes1()
 		throws Exception {
 
@@ -82,7 +86,9 @@ public class DtoTypesafetyTest {
 	}
 
 
-	@Test
+	// REVISIT can narrow this exception after some work on the exception machinery
+	///@Test(expectedExceptions = IllegalArgumentException.class)
+	@Test(expectedExceptions = Exception.class)
 	public void testIncorrectTypes2()
 		throws Exception {
 
@@ -91,6 +97,46 @@ public class DtoTypesafetyTest {
 		final BaseInvoked uninvoked = new TypedInteger();
 
 		ChainBuilder.create().add(uninvoked).add(invoked).add(invoked2).build().invoke(1.1);
+
+		Assert.assertFalse(uninvoked.wasInvoked());
+		Assert.assertTrue(invoked.wasInvoked());
+		Assert.assertTrue(invoked2.wasInvoked());
+	}
+
+
+	/**
+	 * visitable decorator allows the incompatible commands to be skipped
+	 */
+	@Test
+	public void testIncorrectTypes1_visitable()
+		throws Exception {
+
+		final BaseInvoked invoked = new Untyped();
+		final BaseInvoked invoked2 = new TypedString();
+		final BaseInvoked uninvoked = new TypedNumber();
+
+		final IChain chain = ChainBuilder.create().add(uninvoked).add(invoked).add(invoked2).build();
+		Chains.makeVisitable(chain).invoke("not a number");
+
+		Assert.assertFalse(uninvoked.wasInvoked());
+		Assert.assertTrue(invoked.wasInvoked());
+		Assert.assertTrue(invoked2.wasInvoked());
+	}
+
+
+	/**
+	 * visitable decorator allows the incompatible commands to be skipped
+	 */
+	@Test
+	public void testIncorrectTypes2_visitable()
+		throws Exception {
+
+		final BaseInvoked invoked = new Untyped();
+		final BaseInvoked invoked2 = new TypedNumber();
+		final BaseInvoked uninvoked = new TypedInteger();
+
+		final IChain chain = ChainBuilder.create().add(uninvoked).add(invoked).add(invoked2).build();
+		Chains.makeVisitable(chain).invoke(1.1);
 
 		Assert.assertFalse(uninvoked.wasInvoked());
 		Assert.assertTrue(invoked.wasInvoked());

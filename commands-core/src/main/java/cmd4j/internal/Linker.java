@@ -33,8 +33,9 @@ public class Linker
 	private final Object dto;
 	private final ILink head;
 	private final boolean unthreaded;
-	private final ListeningExecutorService executor = MoreExecutors.sameThreadExecutor();
+	private final ExecutorService executor = MoreExecutors.sameThreadExecutor();
 
+	private boolean undo;
 	private boolean visitable;
 
 
@@ -45,8 +46,7 @@ public class Linker
 	 *
 	 */
 	public interface IThreaded {
-
-		ListeningExecutorService executor();
+		ExecutorService executor();
 	}
 
 
@@ -57,11 +57,6 @@ public class Linker
 
 	public static Linker unthreaded(final ILink head, final Object dto) {
 		return new Linker(head, dto, true);
-	}
-
-
-	public static Linker undo(final ILink head, final Object dto) {
-		return new UndoLinker(head, dto, false);
 	}
 
 
@@ -85,6 +80,18 @@ public class Linker
 	}
 
 
+	/**
+	 * set this linker to undo mode
+	 * this allows calls to the undo method on any command that implements {@link IUndo}
+	 * commands that do not implement IUndo will not be invoked when undo mode is on
+	 * @return the undo
+	 */
+	public Linker undo(final boolean undo) {
+		this.undo = undo;
+		return this;
+	}
+
+
 	public Void call()
 		throws Exception {
 
@@ -96,10 +103,15 @@ public class Linker
 	}
 
 
+	/*
+	 * revisit: there is no need for the listenable decoration here unless there is a callback?
+	 * 			note though that MoreExecutors.sameThreadExecutor() is guava, so there is no
+	 * 			need to think about eliminating the listables all together.
+	 */
 	protected ILink callImpl(final ILink link)
 		throws Exception {
 
-		final ListeningExecutorService executor = this.executorOf(link);
+		final ListeningExecutorService executor = MoreExecutors.listeningDecorator(this.executorOf(link));
 		final ListenableFuture<ILink> future = executor.submit(this.toCallable(link));
 		//			if (next instanceof FutureCallback<?>) {
 		//				Futures.addCallback(future, (FutureCallback<ILink>)next);
@@ -108,12 +120,12 @@ public class Linker
 	}
 
 
-	protected Callable<ILink> toCallable(final ILink link) {
-		return CallableLinkDecorator.decorate(link, dto);
+	private Callable<ILink> toCallable(final ILink link) {
+		return new CallableLinkDecorator(link, dto);
 	}
 
 
-	private ListeningExecutorService executorOf(final ILink link) {
+	private ExecutorService executorOf(final ILink link) {
 		if (!unthreaded && link instanceof IThreaded) {
 			final IThreaded threaded = (IThreaded)link;
 			return threaded.executor() != null ? threaded.executor() : executor;
@@ -128,46 +140,20 @@ public class Linker
 
 
 	/**
-	 *
-	 *
-	 * @author wassj
-	 *
-	 */
-	private static class UndoLinker
-		extends Linker {
-
-		private UndoLinker(final ILink head, final Object dto, final boolean unthreaded) {
-			super(head, dto, unthreaded);
-		}
-
-
-		@Override
-		protected Callable<ILink> toCallable(ILink link) {
-			return LinkUndoDecorator.decorate(link, this.linkerDto());
-		}
-	}
-
-
-	/**
 	 * Defer the callable implementation until execution time
 	 * when it is installed by this decorator.
 	 *
 	 * @author wassj
 	 *
 	 */
-	private static class CallableLinkDecorator
+	private class CallableLinkDecorator
 		implements Callable<ILink> {
 
 		private final ILink link;
 		private final Object dto;
 
 
-		public static Callable<ILink> decorate(final ILink link, final Object dto) {
-			return new CallableLinkDecorator(link, dto);
-		}
-
-
-		private CallableLinkDecorator(final ILink link, final Object dto) {
+		CallableLinkDecorator(final ILink link, final Object dto) {
 			this.link = link;
 			this.dto = dto;
 		}
@@ -181,9 +167,14 @@ public class Linker
 
 			//		try {
 			ICommand command = link.cmd();
-			while (command != null) {
-				final Object dto = link.dto() != null ? link.dto() : this.dto;
-				command = invokeCommand(command, dto);
+			if (undo && command instanceof IUndo) {
+				((IUndo)command).undo();
+			}
+			else if (!undo) { /* eliminate calls to invoke in undo chains */
+				while (command != null) {
+					final Object dto = link.dto() != null ? link.dto() : this.dto;
+					command = invokeCommand(command, dto);
+				}
 			}
 			return link.next();
 			//		}
@@ -195,87 +186,46 @@ public class Linker
 			//		}
 		}
 
-	}
 
-
-	/**
-	 *
-	 *
-	 * @author wassj
-	 *
-	 */
-	private static class LinkUndoDecorator
-		implements Callable<ILink> {
-
-		private final ILink link;
-		private final Object dto;
-
-
-		public static LinkUndoDecorator decorate(final ILink link, final Object dto) {
-			return new LinkUndoDecorator(link, dto);
-		}
-
-
-		private LinkUndoDecorator(final ILink link, final Object dto) {
-			this.link = link;
-			this.dto = dto;
-		}
-
-
-		public ILink call()
+		/**
+		 * util for executing and handling any return value from a given {@link ICommand}
+		 * @param command
+		 * @param dto
+		 * @return
+		 * @throws Exception
+		 */
+		@SuppressWarnings("unchecked")
+		/// safely suppressed here: we do some extra checking to ensure the dto fits in the invocation
+		public ICommand invokeCommand(final ICommand command, final Object dto)
 			throws Exception {
 
-			ICommand command = link.cmd();
-			if (command instanceof IUndo) {
-				((IUndo)command).undo();
-			}
-			else {
-				while (command != null) {
-					final Object dto = link.dto() != null ? link.dto() : this.dto;
-					command = invokeCommand(command, dto);
+			final boolean castable = dtoIsCastableForCommand(command, dto);
+			if (castable) {
+				if (command instanceof ICommand3) {
+					return ((ICommand3)command).invoke(dto);
+				}
+				else if (command instanceof ICommand2) {
+					((ICommand2)command).invoke(dto);
+				}
+				else if (command instanceof ICommand1) {
+					((ICommand1)command).invoke();
 				}
 			}
-			return link.next();
+			else if (!visitable) {
+				throw new IllegalArgumentException("dto does not fit");
+			}
+			return null;
 		}
 	}
 
 
 	/**
-	 * util for executing and handling any return value from a given {@link ICommand}
+	 * check that the passed dto fits into the passed ICommand#invoke method.
 	 * @param command
 	 * @param dto
 	 * @return
-	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
-	/// safely suppress here: we do some extra checking to ensure the dto fits in the invocation
-	static ICommand invokeCommand(final ICommand command, final Object dto)
-		throws Exception {
-
-		final boolean castable = dtoIsCastableForCommand(command, dto);
-		if (castable) {
-			if (command instanceof ICommand3) {
-				return ((ICommand3)command).invoke(dto);
-			}
-			else if (command instanceof ICommand2) {
-				((ICommand2)command).invoke(dto);
-			}
-			else if (command instanceof ICommand1) {
-				((ICommand1)command).invoke();
-			}
-		}
-		else {
-			throw new IllegalArgumentException("dto does not fit");
-		}
-		return null;
-	}
-
-
-	/**
-	 * check that the passed dto fits into the passed commands invoke(T) method.
-	 *  
-	 */
-	static boolean dtoIsCastableForCommand(final ICommand command, final Object dto) {
+	private static boolean dtoIsCastableForCommand(final ICommand command, final Object dto) {
 		if (dto != null) {
 			final Class<?> cmdType = typedAs(command);
 			final Class<?> dtoType = dto.getClass();
@@ -287,8 +237,8 @@ public class Linker
 
 	/**
 	 * get the type parameter of the command
-	 * @param t
-	 * @return
+	 * @param t {@link ICommand} the command 
+	 * @return the generic param of t, or Object if there is none
 	 */
 	private static Class<?> typedAs(ICommand t) {
 		for (Type type : t.getClass().getGenericInterfaces()) {
