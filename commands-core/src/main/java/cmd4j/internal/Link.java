@@ -10,6 +10,7 @@ import cmd4j.ILink;
  * @concurrency A Link does not exhibit any concurrency behavior by default, but can be decorated to do so. 
  *
  * @author wassj
+ * @internal Intended for Command Framework use only.  Unsafe for direct client usage.
  *
  */
 public class Link

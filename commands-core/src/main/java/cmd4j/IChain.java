@@ -2,8 +2,10 @@ package cmd4j;
 
 /**
  * A handle on a set of {@link ILink} objects that will execute sequentially,
- * a la 'links in a chain'.  Provides an empty context in which those links execute.
- * Can be decorated to add to that context things such as concurrency and undo support. 
+ * can be described as 'links in a chain', where the links are {@link ILink} instances.  
+ * 
+ * Provides an empty context in which those links execute, and can be decorated to add 
+ * to that context things such as concurrency and undo support. 
  * 
  * Implements {@link ICommand1} and {@link ICommand2} in order to:
  *  1) Allow {@link IChain} to be linked with other Chains just as an {@link ICommand} would.

@@ -5,6 +5,9 @@ import java.lang.reflect.Type;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cmd4j.IChain;
 import cmd4j.ICommand;
 import cmd4j.ICommand1;
@@ -22,13 +25,16 @@ import com.google.common.util.concurrent.MoreExecutors;
  * to link and ensures that each command is run by the appropriate {@link ExecutorService}.
  * 
  * @dto A Linker contains the default dto that is used if an individual Link does not specify its own dto.
- * @concurrency A Linker always executes on the thread it was called from.
+ * @concurrency A Linker implements {@link Callable} and will be executed in an {@link ExecutorService}
+ * 				  provided by the owning {@link IChain}.
  *
  * @author wassj
  *
  */
 public class Linker
 	implements Callable<Void> {
+
+	private final Logger logger = LoggerFactory.getLogger(Linker.class);
 
 	private final Object dto;
 	private final ILink head;
@@ -77,6 +83,8 @@ public class Linker
 	 */
 	public Linker undo(final boolean undo) {
 		this.undo = undo;
+		logger.debug("set undo to {}");
+
 		return this;
 	}
 
@@ -201,6 +209,7 @@ public class Linker
 				}
 			}
 			else if (!visitable) {
+				logger.debug("dto was not castable and linker was not visitable");
 				throw new IllegalArgumentException("dto does not fit");
 			}
 			return null;

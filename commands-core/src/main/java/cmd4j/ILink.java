@@ -1,8 +1,11 @@
 package cmd4j;
 
 /**
- * The context in which an {@link ICommand} executes. 
- *
+ * The context in which an {@link ICommand} executes.
+ * 
+ * Represents a 'link in a chain', in other words a part of an {@link IChain} that
+ * is potentially connected to a link that executed prior and one that executes after.
+ * 
  * @author wassj
  *
  */

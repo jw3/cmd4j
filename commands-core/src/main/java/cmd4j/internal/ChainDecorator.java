@@ -19,6 +19,7 @@ import com.google.common.util.concurrent.MoreExecutors;
  * @note Use the Command API to implement a feature within itself.
  *
  * @author wassj
+ * @internal Intended for Command Framework use only.  Unsafe for direct client usage.
  *
  */
 public class ChainDecorator
