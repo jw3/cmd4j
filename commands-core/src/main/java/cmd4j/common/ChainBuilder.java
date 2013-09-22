@@ -6,9 +6,10 @@ import java.util.concurrent.Executors;
 import cmd4j.IChain;
 import cmd4j.ICommand;
 import cmd4j.ILink;
-import cmd4j.internal.LinkBuilder;
+import cmd4j.internal.Link;
 import cmd4j.internal.Linker;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
 /**
@@ -123,15 +124,6 @@ final public class ChainBuilder {
 
 
 	/**
-	 * get the {@link LinkBuilder} for tail
-	 * @return
-	 */
-	public LinkBuilder linkBuilder() {
-		return tail;
-	}
-
-
-	/**
 	 * construct an {@link IChain} object from the {@link ICommand}s that have been added to this builder
 	 * @return
 	 */
@@ -188,5 +180,68 @@ final public class ChainBuilder {
 			};
 		}
 		return Chains.empty();
+	}
+
+
+	/**
+	 * Sub-builder of {@link Link} objects allowing for finer grained specification of Link properties
+	 * 
+	 * 
+	 * @author wassj
+	 *
+	 */
+	static class LinkBuilder {
+		private final ICommand command;
+		private LinkBuilder next;
+
+		private ListeningExecutorService executor;
+		private Object dto;
+
+
+		/**
+		 * creates a new builder. package private as only the {@link ChainBuilder} should create these
+		 * @param command
+		 */
+		LinkBuilder(final ICommand command) {
+			this.command = command;
+		}
+
+
+		/**
+		 * sets the executor for the link
+		 * @param executor
+		 * @return
+		 */
+		LinkBuilder executor(final ExecutorService executor) {
+			this.executor = MoreExecutors.listeningDecorator(executor);
+			return this;
+		}
+
+
+		LinkBuilder add(final ICommand command) {
+			next = new LinkBuilder(command);
+			return next;
+		}
+
+
+		LinkBuilder add(final LinkBuilder builder) {
+			next = builder;
+			return builder.next;
+		}
+
+
+		LinkBuilder dto(final Object dto) {
+			this.dto = dto;
+			return this;
+		}
+
+
+		ILink build() {
+			final ILink link = new Link(command, next != null ? next.build() : null).dto(dto);
+			if (executor != null) {
+				return Links.makeThreaded(link, executor);
+			}
+			return link;
+		}
 	}
 }

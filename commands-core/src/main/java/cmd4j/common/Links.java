@@ -5,9 +5,9 @@ import java.util.concurrent.ExecutorService;
 import cmd4j.ICommand;
 import cmd4j.IDoneListener;
 import cmd4j.ILink;
+import cmd4j.common.ChainBuilder.LinkBuilder;
 import cmd4j.internal.IThreaded;
 import cmd4j.internal.Link;
-import cmd4j.internal.LinkBuilder;
 import cmd4j.internal.Linker;
 
 import com.google.common.util.concurrent.FutureCallback;
