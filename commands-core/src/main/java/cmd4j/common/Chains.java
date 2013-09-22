@@ -4,6 +4,7 @@ import java.util.concurrent.ExecutorService;
 
 import cmd4j.IChain;
 import cmd4j.ICommand;
+import cmd4j.ILink;
 import cmd4j.internal.ChainDecorator;
 
 /**
@@ -14,6 +15,15 @@ import cmd4j.internal.ChainDecorator;
  */
 public enum Chains {
 	/*singleton-enum*/;
+
+	/**
+	 * creates an empty {@link IChain} which can be used in any operation a normal chain would, but will not do anything
+	 * @return {@link IChain} the empty chain
+	 */
+	public static IChain empty() {
+		return new EmptyChain();
+	}
+
 
 	/**
 	 * create a {@link IChain} that contains the given {@link ICommand}
@@ -76,6 +86,32 @@ public enum Chains {
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+
+	/**
+	 * An empty {@link IChain} implementation
+	 * 
+	 * @author wassj
+	 *
+	 */
+	private static class EmptyChain
+		implements IChain {
+
+		private final ILink head = LinkBuilder.empty();
+
+
+		public ILink head() {
+			return head;
+		}
+
+
+		public void invoke() {
+		}
+
+
+		public void invoke(Object dto) {
 		}
 	}
 }

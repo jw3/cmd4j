@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 
 import cmd4j.IChain;
 import cmd4j.ICommand;
-import cmd4j.internal.AbstractChain;
+import cmd4j.ILink;
 import cmd4j.internal.Linker;
 
 import com.google.common.util.concurrent.MoreExecutors;
@@ -22,15 +22,6 @@ final public class ChainBuilder {
 	private LinkBuilder head;
 	private LinkBuilder tail;
 	private LinkBuilder finallys;
-
-
-	/**
-	 * creates an empty {@link IChain} which can be used in any operation a normal chain would, but will not do anything
-	 * @return {@link IChain} the empty chain
-	 */
-	public static IChain empty() {
-		return new EmptyChain();
-	}
 
 
 	/**
@@ -170,7 +161,16 @@ final public class ChainBuilder {
 			if (finallys != null) {
 				tail.add(finallys);
 			}
-			return new AbstractChain(head.build()) {
+
+			return new IChain() {
+				private final ILink head = ChainBuilder.this.head.build();
+
+
+				public ILink head() {
+					return this.head;
+				}
+
+
 				public void invoke()
 					throws Exception {
 
@@ -186,29 +186,6 @@ final public class ChainBuilder {
 				}
 			};
 		}
-		return ChainBuilder.empty();
-	}
-
-
-	/**
-	 * An empty {@link IChain} implementation
-	 * 
-	 * @author wassj
-	 *
-	 */
-	private static class EmptyChain
-		extends AbstractChain {
-
-		public EmptyChain() {
-			super(LinkBuilder.empty());
-		}
-
-
-		public void invoke() {
-		}
-
-
-		public void invoke(Object dto) {
-		}
+		return Chains.empty();
 	}
 }
