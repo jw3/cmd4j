@@ -1,6 +1,5 @@
-package cmd4j.common;
+package cmd4j;
 
-import cmd4j.ICommand;
 
 /**
  * Marks an {@link ICommand} as being able to be undone.  It is up to the Command implementation

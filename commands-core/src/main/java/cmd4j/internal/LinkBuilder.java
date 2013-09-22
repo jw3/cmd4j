@@ -1,10 +1,11 @@
-package cmd4j.common;
+package cmd4j.internal;
 
 import java.util.concurrent.ExecutorService;
 
 import cmd4j.ICommand;
 import cmd4j.ILink;
-import cmd4j.internal.Link;
+import cmd4j.common.ChainBuilder;
+import cmd4j.common.Links;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -25,19 +26,10 @@ final public class LinkBuilder {
 
 
 	/**
-	 * creates an empty {@link ILink} that can be used anywhere a normal link is used but will not do anything 
-	 * @return
-	 */
-	static ILink empty() {
-		return new EmptyLink();
-	}
-
-
-	/**
 	 * creates a new builder. package private as only the {@link ChainBuilder} should create these
 	 * @param command
 	 */
-	LinkBuilder(final ICommand command) {
+	public LinkBuilder(final ICommand command) {
 		this.command = command;
 	}
 
@@ -59,7 +51,7 @@ final public class LinkBuilder {
 	}
 
 
-	LinkBuilder add(final LinkBuilder builder) {
+	public LinkBuilder add(final LinkBuilder builder) {
 		next = builder;
 		return builder.next;
 	}
@@ -77,30 +69,11 @@ final public class LinkBuilder {
 	}
 
 
-	ILink build() {
+	public ILink build() {
 		final ILink link = new Link(command, next != null ? next.build() : null).dto(dto);
 		if (executor != null) {
 			return Links.makeThreaded(link, executor);
 		}
 		return link;
-	}
-
-
-	private static class EmptyLink
-		implements ILink {
-
-		public ILink next() {
-			return null;
-		}
-
-
-		public Object dto() {
-			return null;
-		}
-
-
-		public ICommand cmd() {
-			return null;
-		}
 	}
 }

@@ -11,7 +11,7 @@ import cmd4j.ICommand1;
 import cmd4j.ICommand2;
 import cmd4j.ICommand3;
 import cmd4j.ILink;
-import cmd4j.common.IUndo;
+import cmd4j.IUndo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;

@@ -3,8 +3,10 @@ package cmd4j.common;
 import java.util.concurrent.ExecutorService;
 
 import cmd4j.ICommand;
+import cmd4j.IDoneListener;
 import cmd4j.ILink;
 import cmd4j.internal.Link;
+import cmd4j.internal.LinkBuilder;
 import cmd4j.internal.Linker;
 import cmd4j.internal.Linker.IThreaded;
 
@@ -26,6 +28,15 @@ public enum Links {
 
 		final Linker linker = Linker.unthreaded(link, null);
 		MoreExecutors.sameThreadExecutor().submit(linker).get();
+	}
+
+
+	/**
+	 * creates an empty {@link ILink} that can be used anywhere a normal link is used but will not do anything 
+	 * @return
+	 */
+	public static ILink empty() {
+		return new EmptyLink();
 	}
 
 
@@ -130,6 +141,25 @@ public enum Links {
 
 		public Object dto() {
 			return link.dto();
+		}
+	}
+
+
+	private static class EmptyLink
+		implements ILink {
+
+		public ILink next() {
+			return null;
+		}
+
+
+		public Object dto() {
+			return null;
+		}
+
+
+		public ICommand cmd() {
+			return Commands.nop();
 		}
 	}
 }

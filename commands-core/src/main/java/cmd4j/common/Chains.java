@@ -99,7 +99,7 @@ public enum Chains {
 	private static class EmptyChain
 		implements IChain {
 
-		private final ILink head = LinkBuilder.empty();
+		private final ILink head = Links.empty();
 
 
 		public ILink head() {

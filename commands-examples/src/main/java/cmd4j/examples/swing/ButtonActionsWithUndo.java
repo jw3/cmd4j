@@ -14,9 +14,9 @@ import cmd4j.IChain;
 import cmd4j.ICommand;
 import cmd4j.ICommand1;
 import cmd4j.ICommand3;
+import cmd4j.IUndo;
 import cmd4j.common.ChainBuilder;
 import cmd4j.common.Chains;
-import cmd4j.common.IUndo;
 import cmd4j.swing.event.ChainAction;
 
 /**
