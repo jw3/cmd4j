@@ -1,5 +1,8 @@
 package cmd4j;
 
+import cmd4j.common.ChainBuilder;
+import cmd4j.common.Links;
+
 /**
  * The context in which an {@link ICommand} executes.
  * 
@@ -7,7 +10,12 @@ package cmd4j;
  * is potentially connected to a link that executed prior and one that executes after.
  * 
  * @author wassj
- *
+ * 
+ * @dto A Link can provide an overriding dto that will be passed to commands executing withing the context of this Link.
+ * @concurrency A Link does not exhibit any concurrency behavior by default, but can be decorated to do so. 
+ * 
+ * @see Links
+ * @see ChainBuilder
  */
 public interface ILink {
 

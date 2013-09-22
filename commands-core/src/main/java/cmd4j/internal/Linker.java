@@ -25,8 +25,7 @@ import com.google.common.util.concurrent.MoreExecutors;
  * to link and ensures that each command is run by the appropriate {@link ExecutorService}.
  * 
  * @dto A Linker contains the default dto that is used if an individual Link does not specify its own dto.
- * @concurrency A Linker implements {@link Callable} and will be executed in an {@link ExecutorService}
- * 				  provided by the owning {@link IChain}.
+ * @concurrency A Linker implements {@link Callable} and will be executed in an {@link ExecutorService} provided by the owning {@link IChain}.
  *
  * @author wassj
  *

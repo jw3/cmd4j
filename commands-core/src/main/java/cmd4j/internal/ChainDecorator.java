@@ -13,10 +13,10 @@ import com.google.common.util.concurrent.MoreExecutors;
 /**
  * A dynamic decorator that allows for stacking of decorations on an {@link IChain}.
  * 
- * Supports passing a ChainDecorator instance as the Chain in the ctor.
+ * Supports passing a {@link ChainDecorator} instance as the chain arg in the ctor.
  * Implements {@link IThreaded} to provide threading decoration support.
  * 
- * @note Use the Command API to implement a feature within itself.
+ * @note Using the Command API to implement a feature for itself.
  *
  * @author wassj
  * @internal Intended for Command Framework use only.  Unsafe for direct client usage.
