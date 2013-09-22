@@ -39,17 +39,6 @@ public class Linker
 	private boolean visitable;
 
 
-	/**
-	 * Marks an object for execution by a specified {@link ListeningExecutorService}
-	 *
-	 * @author wassj
-	 *
-	 */
-	public interface IThreaded {
-		ExecutorService executor();
-	}
-
-
 	public static Linker create(final ILink head, final Object dto) {
 		return new Linker(head, dto, false);
 	}

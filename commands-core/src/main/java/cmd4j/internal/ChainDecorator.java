@@ -7,7 +7,6 @@ import java.util.concurrent.ExecutorService;
 import cmd4j.IChain;
 import cmd4j.ICommand2;
 import cmd4j.ILink;
-import cmd4j.internal.Linker.IThreaded;
 
 import com.google.common.util.concurrent.MoreExecutors;
 
