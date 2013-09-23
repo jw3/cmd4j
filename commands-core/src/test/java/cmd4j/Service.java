@@ -8,7 +8,7 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.swing.SwingUtilities;
 
-import cmd4j.internal.EventDispatchExecutor;
+import cmd4j.common.CmdExecutors;
 
 /**
  * Manage a set of executors for tests; 
@@ -20,7 +20,7 @@ public enum Service implements IService {
 	t1(Mode.SINGLE),
 	t2(Mode.SINGLE),
 	multi10(Mode.MULTI),
-	edt(EventDispatchExecutor.create()) {
+	edt(CmdExecutors.swingExecutor()) {
 		@Override
 		public boolean isCurrent() {
 			return SwingUtilities.isEventDispatchThread();
