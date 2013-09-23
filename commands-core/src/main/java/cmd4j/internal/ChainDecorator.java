@@ -45,7 +45,7 @@ public class ChainDecorator
 		}
 		else {
 			this.chain = chain;
-			this.executor = executor != null ? MoreExecutors.listeningDecorator(executor) : null;
+			this.executor = executor != null ? executor : null;
 		}
 	}
 

@@ -9,7 +9,6 @@ import cmd4j.ILink;
 import cmd4j.internal.Link;
 import cmd4j.internal.Linker;
 
-import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
 /**
@@ -194,7 +193,7 @@ final public class ChainBuilder {
 		private final ICommand command;
 		private LinkBuilder next;
 
-		private ListeningExecutorService executor;
+		private ExecutorService executor;
 		private Object dto;
 
 
@@ -213,7 +212,7 @@ final public class ChainBuilder {
 		 * @return
 		 */
 		LinkBuilder executor(final ExecutorService executor) {
-			this.executor = MoreExecutors.listeningDecorator(executor);
+			this.executor = executor;
 			return this;
 		}
 

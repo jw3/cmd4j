@@ -11,7 +11,6 @@ import cmd4j.internal.Link;
 import cmd4j.internal.Linker;
 
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
 /**
@@ -70,16 +69,16 @@ public enum Links {
 		implements ILink, IThreaded {
 
 		private final ILink link;
-		private final ListeningExecutorService executor;
+		private final ExecutorService executor;
 
 
 		public LinkThreadingDecorator(final ILink link, final ExecutorService executor) {
 			this.link = link;
-			this.executor = MoreExecutors.listeningDecorator(executor);
+			this.executor = executor;
 		}
 
 
-		public ListeningExecutorService executor() {
+		public ExecutorService executor() {
 			return executor;
 		}
 
