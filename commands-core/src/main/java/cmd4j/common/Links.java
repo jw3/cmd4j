@@ -6,7 +6,6 @@ import cmd4j.ICommand;
 import cmd4j.IDoneListener;
 import cmd4j.ILink;
 import cmd4j.common.ChainBuilder.LinkBuilder;
-import cmd4j.internal.IThreaded;
 import cmd4j.internal.Link;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -151,4 +150,17 @@ public enum Links {
 			return Commands.nop();
 		}
 	}
+
+
+	/**
+	 * Marks an object for execution by a specified {@link ExecutorService}
+	 *
+	 * @author wassj
+	 * @internal Intended for Command Framework use only.  Unsafe for direct client usage.
+	 *
+	 */
+	public interface IThreaded {
+		ExecutorService executor();
+	}
+
 }

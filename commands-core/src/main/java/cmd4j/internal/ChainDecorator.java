@@ -7,8 +7,9 @@ import java.util.concurrent.ExecutorService;
 import cmd4j.IChain;
 import cmd4j.ICommand2;
 import cmd4j.ILink;
-import cmd4j.internal.CallableLinkDecorator.VisitableToCallable;
-import cmd4j.internal.CallableUndoLinkDecorator.UndoToCallable;
+import cmd4j.common.Links.IThreaded;
+import cmd4j.internal.CmdCallables.UndoToCallable;
+import cmd4j.internal.CmdCallables.VisitableToCallable;
 
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -25,7 +26,7 @@ import com.google.common.util.concurrent.MoreExecutors;
  *
  */
 public class ChainDecorator
-	implements IChain, IThreaded {
+	implements IChain {
 
 	private final List<ICommand2<ILinker>> operations = new LinkedList<ICommand2<ILinker>>();
 	private final IChain chain;
@@ -96,7 +97,7 @@ public class ChainDecorator
 		for (ICommand2<ILinker> operation : operations) {
 			operation.invoke(linker);
 		}
-		this.executor.submit(Linkers.asCallable(linker, dto)).get();
+		this.executor.submit(CmdCallables.linker(linker, dto)).get();
 	}
 
 
