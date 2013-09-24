@@ -6,7 +6,10 @@ import java.util.concurrent.ExecutorService;
 import cmd4j.IChain;
 import cmd4j.ICommand;
 import cmd4j.ILink;
+import cmd4j.internal.Callables;
 import cmd4j.internal.ChainDecorator;
+import cmd4j.internal.ILinker;
+import cmd4j.internal.Linkers;
 
 /**
  * Utility methods for {@link IChain}s
@@ -23,6 +26,11 @@ public enum Chains {
 	 */
 	public static IChain empty() {
 		return new EmptyChain();
+	}
+
+
+	public static IChain create(final ILink link) {
+		return new DefaultChain(link);
 	}
 
 
@@ -142,6 +150,38 @@ public enum Chains {
 
 
 		public void invoke(final Object dto) {
+		}
+	}
+
+
+	private static class DefaultChain
+		implements IChain {
+
+		private final ILink head;
+
+
+		public DefaultChain(final ILink head) {
+			this.head = head;
+		}
+
+
+		public ILink head() {
+			return this.head;
+		}
+
+
+		public void invoke()
+			throws Exception {
+
+			this.invoke(null);
+		}
+
+
+		public void invoke(final Object dto)
+			throws Exception {
+
+			final ILinker linker = Linkers.create(this.head());
+			ExecutorServices.sameThreadExecutor().submit(Callables.linker(linker, dto)).get();
 		}
 	}
 }

@@ -6,10 +6,7 @@ import java.util.concurrent.Executors;
 import cmd4j.IChain;
 import cmd4j.ICommand;
 import cmd4j.ILink;
-import cmd4j.internal.Callables;
-import cmd4j.internal.ILinker;
 import cmd4j.internal.Link;
-import cmd4j.internal.Linkers;
 
 /**
  * Builder pattern implementation for creating {@link IChain} objects
@@ -136,29 +133,7 @@ final public class ChainBuilder {
 
 	private IChain buildImpl() {
 		if (head != null) {
-			return new IChain() {
-				private final ILink head = ChainBuilder.this.head.build();
-
-
-				public ILink head() {
-					return this.head;
-				}
-
-
-				public void invoke()
-					throws Exception {
-
-					this.invoke(null);
-				}
-
-
-				public void invoke(final Object dto)
-					throws Exception {
-
-					final ILinker linker = Linkers.create(this.head());
-					ExecutorServices.sameThreadExecutor().submit(Callables.linker(linker, dto)).get();
-				}
-			};
+			return Chains.create(head.build());
 		}
 		return Chains.empty();
 	}
