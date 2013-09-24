@@ -1,5 +1,6 @@
 package cmd4j.common;
 
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 
 import cmd4j.IChain;
@@ -30,8 +31,32 @@ public enum Chains {
 	 * @param command
 	 * @return {@link IChain}
 	 */
-	public static IChain create(final ICommand command) {
-		return ChainBuilder.create(command).build();
+	public static IChain create(final Collection<ICommand> commands) {
+		return create(commands.toArray(new ICommand[0]));
+	}
+
+
+	/**
+	 * create a {@link IChain} that contains the given {@link ICommand}
+	 * @param command
+	 * @return {@link IChain}
+	 */
+	public static IChain create(final ICommand... commands) {
+		final ChainBuilder builder = ChainBuilder.create();
+		for (ICommand command : commands) {
+			builder.add(command);
+		}
+		return builder.build();
+	}
+
+
+	public static IChain onSuccess(final IChain chain, final ICommand... listeners) {
+		return decorator(chain).addSuccessHandlers(listeners);
+	}
+
+
+	public static IChain onFailure(final IChain chain, final ICommand... listeners) {
+		return decorator(chain).addFailureHandlers(listeners);
 	}
 
 
@@ -42,7 +67,7 @@ public enum Chains {
 	 * @return
 	 */
 	public static IChain makeThreaded(final IChain chain, final ExecutorService executor) {
-		return new ChainDecorator(chain, executor);
+		return decorator(chain).executor(executor);
 	}
 
 
@@ -51,8 +76,8 @@ public enum Chains {
 	 * @param chain
 	 * @return
 	 */
-	public static IChain makeUndoable(IChain chain) {
-		return new ChainDecorator(chain).undo();
+	public static IChain makeUndoable(final IChain chain) {
+		return decorator(chain).undo();
 	}
 
 
@@ -61,8 +86,13 @@ public enum Chains {
 	 * @param chain
 	 * @return
 	 */
-	public static IChain makeVisitable(IChain chain) {
-		return new ChainDecorator(chain).visitable();
+	public static IChain makeVisitable(final IChain chain) {
+		return decorator(chain).visitable();
+	}
+
+
+	private static ChainDecorator decorator(final IChain chain) {
+		return chain instanceof ChainDecorator ? (ChainDecorator)chain : new ChainDecorator(chain);
 	}
 
 
@@ -72,19 +102,19 @@ public enum Chains {
 		try {
 			chain.invoke();
 		}
-		catch (Exception e) {
+		catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 
-	public static void invokeQuietly(final IChain chain, Object dto)
+	public static void invokeQuietly(final IChain chain, final Object dto)
 		throws RuntimeException {
 
 		try {
 			chain.invoke(dto);
 		}
-		catch (Exception e) {
+		catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -111,7 +141,7 @@ public enum Chains {
 		}
 
 
-		public void invoke(Object dto) {
+		public void invoke(final Object dto) {
 		}
 	}
 }

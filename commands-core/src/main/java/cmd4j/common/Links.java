@@ -3,7 +3,6 @@ package cmd4j.common;
 import java.util.concurrent.ExecutorService;
 
 import cmd4j.ICommand;
-import cmd4j.IDoneListener;
 import cmd4j.ILink;
 import cmd4j.common.ChainBuilder.LinkBuilder;
 import cmd4j.internal.Link;
@@ -38,11 +37,6 @@ public enum Links {
 
 	public static ILink makeThreaded(final ILink link, final ExecutorService executor) {
 		return new LinkThreadingDecorator(link, executor);
-	}
-
-
-	public static ILink handleCompletion(final ILink link, final IDoneListener listener) {
-		return null;//new LinkCallbackDecorator(link, listener);
 	}
 
 

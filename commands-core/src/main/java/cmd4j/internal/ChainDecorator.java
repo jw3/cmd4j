@@ -1,12 +1,16 @@
 package cmd4j.internal;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 import cmd4j.IChain;
+import cmd4j.ICommand;
 import cmd4j.ICommand2;
 import cmd4j.ILink;
+import cmd4j.common.Chains;
 import cmd4j.common.CmdExecutors;
 import cmd4j.common.Links.IThreaded;
 import cmd4j.internal.CmdCallables.UndoToCallable;
@@ -28,6 +32,9 @@ public class ChainDecorator
 	implements IChain {
 
 	private final List<ICommand2<ILinker>> operations = new LinkedList<ICommand2<ILinker>>();
+	private final List<ICommand> successHandlers = new LinkedList<ICommand>();
+	private final List<ICommand> failureHandlers = new LinkedList<ICommand>();
+
 	private final IChain chain;
 
 	private ExecutorService executor;
@@ -39,36 +46,40 @@ public class ChainDecorator
 
 
 	public ChainDecorator(final IChain chain, final ExecutorService executor) {
-		if (chain instanceof ChainDecorator) {
-			final ChainDecorator decorator = (ChainDecorator)chain;
-			this.chain = decorator.chain;
-			this.operations.addAll(decorator.operations);
-			this.executor = decorator.executor;
-		}
-		else {
-			this.chain = chain;
-			this.executor = executor != null ? executor : null;
-		}
+		this.chain = chain;
+		this.executor = executor;
 	}
 
 
-	public ChainDecorator add(final ICommand2<ILinker> operation) {
-		operations.add(operation);
+	public ChainDecorator addDecoration(final ICommand2<ILinker> decoration) {
+		operations.add(decoration);
 		return this;
 	}
 
 
-	/*
-	 * 
-	 * IThreaded impl
-	 * 
-	 * 
-	 */
+	public ChainDecorator addSuccessHandlers(final ICommand... commands) {
+		successHandlers.addAll(Arrays.asList(commands));
+		return this;
+	}
+
+
+	public ChainDecorator addFailureHandlers(final ICommand... commands) {
+		failureHandlers.addAll(Arrays.asList(commands));
+		return this;
+	}
+
+
 	public ExecutorService executor() {
 		if (executor == null) {
 			executor = CmdExecutors.sameThreadExecutor();
 		}
 		return executor;
+	}
+
+
+	public ChainDecorator executor(ExecutorService executor) {
+		this.executor = executor;
+		return this;
 	}
 
 
@@ -89,14 +100,39 @@ public class ChainDecorator
 	}
 
 
-	public void invoke(Object dto)
+	public void invoke(final Object dto)
 		throws Exception {
 
 		final ILinker linker = Linkers.create(this.head());
 		for (ICommand2<ILinker> operation : operations) {
 			operation.invoke(linker);
 		}
-		this.executor.submit(CmdCallables.linker(linker, dto)).get();
+		if (successHandlers.isEmpty() && failureHandlers.isEmpty()) {
+			this.executor.submit(CmdCallables.linker(linker, dto)).get();
+		}
+		else {
+			try {
+				this.executor.submit(CmdCallables.linker(linker, dto)).get();
+				handleCompletion(successHandlers, dto);
+			}
+			catch (ExecutionException e) {
+				handleCompletion(failureHandlers, e.getCause());
+			}
+			catch (InterruptedException e) {
+				handleCompletion(failureHandlers, e);
+			}
+		}
+	}
+
+
+	private void handleCompletion(final List<ICommand> commands, final Object dto) {
+		try {
+			Chains.create(commands).invoke(dto);
+		}
+		catch (Throwable t) {
+			// REVISIT the show must go on
+			t.printStackTrace();
+		}
 	}
 
 
@@ -107,17 +143,17 @@ public class ChainDecorator
 	 * 
 	 */
 	public ChainDecorator visitable() {
-		return this.add(new Visitable());
+		return this.addDecoration(new Visitable());
 	}
 
 
 	public ChainDecorator undo() {
-		return this.add(new Undo());
+		return this.addDecoration(new Undo());
 	}
 
 
 	public ChainDecorator unthreaded() {
-		return this.add(new Unthreaded());
+		return this.addDecoration(new Unthreaded());
 	}
 
 
