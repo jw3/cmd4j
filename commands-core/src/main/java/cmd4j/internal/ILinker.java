@@ -19,16 +19,16 @@ public interface ILinker {
 	ILink head();
 
 
-	IToCallable toCallable();
+	IToCallable getToCallable();
 
 
-	ILinker toCallable(IToCallable toCallable);
+	void setToCallable(IToCallable toCallable);
 
 
-	IExecutorOf executorOf();
+	IExecutorOf getExecutorOf();
 
 
-	ILinker executorOf(IExecutorOf executorOf);
+	void setExecutorOf(IExecutorOf executorOf);
 
 
 	/**

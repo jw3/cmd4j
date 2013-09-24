@@ -22,7 +22,6 @@ import cmd4j.internal.Linkers;
 final public class ChainBuilder {
 	private LinkBuilder head;
 	private LinkBuilder tail;
-	private LinkBuilder finallys;
 
 
 	/**
@@ -76,19 +75,6 @@ final public class ChainBuilder {
 		}
 		else {
 			tail = tail != null ? tail.add(command) : new LinkBuilder(command);
-		}
-		return this;
-	}
-
-
-	/**
-	 * add the command as a 'finally' command
-	 * @param command
-	 * @return
-	 */
-	public ChainBuilder addFinally(final ICommand command) {
-		if (command != null) {
-			finallys = finallys != null ? finallys.add(command) : new LinkBuilder(command);
 		}
 		return this;
 	}
@@ -150,10 +136,6 @@ final public class ChainBuilder {
 
 	private IChain buildImpl() {
 		if (head != null) {
-			if (finallys != null) {
-				tail.add(finallys);
-			}
-
 			return new IChain() {
 				private final ILink head = ChainBuilder.this.head.build();
 

@@ -16,7 +16,6 @@ public class Link
 	private final ICommand command;
 	private final ILink next;
 
-	private boolean failsafe;
 	private Object dto;
 
 
@@ -28,17 +27,6 @@ public class Link
 	public Link(final ICommand command, final ILink next) {
 		this.command = command;
 		this.next = next;
-	}
-
-
-	public boolean isFailsafe() {
-		return failsafe;
-	}
-
-
-	public Link setFailsafe(final boolean failsafe) {
-		this.failsafe = failsafe;
-		return this;
 	}
 
 

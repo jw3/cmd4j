@@ -24,7 +24,8 @@ public enum Linkers {
 
 
 	public static ILinker makeUnthreaded(final ILinker linker) {
-		return linker.executorOf(new UnthreadedExecutorOf());
+		linker.setExecutorOf(new UnthreadedExecutorOf());
+		return linker;
 	}
 
 
@@ -52,25 +53,23 @@ public enum Linkers {
 		}
 
 
-		public IToCallable toCallable() {
+		public IToCallable getToCallable() {
 			return config;
 		}
 
 
-		public ILinker toCallable(IToCallable config) {
+		public void setToCallable(IToCallable config) {
 			this.config = config;
-			return this;
 		}
 
 
-		public IExecutorOf executorOf() {
+		public IExecutorOf getExecutorOf() {
 			return executorOf;
 		}
 
 
-		public ILinker executorOf(final IExecutorOf executorOf) {
+		public void setExecutorOf(final IExecutorOf executorOf) {
 			this.executorOf = executorOf;
-			return this;
 		}
 	}
 

@@ -163,7 +163,7 @@ public class ChainDecorator
 		public void invoke(final ILinker linker)
 			throws Exception {
 
-			linker.toCallable(new VisitableToCallable());
+			linker.setToCallable(new VisitableToCallable());
 		}
 	}
 
@@ -174,7 +174,7 @@ public class ChainDecorator
 		public void invoke(final ILinker linker)
 			throws Exception {
 
-			linker.toCallable(new UndoToCallable());
+			linker.setToCallable(new UndoToCallable());
 		}
 	}
 

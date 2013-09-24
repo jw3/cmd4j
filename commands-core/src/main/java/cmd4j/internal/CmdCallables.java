@@ -19,6 +19,7 @@ import cmd4j.internal.ILinker.IToCallable;
  *
  *
  * @author wassj
+ * @internal Intended for Command Framework use only.  Unsafe for direct client usage.
  *
  */
 public enum CmdCallables {
@@ -62,8 +63,8 @@ public enum CmdCallables {
 		private ILink callImpl(final ILink link)
 			throws Exception {
 
-			final ExecutorService executor = linker.executorOf().get(link, CmdExecutors.sameThreadExecutor());
-			final Future<ILink> future = executor.submit(linker.toCallable().get(link, dto));
+			final ExecutorService executor = linker.getExecutorOf().get(link, CmdExecutors.sameThreadExecutor());
+			final Future<ILink> future = executor.submit(linker.getToCallable().get(link, dto));
 			return future.get();
 		}
 	}
