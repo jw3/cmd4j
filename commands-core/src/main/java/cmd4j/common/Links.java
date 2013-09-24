@@ -8,10 +8,8 @@ import cmd4j.ILink;
 import cmd4j.common.ChainBuilder.LinkBuilder;
 import cmd4j.internal.IThreaded;
 import cmd4j.internal.Link;
-import cmd4j.internal.Linker;
 
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.MoreExecutors;
 
 /**
  * Utility methods for {@link Link}s
@@ -21,14 +19,6 @@ import com.google.common.util.concurrent.MoreExecutors;
  */
 public enum Links {
 	/*singleton-enum*/;
-
-	public static void execute(final ILink link)
-		throws Exception {
-
-		final Linker linker = Linker.unthreaded(link, null);
-		MoreExecutors.sameThreadExecutor().submit(linker).get();
-	}
-
 
 	/**
 	 * creates an empty {@link ILink} that can be used anywhere a normal link is used but will not do anything 

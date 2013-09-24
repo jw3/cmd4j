@@ -6,8 +6,9 @@ import java.util.concurrent.Executors;
 import cmd4j.IChain;
 import cmd4j.ICommand;
 import cmd4j.ILink;
+import cmd4j.internal.ILinker;
 import cmd4j.internal.Link;
-import cmd4j.internal.Linker;
+import cmd4j.internal.Linkers;
 
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -173,8 +174,8 @@ final public class ChainBuilder {
 				public void invoke(final Object dto)
 					throws Exception {
 
-					final Linker linker = Linker.unthreaded(this.head(), dto);
-					MoreExecutors.sameThreadExecutor().submit(linker).get();
+					final ILinker linker = Linkers.create(this.head());
+					MoreExecutors.sameThreadExecutor().submit(Linkers.asCallable(linker, dto)).get();
 				}
 			};
 		}

@@ -7,6 +7,8 @@ import java.util.concurrent.ExecutorService;
 import cmd4j.IChain;
 import cmd4j.ICommand2;
 import cmd4j.ILink;
+import cmd4j.internal.CallableLinkDecorator.VisitableToCallable;
+import cmd4j.internal.CallableUndoLinkDecorator.UndoToCallable;
 
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -25,7 +27,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 public class ChainDecorator
 	implements IChain, IThreaded {
 
-	private final List<ICommand2<Linker>> operations = new LinkedList<ICommand2<Linker>>();
+	private final List<ICommand2<ILinker>> operations = new LinkedList<ICommand2<ILinker>>();
 	private final IChain chain;
 
 	private ExecutorService executor;
@@ -50,7 +52,7 @@ public class ChainDecorator
 	}
 
 
-	public ChainDecorator add(final ICommand2<Linker> operation) {
+	public ChainDecorator add(final ICommand2<ILinker> operation) {
 		operations.add(operation);
 		return this;
 	}
@@ -90,11 +92,11 @@ public class ChainDecorator
 	public void invoke(Object dto)
 		throws Exception {
 
-		final Linker linker = Linker.create(this.head(), dto);
-		for (ICommand2<Linker> operation : operations) {
+		final ILinker linker = Linkers.create(this.head());
+		for (ICommand2<ILinker> operation : operations) {
 			operation.invoke(linker);
 		}
-		this.executor.submit(linker).get();
+		this.executor.submit(Linkers.asCallable(linker, dto)).get();
 	}
 
 
@@ -114,24 +116,40 @@ public class ChainDecorator
 	}
 
 
-	private static class Visitable
-		implements ICommand2<Linker> {
+	public ChainDecorator unthreaded() {
+		return this.add(new Unthreaded());
+	}
 
-		public void invoke(Linker linker)
+
+	private static class Visitable
+		implements ICommand2<ILinker> {
+
+		public void invoke(final ILinker linker)
 			throws Exception {
 
-			linker.visitable(true);
+			linker.toCallable(new VisitableToCallable());
 		}
 	}
 
 
 	private static class Undo
-		implements ICommand2<Linker> {
+		implements ICommand2<ILinker> {
 
-		public void invoke(Linker linker)
+		public void invoke(final ILinker linker)
 			throws Exception {
 
-			linker.undo(true);
+			linker.toCallable(new UndoToCallable());
+		}
+	}
+
+
+	private static class Unthreaded
+		implements ICommand2<ILinker> {
+
+		public void invoke(final ILinker linker)
+			throws Exception {
+
+			Linkers.makeUnthreaded(linker);
 		}
 	}
 }

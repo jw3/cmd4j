@@ -2,7 +2,6 @@ package cmd4j.common;
 
 import cmd4j.ICommand;
 import cmd4j.ICommand1;
-import cmd4j.ILink;
 
 /**
  * {@link ICommand} utilities
@@ -21,8 +20,7 @@ public enum Commands {
 	public static void execute(ICommand command)
 		throws Exception {
 
-		final ILink link = Links.create(command);
-		Links.execute(link);
+		ChainBuilder.create(command).buildUnthreaded().invoke();
 	}
 
 
