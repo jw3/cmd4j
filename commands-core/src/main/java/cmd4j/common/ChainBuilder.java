@@ -6,7 +6,7 @@ import java.util.concurrent.Executors;
 import cmd4j.IChain;
 import cmd4j.ICommand;
 import cmd4j.ILink;
-import cmd4j.internal.CmdCallables;
+import cmd4j.internal.Callables;
 import cmd4j.internal.ILinker;
 import cmd4j.internal.Link;
 import cmd4j.internal.Linkers;
@@ -156,7 +156,7 @@ final public class ChainBuilder {
 					throws Exception {
 
 					final ILinker linker = Linkers.create(this.head());
-					CmdExecutors.sameThreadExecutor().submit(CmdCallables.linker(linker, dto)).get();
+					ExecutorServices.sameThreadExecutor().submit(Callables.linker(linker, dto)).get();
 				}
 			};
 		}

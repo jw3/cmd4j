@@ -12,17 +12,17 @@ import cmd4j.ICommand1;
 import cmd4j.ICommand2;
 import cmd4j.ICommand3;
 import cmd4j.ILink;
-import cmd4j.common.CmdExecutors;
+import cmd4j.common.ExecutorServices;
 import cmd4j.internal.ILinker.IToCallable;
 
 /**
- *
+ * Utility methods for {@link Callable}s
  *
  * @author wassj
  * @internal Intended for Command Framework use only.  Unsafe for direct client usage.
  *
  */
-public enum CmdCallables {
+public enum Callables {
 	/*singleton-enum*/;
 
 	public static Callable<Void> linker(final ILinker linker, final Object dto) {
@@ -63,7 +63,7 @@ public enum CmdCallables {
 		private ILink callImpl(final ILink link)
 			throws Exception {
 
-			final ExecutorService executor = linker.getExecutorOf().get(link, CmdExecutors.sameThreadExecutor());
+			final ExecutorService executor = linker.getExecutorOf().get(link, ExecutorServices.sameThreadExecutor());
 			final Future<ILink> future = executor.submit(linker.getToCallable().get(link, dto));
 			return future.get();
 		}

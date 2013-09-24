@@ -16,12 +16,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Utility methods for {@link ExecutorService}s
  *
  * @author wassj
  *
  */
-public enum CmdExecutors {
+public enum ExecutorServices {
 	/*singleton-enum*/;
 
 	public static ExecutorService swingExecutor() {

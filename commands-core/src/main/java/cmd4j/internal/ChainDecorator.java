@@ -11,10 +11,10 @@ import cmd4j.ICommand;
 import cmd4j.ICommand2;
 import cmd4j.ILink;
 import cmd4j.common.Chains;
-import cmd4j.common.CmdExecutors;
+import cmd4j.common.ExecutorServices;
 import cmd4j.common.Links.IThreaded;
-import cmd4j.internal.CmdCallables.UndoToCallable;
-import cmd4j.internal.CmdCallables.VisitableToCallable;
+import cmd4j.internal.Callables.UndoToCallable;
+import cmd4j.internal.Callables.VisitableToCallable;
 
 /**
  * A dynamic decorator that allows for stacking of decorations on an {@link IChain}.
@@ -71,7 +71,7 @@ public class ChainDecorator
 
 	public ExecutorService executor() {
 		if (executor == null) {
-			executor = CmdExecutors.sameThreadExecutor();
+			executor = ExecutorServices.sameThreadExecutor();
 		}
 		return executor;
 	}
@@ -108,11 +108,11 @@ public class ChainDecorator
 			operation.invoke(linker);
 		}
 		if (successHandlers.isEmpty() && failureHandlers.isEmpty()) {
-			this.executor.submit(CmdCallables.linker(linker, dto)).get();
+			this.executor.submit(Callables.linker(linker, dto)).get();
 		}
 		else {
 			try {
-				this.executor.submit(CmdCallables.linker(linker, dto)).get();
+				this.executor.submit(Callables.linker(linker, dto)).get();
 				handleCompletion(successHandlers, dto);
 			}
 			catch (ExecutionException e) {

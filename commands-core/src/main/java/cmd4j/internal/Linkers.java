@@ -3,9 +3,9 @@ package cmd4j.internal;
 import java.util.concurrent.ExecutorService;
 
 import cmd4j.ILink;
-import cmd4j.common.CmdExecutors;
+import cmd4j.common.ExecutorServices;
 import cmd4j.common.Links.IThreaded;
-import cmd4j.internal.CmdCallables.DefaultToCallable;
+import cmd4j.internal.Callables.DefaultToCallable;
 import cmd4j.internal.ILinker.IExecutorOf;
 
 /**
@@ -101,7 +101,7 @@ public enum Linkers {
 		implements IExecutorOf {
 
 		public ExecutorService get(final ILink link, final ExecutorService defaultIfNull) {
-			return CmdExecutors.sameThreadExecutor();
+			return ExecutorServices.sameThreadExecutor();
 		}
 	}
 }

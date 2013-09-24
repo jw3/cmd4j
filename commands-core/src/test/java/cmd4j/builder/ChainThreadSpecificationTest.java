@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 import cmd4j.AssertThread;
 import cmd4j.Service;
 import cmd4j.common.ChainBuilder;
-import cmd4j.common.CmdExecutors;
+import cmd4j.common.ExecutorServices;
 
 /**
  *
@@ -126,7 +126,7 @@ public class ChainThreadSpecificationTest {
 
 			.add(AssertThread.isCurrent())
 
-			.build(CmdExecutors.sameThreadExecutor())
+			.build(ExecutorServices.sameThreadExecutor())
 			.invoke();
 	}
 
@@ -181,7 +181,7 @@ public class ChainThreadSpecificationTest {
 			.add(AssertThread.is(Service.t1))
 			.executor(Service.t1.executor())
 
-			.build(CmdExecutors.sameThreadExecutor())
+			.build(ExecutorServices.sameThreadExecutor())
 			.invoke();
 	}
 }
