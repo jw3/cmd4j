@@ -11,8 +11,6 @@ import cmd4j.internal.ILinker;
 import cmd4j.internal.Link;
 import cmd4j.internal.Linkers;
 
-import com.google.common.util.concurrent.MoreExecutors;
-
 /**
  * Builder pattern implementation for creating {@link IChain} objects
  * 
@@ -176,7 +174,7 @@ final public class ChainBuilder {
 					throws Exception {
 
 					final ILinker linker = Linkers.create(this.head());
-					MoreExecutors.sameThreadExecutor().submit(CmdCallables.linker(linker, dto)).get();
+					CmdExecutors.sameThreadExecutor().submit(CmdCallables.linker(linker, dto)).get();
 				}
 			};
 		}

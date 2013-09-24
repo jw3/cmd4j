@@ -7,11 +7,10 @@ import java.util.concurrent.ExecutorService;
 import cmd4j.IChain;
 import cmd4j.ICommand2;
 import cmd4j.ILink;
+import cmd4j.common.CmdExecutors;
 import cmd4j.common.Links.IThreaded;
 import cmd4j.internal.CmdCallables.UndoToCallable;
 import cmd4j.internal.CmdCallables.VisitableToCallable;
-
-import com.google.common.util.concurrent.MoreExecutors;
 
 /**
  * A dynamic decorator that allows for stacking of decorations on an {@link IChain}.
@@ -67,7 +66,7 @@ public class ChainDecorator
 	 */
 	public ExecutorService executor() {
 		if (executor == null) {
-			executor = MoreExecutors.sameThreadExecutor();
+			executor = CmdExecutors.sameThreadExecutor();
 		}
 		return executor;
 	}

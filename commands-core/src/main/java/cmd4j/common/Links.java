@@ -8,8 +8,6 @@ import cmd4j.ILink;
 import cmd4j.common.ChainBuilder.LinkBuilder;
 import cmd4j.internal.Link;
 
-import com.google.common.util.concurrent.FutureCallback;
-
 /**
  * Utility methods for {@link Link}s
  * 
@@ -44,7 +42,7 @@ public enum Links {
 
 
 	public static ILink handleCompletion(final ILink link, final IDoneListener listener) {
-		return new LinkCallbackDecorator(link, listener);
+		return null;//new LinkCallbackDecorator(link, listener);
 	}
 
 
@@ -69,51 +67,6 @@ public enum Links {
 
 		public ExecutorService executor() {
 			return executor;
-		}
-
-
-		public ILink next() {
-			return link.next();
-		}
-
-
-		public ICommand cmd() {
-			return link.cmd();
-		}
-
-
-		public Object dto() {
-			return link.dto();
-		}
-	}
-
-
-	/**
-	 * A decorator that adds success and failure handler to an ILink
-	 *
-	 * @author wassj
-	 *
-	 */
-	private static class LinkCallbackDecorator
-		implements ILink, FutureCallback<ILink> {
-
-		private final ILink link;
-		private final IDoneListener listener;
-
-
-		public LinkCallbackDecorator(final ILink link, final IDoneListener listener) {
-			this.link = link;
-			this.listener = listener;
-		}
-
-
-		public void onSuccess(ILink result) {
-			listener.onSuccess();
-		}
-
-
-		public void onFailure(Throwable t) {
-			listener.onException(t);
 		}
 
 
