@@ -18,9 +18,9 @@ import cmd4j.internal.Callables.VisitableToCallable;
 import cmd4j.internal.Linkers.ILinker;
 
 /**
- * A dynamic decorator that allows for stacking of decorations on an {@link IChain}.
+ * A dynamic decorator that allows for stacking of decorations on a {@link IChain chain}.
  * 
- * Supports passing a {@link ChainDecorator} instance as the chain arg in the ctor.
+ * Supports passing a {@link ChainDecorator chain decorator} instance as the chain arg in the ctor.
  * Implements {@link IThreaded} to provide threading decoration support.
  * 
  * @note Using the Command API to implement a feature for itself.

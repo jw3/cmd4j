@@ -11,7 +11,7 @@ import cmd4j.internal.Callables.DefaultToCallable;
 
 /**
  * A {@link ILinker linker} is a traverser of {@link ILink links} in an {@link IChain chain}.  It controls the 
- * execution flow from link to link and ensures that each command is run by the appropriate {@link ExecutorService}.
+ * execution flow from link to link and ensures that each command is run by the appropriate {@link ExecutorService executor}.
  * 
  * @author wassj
  * @internal Intended for Command Framework use only.  Unsafe for direct client usage.

@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Utility methods for {@link ExecutorService}s
+ * Factory and utility methods for {@link ExecutorService executors}
  *
  * @author wassj
  *
@@ -47,10 +47,7 @@ public enum Executors2 {
 	/**
 	 * A basic implementation of an ExecutorService that runs things on the EDT
 	 * 
-	 * REVISIT should synchronize this make it a singleton
-	 *
 	 * @author wassj
-	 *
 	 */
 	private static class EventDispatchExecutor
 		extends AbstractExecutorService {

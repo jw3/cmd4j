@@ -4,7 +4,7 @@ import cmd4j.ICommand;
 import cmd4j.ICommand1;
 
 /**
- * {@link ICommand} utilities
+ * Utility methods for {@link ICommand commands}
  *
  * @author wassj
  *
@@ -13,8 +13,7 @@ public enum Commands {
 	/*singleton-enum*/;
 
 	/**
-	 * execute the specified {@link ICommand}
-	 * @param command
+	 * execute the specified {@link ICommand command}
 	 * @throws Exception
 	 */
 	public static void execute(ICommand command)
@@ -25,7 +24,7 @@ public enum Commands {
 
 
 	/**
-	 * provide a no-operation {@link ICommand}
+	 * provide a no-operation {@link ICommand command}
 	 * @return Command that does nothing
 	 */
 	public static ICommand nop() {

@@ -17,7 +17,7 @@ import cmd4j.internal.Linkers.ILinker;
 import cmd4j.internal.Linkers.IToCallable;
 
 /**
- * Utility methods for {@link Callable}s
+ * Utility methods for {@link Callable callables}
  *
  * @author wassj
  * @internal Intended for Command Framework use only.  Unsafe for direct client usage.

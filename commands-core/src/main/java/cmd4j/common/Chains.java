@@ -14,7 +14,7 @@ import cmd4j.internal.Linkers;
 import cmd4j.internal.Linkers.ILinker;
 
 /**
- * Utility methods for {@link IChain}s
+ * Utility methods for {@link IChain chains}
  *
  * @author wassj
  *
@@ -24,7 +24,6 @@ public enum Chains {
 
 	/**
 	 * creates a new {@link ChainBuilder}
-	 * @return {@link ChainBuilder} a new builder
 	 */
 	public static ChainBuilder builder() {
 		return new ChainBuilder();
@@ -32,23 +31,23 @@ public enum Chains {
 
 
 	/**
-	 * creates an empty {@link IChain} which can be used in any operation a normal chain would, but will not do anything
-	 * @return {@link IChain} the empty chain
+	 * creates an empty {@link IChain chain} which can be used in any operation a normal chain would, but will not do anything
 	 */
 	public static IChain empty() {
 		return new EmptyChain();
 	}
 
 
+	/**
+	 * create a {@link IChain chain} from a {@link ILink link}
+	 */
 	public static IChain create(final ILink link) {
 		return new DefaultChain(link);
 	}
 
 
 	/**
-	 * create a {@link IChain} that contains the given {@link ICommand}
-	 * @param command
-	 * @return {@link IChain}
+	 * create a {@link IChain chain} that contains the given {@link ICommand commands}
 	 */
 	public static IChain create(final Collection<ICommand> commands) {
 		return create(commands.toArray(new ICommand[0]));
@@ -56,9 +55,7 @@ public enum Chains {
 
 
 	/**
-	 * create a {@link IChain} that contains the given {@link ICommand}
-	 * @param command
-	 * @return {@link IChain}
+	 * create a {@link IChain chain} that contains the given vararg {@link ICommand commands}
 	 */
 	public static IChain create(final ICommand... commands) {
 		final ChainBuilder builder = Chains.builder();
@@ -69,31 +66,47 @@ public enum Chains {
 	}
 
 
+	/**
+	 * add {@link ICommand commands} that will be invoked prior to the {@link IChain chain} execution
+	 * @return the chain, decorated
+	 */
 	public static IChain before(final IChain chain, final ICommand... listeners) {
 		return decorator(chain).before(listeners);
 	}
 
 
+	/**
+	 * add {@link ICommand commands} that will be invoked after the {@link IChain chain} execution completes
+	 * invocation will occurr regardless of success/failure of the chain
+	 * @return the chain, decorated
+	 */
 	public static IChain whenDone(final IChain chain, final ICommand... listeners) {
 		return decorator(chain).onFinished(listeners);
 	}
 
 
+	/**
+	 * add {@link ICommand commands} that will be invoked upon successful invocation of the {@link IChain chain}
+	 * @return the chain, decorated
+	 */
 	public static IChain onSuccess(final IChain chain, final ICommand... listeners) {
 		return decorator(chain).onSuccess(listeners);
 	}
 
 
+	/**
+	 * add {@link ICommand commands} that will be invoked upon failed invocation of the {@link IChain chain}
+	 * the cause of the failure will be available as the dto to any commands that will accept it
+	 * @return the chain, decorated
+	 */
 	public static IChain onFailure(final IChain chain, final ICommand... listeners) {
 		return decorator(chain).onFailure(listeners);
 	}
 
 
 	/**
-	 * specify that the {@link IChain} will run on the given {@link ExecutorService}
-	 * @param chain
-	 * @param executor
-	 * @return
+	 * specify that the {@link IChain chain} will run on the given {@link ExecutorService executor}
+	 * @return the chain, decorated
 	 */
 	public static IChain makeThreaded(final IChain chain, final ExecutorService executor) {
 		return decorator(chain).executor(executor);
@@ -101,9 +114,8 @@ public enum Chains {
 
 
 	/**
-	 * add undo support to a {@link IChain}
-	 * @param chain
-	 * @return
+	 * add undo support to a {@link IChain chain}
+	 * @return the chain, decorated
 	 */
 	public static IChain makeUndoable(final IChain chain) {
 		return decorator(chain).undo();
@@ -111,9 +123,8 @@ public enum Chains {
 
 
 	/**
-	 * enable visitor mode in a {@link IChain}
-	 * @param chain
-	 * @return
+	 * enable visitor mode in a {@link IChain chain}
+	 * @return the chain, decorated
 	 */
 	public static IChain makeVisitable(final IChain chain) {
 		return decorator(chain).visitable();
@@ -122,7 +133,6 @@ public enum Chains {
 
 	/**
 	 * invoke the chain converting any exceptions to a runtime exception
-	 * @param chain
 	 * @throws RuntimeException
 	 */
 	public static void invokeQuietly(final IChain chain)
@@ -139,7 +149,6 @@ public enum Chains {
 
 	/**
 	 * invoke the chain converting any exceptions to a runtime exception
-	 * @param chain
 	 * @throws RuntimeException
 	 */
 	public static void invokeQuietly(final IChain chain, final Object dto)
@@ -156,7 +165,6 @@ public enum Chains {
 
 	/**
 	 * Builder pattern implementation for creating {@link IChain} objects
-	 * 
 	 * There are two types of {@link IChain}s that can be created, static and dynamic.  This builder will assemble a static 
 	 *
 	 * @author wassj
@@ -281,7 +289,6 @@ public enum Chains {
 	 * An empty {@link IChain} implementation
 	 * 
 	 * @author wassj
-	 *
 	 */
 	private static class EmptyChain
 		implements IChain {
@@ -303,6 +310,11 @@ public enum Chains {
 	}
 
 
+	/**
+	 * the default {@link IChain} implementation
+	 *
+	 * @author wassj
+	 */
 	private static class DefaultChain
 		implements IChain {
 

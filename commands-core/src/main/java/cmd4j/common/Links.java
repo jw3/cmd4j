@@ -7,7 +7,7 @@ import cmd4j.ILink;
 import cmd4j.common.Chains.ChainBuilder;
 
 /**
- * Utility methods for {@link DefaultLink}s
+ * Utility methods for {@link ILink links}
  * 
  * @author wassj
  *
@@ -16,8 +16,7 @@ public enum Links {
 	/*singleton-enum*/;
 
 	/**
-	 * creates an empty {@link ILink} that can be used anywhere a normal link is used but will not do anything 
-	 * @return
+	 * creates an empty {@link ILink link} that can be used anywhere a normal link is used but will not do anything 
 	 */
 	public static ILink empty() {
 		return new EmptyLink();
@@ -40,11 +39,10 @@ public enum Links {
 
 
 	/**
-	 * Marks a link for execution by a specified {@link ExecutorService}
+	 * Marks a {@link ILink link} for execution by a specified {@link ExecutorService executor}
 	 *
 	 * @author wassj
 	 * @internal Intended for Command Framework use only.  Unsafe for direct client usage.
-	 *
 	 */
 	public interface IThreaded {
 		ExecutorService executor();
@@ -62,11 +60,11 @@ public enum Links {
 	 ******************************************************************************/
 
 	/**
-	 * Provides the context in which an {@link ICommand} executes.  Can combine together with other Links to form a chain.
+	 * Provides the context in which a {@link ICommand command} executes.  
+	 * Can combine together with other {@link ILink links} to form a chain.
 	 * 
 	 * @author wassj
 	 * @internal Intended for Command Framework use only.  Unsafe for direct client usage.
-	 *
 	 */
 	static class DefaultLink
 		implements ILink {
@@ -111,11 +109,9 @@ public enum Links {
 
 
 	/**
-	 * Sub-builder of {@link DefaultLink} objects allowing for finer grained specification of Link properties
-	 * 
+	 * Builder pattern implementation for {@link ILink links}
 	 * 
 	 * @author wassj
-	 *
 	 */
 	static class LinkBuilder {
 		private final ICommand command;
@@ -174,10 +170,9 @@ public enum Links {
 
 
 	/**
-	 * Decorate an {@link ILink} with an {@link ExecutorService} to provide threading capability
+	 * Decorate a {@link ILink link} with an {@link ExecutorService executor} to provide threading capability
 	 *
 	 * @author wassj
-	 *
 	 */
 	private static class LinkThreadingDecorator
 		implements ILink, IThreaded {
