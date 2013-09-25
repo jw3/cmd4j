@@ -12,8 +12,9 @@ import cmd4j.ICommand1;
 import cmd4j.ICommand2;
 import cmd4j.ICommand3;
 import cmd4j.ILink;
-import cmd4j.common.ExecutorServices;
-import cmd4j.internal.ILinker.IToCallable;
+import cmd4j.common.Executors2;
+import cmd4j.internal.Linkers.ILinker;
+import cmd4j.internal.Linkers.IToCallable;
 
 /**
  * Utility methods for {@link Callable}s
@@ -63,7 +64,7 @@ public enum Callables {
 		private ILink callImpl(final ILink link)
 			throws Exception {
 
-			final ExecutorService executor = linker.getExecutorOf().get(link, ExecutorServices.sameThreadExecutor());
+			final ExecutorService executor = linker.getExecutorOf().get(link, Executors2.sameThreadExecutor());
 			final Future<ILink> future = executor.submit(linker.getToCallable().get(link, dto));
 			return future.get();
 		}

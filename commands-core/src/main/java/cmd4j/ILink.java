@@ -1,6 +1,5 @@
 package cmd4j;
 
-import cmd4j.common.ChainBuilder;
 import cmd4j.common.Links;
 
 /**
@@ -15,7 +14,6 @@ import cmd4j.common.Links;
  * @concurrency A Link does not exhibit any concurrency behavior by default, but can be decorated to do so. 
  * 
  * @see Links
- * @see ChainBuilder
  */
 public interface ILink {
 

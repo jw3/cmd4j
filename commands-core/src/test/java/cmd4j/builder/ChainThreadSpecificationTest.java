@@ -4,8 +4,8 @@ import org.testng.annotations.Test;
 
 import cmd4j.AssertThread;
 import cmd4j.Service;
-import cmd4j.common.ChainBuilder;
-import cmd4j.common.ExecutorServices;
+import cmd4j.common.Chains;
+import cmd4j.common.Executors2;
 
 /**
  *
@@ -23,7 +23,7 @@ public class ChainThreadSpecificationTest {
 	public void trivialEdtExecutionTest()
 		throws Exception {
 
-		ChainBuilder.create().add(AssertThread.isEDT()).executor(Service.edt.executor()).build().invoke();
+		Chains.builder().add(AssertThread.isEDT()).executor(Service.edt.executor()).build().invoke();
 	}
 
 
@@ -31,7 +31,7 @@ public class ChainThreadSpecificationTest {
 	public void trivialSwitching()
 		throws Exception {
 
-		ChainBuilder.create()
+		Chains.builder()
 		//
 			.add(AssertThread.isEDT())
 			.executor(Service.edt.executor())
@@ -52,7 +52,7 @@ public class ChainThreadSpecificationTest {
 	public void unspecifiedExecutorChainRunsOnSameThread()
 		throws Exception {
 
-		ChainBuilder.create().add(AssertThread.isCurrent()).build().invoke();
+		Chains.builder().add(AssertThread.isCurrent()).build().invoke();
 	}
 
 
@@ -64,7 +64,7 @@ public class ChainThreadSpecificationTest {
 	public void stripThreadingWithUnthreadedChain()
 		throws Exception {
 
-		ChainBuilder.create()//
+		Chains.builder()//
 			.add(AssertThread.is(Service.t1))
 			.executor(Service.t1.executor())
 
@@ -89,7 +89,7 @@ public class ChainThreadSpecificationTest {
 	public void unspecifiedRunsOnChainThread1()
 		throws Exception {
 
-		ChainBuilder.create().add(AssertThread.is(Service.t1)).build(Service.t1.executor()).invoke();
+		Chains.builder().add(AssertThread.is(Service.t1)).build(Service.t1.executor()).invoke();
 	}
 
 
@@ -101,7 +101,7 @@ public class ChainThreadSpecificationTest {
 	public void unspecifiedRunsOnChainThread2()
 		throws Exception {
 
-		ChainBuilder.create()//
+		Chains.builder()//
 			.add(AssertThread.is(Service.t1))
 
 			.add(AssertThread.isEDT())
@@ -118,7 +118,7 @@ public class ChainThreadSpecificationTest {
 	public void specifyChainsThreadToForceAllUnspecifiedCommandsOntoIt1()
 		throws Exception {
 
-		ChainBuilder.create()
+		Chains.builder()
 		//
 			.add(AssertThread.isCurrent())
 
@@ -126,7 +126,7 @@ public class ChainThreadSpecificationTest {
 
 			.add(AssertThread.isCurrent())
 
-			.build(ExecutorServices.sameThreadExecutor())
+			.build(Executors2.sameThreadExecutor())
 			.invoke();
 	}
 
@@ -135,7 +135,7 @@ public class ChainThreadSpecificationTest {
 	public void specifyChainsThreadToForceAllUnspecifiedCommandsOntoIt2()
 		throws Exception {
 
-		ChainBuilder.create()
+		Chains.builder()
 		//
 			.add(AssertThread.isEDT())
 
@@ -152,7 +152,7 @@ public class ChainThreadSpecificationTest {
 	public void specifyChainsThreadToForceAllUnspecifiedCommandsOntoIt3()
 		throws Exception {
 
-		ChainBuilder.create()
+		Chains.builder()
 		//
 			.add(AssertThread.is(Service.edt))
 
@@ -169,7 +169,7 @@ public class ChainThreadSpecificationTest {
 	public void specifyChainsThreadEnsureAllSpecifiedsAreNotForcedOntoIt()
 		throws Exception {
 
-		ChainBuilder.create()
+		Chains.builder()
 		//
 			.add(AssertThread.isCurrent())
 
@@ -181,7 +181,7 @@ public class ChainThreadSpecificationTest {
 			.add(AssertThread.is(Service.t1))
 			.executor(Service.t1.executor())
 
-			.build(ExecutorServices.sameThreadExecutor())
+			.build(Executors2.sameThreadExecutor())
 			.invoke();
 	}
 }

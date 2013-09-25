@@ -11,7 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import cmd4j.ICommand;
-import cmd4j.common.ChainBuilder;
+import cmd4j.common.Chains;
 
 /**
  * A basic example to show how to tie commands into a JButton action listener
@@ -43,7 +43,7 @@ public class ButtonActions {
 		button.addActionListener(new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					ChainBuilder.create(new ChangeColor(color, target)).build().invoke();
+					Chains.builder().add(new ChangeColor(color, target)).build().invoke();
 				}
 				catch (Exception e1) {
 					e1.printStackTrace();

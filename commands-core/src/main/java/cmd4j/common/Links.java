@@ -4,11 +4,10 @@ import java.util.concurrent.ExecutorService;
 
 import cmd4j.ICommand;
 import cmd4j.ILink;
-import cmd4j.common.ChainBuilder.LinkBuilder;
-import cmd4j.internal.Link;
+import cmd4j.common.Chains.ChainBuilder;
 
 /**
- * Utility methods for {@link Link}s
+ * Utility methods for {@link DefaultLink}s
  * 
  * @author wassj
  *
@@ -37,6 +36,140 @@ public enum Links {
 
 	public static ILink makeThreaded(final ILink link, final ExecutorService executor) {
 		return new LinkThreadingDecorator(link, executor);
+	}
+
+
+	/**
+	 * Marks a link for execution by a specified {@link ExecutorService}
+	 *
+	 * @author wassj
+	 * @internal Intended for Command Framework use only.  Unsafe for direct client usage.
+	 *
+	 */
+	public interface IThreaded {
+		ExecutorService executor();
+	}
+
+
+	/******************************************************************************
+	 * 
+	 * 
+	 * 
+	 * begin private implementation details
+	 * 
+	 * 
+	 * 
+	 ******************************************************************************/
+
+	/**
+	 * Provides the context in which an {@link ICommand} executes.  Can combine together with other Links to form a chain.
+	 * 
+	 * @author wassj
+	 * @internal Intended for Command Framework use only.  Unsafe for direct client usage.
+	 *
+	 */
+	static class DefaultLink
+		implements ILink {
+
+		private final ICommand command;
+		private final ILink next;
+
+		private Object dto;
+
+
+		public DefaultLink(final ICommand command) {
+			this(command, null);
+		}
+
+
+		public DefaultLink(final ICommand command, final ILink next) {
+			this.command = command;
+			this.next = next;
+		}
+
+
+		public Object dto() {
+			return dto;
+		}
+
+
+		public DefaultLink dto(final Object dto) {
+			this.dto = dto;
+			return this;
+		}
+
+
+		public ICommand cmd() {
+			return command;
+		}
+
+
+		public ILink next() {
+			return next;
+		}
+	}
+
+
+	/**
+	 * Sub-builder of {@link DefaultLink} objects allowing for finer grained specification of Link properties
+	 * 
+	 * 
+	 * @author wassj
+	 *
+	 */
+	static class LinkBuilder {
+		private final ICommand command;
+		private LinkBuilder next;
+
+		private ExecutorService executor;
+		private Object dto;
+
+
+		/**
+		 * creates a new builder. package private as only the {@link ChainBuilder} should create these
+		 * @param command
+		 */
+		LinkBuilder(final ICommand command) {
+			this.command = command;
+		}
+
+
+		/**
+		 * sets the executor for the link
+		 * @param executor
+		 * @return
+		 */
+		LinkBuilder executor(final ExecutorService executor) {
+			this.executor = executor;
+			return this;
+		}
+
+
+		LinkBuilder add(final ICommand command) {
+			next = new LinkBuilder(command);
+			return next;
+		}
+
+
+		LinkBuilder add(final LinkBuilder builder) {
+			next = builder;
+			return builder.next;
+		}
+
+
+		LinkBuilder dto(final Object dto) {
+			this.dto = dto;
+			return this;
+		}
+
+
+		ILink build() {
+			final ILink link = new DefaultLink(command, next != null ? next.build() : null).dto(dto);
+			if (executor != null) {
+				return Links.makeThreaded(link, executor);
+			}
+			return link;
+		}
 	}
 
 
@@ -80,6 +213,12 @@ public enum Links {
 	}
 
 
+	/**
+	 * An empty {@link ILink link}
+	 *
+	 * @author wassj
+	 *
+	 */
 	private static class EmptyLink
 		implements ILink {
 
@@ -97,17 +236,4 @@ public enum Links {
 			return Commands.nop();
 		}
 	}
-
-
-	/**
-	 * Marks an object for execution by a specified {@link ExecutorService}
-	 *
-	 * @author wassj
-	 * @internal Intended for Command Framework use only.  Unsafe for direct client usage.
-	 *
-	 */
-	public interface IThreaded {
-		ExecutorService executor();
-	}
-
 }

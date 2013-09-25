@@ -3,8 +3,6 @@ package cmd4j;
 import java.io.IOException;
 import java.io.Writer;
 
-import cmd4j.ICommand2;
-
 /**
  * 
  * 

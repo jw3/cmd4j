@@ -9,7 +9,6 @@ import org.testng.annotations.Test;
 import cmd4j.IChain;
 import cmd4j.ICommand;
 import cmd4j.ICommand2;
-import cmd4j.common.ChainBuilder;
 import cmd4j.common.Chains;
 
 /**
@@ -30,17 +29,17 @@ public class DtoTypesafetyTest {
 
 		{
 			final BaseInvoked invoked = new Untyped();
-			ChainBuilder.create(invoked).build().invoke(new String());
+			Chains.builder().add(invoked).build().invoke(new String());
 			Assert.assertTrue(invoked.wasInvoked());
 		}
 		{
 			final BaseInvoked invoked = new TypedNumber();
-			ChainBuilder.create(invoked).build().invoke(1.1);
+			Chains.builder().add(invoked).build().invoke(1.1);
 			Assert.assertTrue(invoked.wasInvoked());
 		}
 		{
 			final BaseInvoked invoked = new TypedInteger();
-			ChainBuilder.create(invoked).build().invoke(1);
+			Chains.builder().add(invoked).build().invoke(1);
 			Assert.assertTrue(invoked.wasInvoked());
 		}
 	}
@@ -52,17 +51,17 @@ public class DtoTypesafetyTest {
 
 		{
 			final BaseInvoked invoked = new Untyped();
-			ChainBuilder.create(invoked).build().invoke(new String());
+			Chains.builder().add(invoked).build().invoke(new String());
 			Assert.assertTrue(invoked.wasInvoked());
 		}
 		{
 			final BaseInvoked invoked = new TypedNumber();
-			ChainBuilder.create(invoked).build().invoke(1.1);
+			Chains.builder().add(invoked).build().invoke(1.1);
 			Assert.assertTrue(invoked.wasInvoked());
 		}
 		{
 			final BaseInvoked invoked = new TypedInteger();
-			ChainBuilder.create(invoked).build().invoke(1);
+			Chains.builder().add(invoked).build().invoke(1);
 			Assert.assertTrue(invoked.wasInvoked());
 		}
 	}
@@ -78,7 +77,7 @@ public class DtoTypesafetyTest {
 		final BaseInvoked invoked2 = new TypedString();
 		final BaseInvoked uninvoked = new TypedNumber();
 
-		ChainBuilder.create().add(uninvoked).add(invoked).add(invoked2).build().invoke("not a number");
+		Chains.builder().add(uninvoked).add(invoked).add(invoked2).build().invoke("not a number");
 
 		Assert.assertFalse(uninvoked.wasInvoked());
 		Assert.assertTrue(invoked.wasInvoked());
@@ -96,7 +95,7 @@ public class DtoTypesafetyTest {
 		final BaseInvoked invoked2 = new TypedNumber();
 		final BaseInvoked uninvoked = new TypedInteger();
 
-		ChainBuilder.create().add(uninvoked).add(invoked).add(invoked2).build().invoke(1.1);
+		Chains.builder().add(uninvoked).add(invoked).add(invoked2).build().invoke(1.1);
 
 		Assert.assertFalse(uninvoked.wasInvoked());
 		Assert.assertTrue(invoked.wasInvoked());
@@ -115,7 +114,7 @@ public class DtoTypesafetyTest {
 		final BaseInvoked invoked2 = new TypedString();
 		final BaseInvoked uninvoked = new TypedNumber();
 
-		final IChain chain = ChainBuilder.create().add(uninvoked).add(invoked).add(invoked2).build();
+		final IChain chain = Chains.builder().add(uninvoked).add(invoked).add(invoked2).build();
 		Chains.makeVisitable(chain).invoke("not a number");
 
 		Assert.assertFalse(uninvoked.wasInvoked());
@@ -135,7 +134,7 @@ public class DtoTypesafetyTest {
 		final BaseInvoked invoked2 = new TypedNumber();
 		final BaseInvoked uninvoked = new TypedInteger();
 
-		final IChain chain = ChainBuilder.create().add(uninvoked).add(invoked).add(invoked2).build();
+		final IChain chain = Chains.builder().add(uninvoked).add(invoked).add(invoked2).build();
 		Chains.makeVisitable(chain).invoke(1.1);
 
 		Assert.assertFalse(uninvoked.wasInvoked());

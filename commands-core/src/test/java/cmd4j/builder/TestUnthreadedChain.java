@@ -4,7 +4,7 @@ import org.testng.annotations.Test;
 
 import cmd4j.Say;
 import cmd4j.Service;
-import cmd4j.common.ChainBuilder;
+import cmd4j.common.Chains;
 
 /**
  *
@@ -18,7 +18,7 @@ public class TestUnthreadedChain {
 	public void test()
 		throws Exception {
 
-		ChainBuilder.create(Say.what(1))//
+		Chains.builder().add(Say.what(1))//
 			.add(Say.what("..."))
 			//
 			.executor(Service.t1.executor())

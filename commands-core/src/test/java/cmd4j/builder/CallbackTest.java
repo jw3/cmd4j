@@ -6,7 +6,6 @@ import org.testng.annotations.Test;
 import cmd4j.IChain;
 import cmd4j.ICommand1;
 import cmd4j.Say;
-import cmd4j.common.ChainBuilder;
 import cmd4j.common.Chains;
 
 /**
@@ -24,7 +23,7 @@ public class CallbackTest {
 		final boolean[] val = new boolean[1];
 		Assert.assertFalse(val[0]);
 
-		final IChain chain = Chains.onSuccess(ChainBuilder.create().build(), new ICommand1() {
+		final IChain chain = Chains.onSuccess(Chains.empty(), new ICommand1() {
 			public void invoke() {
 				val[0] = true;
 			}
@@ -42,7 +41,7 @@ public class CallbackTest {
 		final boolean[] val = new boolean[1];
 		Assert.assertFalse(val[0]);
 
-		final IChain chain = Chains.onFailure(ChainBuilder.create(Say.boom()).build(), new ICommand1() {
+		final IChain chain = Chains.onFailure(Chains.builder().add(Say.boom()).build(), new ICommand1() {
 			public void invoke() {
 				val[0] = true;
 			}

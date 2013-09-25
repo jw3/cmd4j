@@ -15,7 +15,6 @@ import cmd4j.ICommand;
 import cmd4j.ICommand.IUndo;
 import cmd4j.ICommand1;
 import cmd4j.ICommand3;
-import cmd4j.common.ChainBuilder;
 import cmd4j.common.Chains;
 import cmd4j.swing.event.ChainAction;
 
@@ -120,7 +119,7 @@ public class ButtonActionsWithUndo {
 
 					final ICommand change = new UndoableChangeColor(color, target);
 
-					final IChain chain = ChainBuilder.create(change).build();
+					final IChain chain = Chains.builder().add(change).build();
 					chain.invoke(); // we can block here!
 
 					undoStack.push(chain);

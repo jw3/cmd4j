@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * @author wassj
  *
  */
-public enum ExecutorServices {
+public enum Executors2 {
 	/*singleton-enum*/;
 
 	public static ExecutorService swingExecutor() {
@@ -33,6 +33,16 @@ public enum ExecutorServices {
 		return new SameThreadExecutorService();
 	}
 
+
+	/******************************************************************************
+	 * 
+	 * 
+	 * 
+	 * begin private implementation details
+	 * 
+	 * 
+	 * 
+	 ******************************************************************************/
 
 	/**
 	 * A basic implementation of an ExecutorService that runs things on the EDT

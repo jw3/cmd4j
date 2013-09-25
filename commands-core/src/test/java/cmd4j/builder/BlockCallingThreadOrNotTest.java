@@ -13,7 +13,7 @@ import cmd4j.Service;
 import cmd4j.Service.Mode;
 import cmd4j.Tests;
 import cmd4j.Tests.Variable;
-import cmd4j.common.ChainBuilder;
+import cmd4j.common.Chains;
 
 /**
  * A test of thread blocking scenarios
@@ -37,7 +37,7 @@ public class BlockCallingThreadOrNotTest {
 		throws Exception {
 
 		final Variable<Boolean> var = new Variable<Boolean>();
-		ChainBuilder.create()//
+		Chains.builder()//
 			.add(AssertThread.is(Service.t1))
 			.add(Tests.set(var, true))
 			.build()
@@ -53,7 +53,7 @@ public class BlockCallingThreadOrNotTest {
 		throws Exception {
 
 		final Variable<Boolean> var = new Variable<Boolean>();
-		ChainBuilder.create()//
+		Chains.builder()//
 			.add(AssertThread.is(Service.t1))
 			.add(Tests.set(var, true))
 			.build(Service.t1.executor())
@@ -73,7 +73,7 @@ public class BlockCallingThreadOrNotTest {
 			public Void call()
 				throws Exception {
 
-				ChainBuilder.create()//
+				Chains.builder()//
 					.add(AssertThread.is(Service.t1))
 					.add(Tests.set(var, true))
 					.build()
@@ -100,7 +100,7 @@ public class BlockCallingThreadOrNotTest {
 			public Void call()
 				throws Exception {
 
-				ChainBuilder.create()//
+				Chains.builder()//
 					.add(AssertThread.is(Service.t1))
 					.add(Tests.set(var, true))
 					.build(Service.t1.executor())
@@ -133,7 +133,7 @@ public class BlockCallingThreadOrNotTest {
 			public Void call()
 				throws Exception {
 
-				ChainBuilder.create()//
+				Chains.builder()//
 					.add(AssertThread.is(service))
 					.add(Tests.set(var, true))
 					.build(service.executor())
@@ -160,7 +160,7 @@ public class BlockCallingThreadOrNotTest {
 			public Void call()
 				throws Exception {
 
-				ChainBuilder.create()//
+				Chains.builder()//
 					.add(AssertThread.is(Service.t1))
 					.add(Tests.set(var, true))
 					.build(Service.multi10.executor())

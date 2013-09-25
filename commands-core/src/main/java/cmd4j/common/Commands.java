@@ -20,7 +20,7 @@ public enum Commands {
 	public static void execute(ICommand command)
 		throws Exception {
 
-		ChainBuilder.create(command).build().invoke();
+		Chains.builder().add(command).build().invoke();
 	}
 
 
