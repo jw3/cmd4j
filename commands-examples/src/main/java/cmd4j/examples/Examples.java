@@ -1,4 +1,4 @@
-package cmd4j.examples.swing;
+package cmd4j.examples;
 
 import java.awt.BorderLayout;
 
