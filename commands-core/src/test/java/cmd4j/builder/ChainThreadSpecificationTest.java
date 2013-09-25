@@ -49,10 +49,10 @@ public class ChainThreadSpecificationTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void unthreadedChainRunsOnSameThread()
+	public void unspecifiedExecutorChainRunsOnSameThread()
 		throws Exception {
 
-		ChainBuilder.create().add(AssertThread.isCurrent()).buildUnthreaded().invoke();
+		ChainBuilder.create().add(AssertThread.isCurrent()).build().invoke();
 	}
 
 
@@ -76,7 +76,7 @@ public class ChainThreadSpecificationTest {
 
 			.add(AssertThread.isCurrent())
 
-			.buildUnthreaded()
+			.build()
 			.invoke();
 	}
 

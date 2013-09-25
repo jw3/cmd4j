@@ -1,7 +1,6 @@
 package cmd4j.common;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import cmd4j.IChain;
 import cmd4j.ICommand;
@@ -110,7 +109,7 @@ final public class ChainBuilder {
 	 * @return
 	 */
 	public IChain build() {
-		return Chains.makeThreaded(this.buildImpl(), Executors.newSingleThreadExecutor());
+		return this.buildImpl();
 	}
 
 
@@ -123,11 +122,6 @@ final public class ChainBuilder {
 			throw new IllegalArgumentException("executor cannot be null");
 		}
 		return Chains.makeThreaded(this.buildImpl(), executor);
-	}
-
-
-	public IChain buildUnthreaded() {
-		return this.buildImpl();
 	}
 
 

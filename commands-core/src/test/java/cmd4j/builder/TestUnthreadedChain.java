@@ -25,7 +25,7 @@ public class TestUnthreadedChain {
 			//
 			.add(Say.what(2))
 			//
-			.buildUnthreaded()
+			.build()
 			//
 			.invoke("mississippi");
 	}

@@ -58,13 +58,23 @@ public enum Chains {
 	}
 
 
+	public static IChain before(final IChain chain, final ICommand... listeners) {
+		return decorator(chain).before(listeners);
+	}
+
+
+	public static IChain whenDone(final IChain chain, final ICommand... listeners) {
+		return decorator(chain).onFinished(listeners);
+	}
+
+
 	public static IChain onSuccess(final IChain chain, final ICommand... listeners) {
-		return decorator(chain).addSuccessHandlers(listeners);
+		return decorator(chain).onSuccess(listeners);
 	}
 
 
 	public static IChain onFailure(final IChain chain, final ICommand... listeners) {
-		return decorator(chain).addFailureHandlers(listeners);
+		return decorator(chain).onFailure(listeners);
 	}
 
 

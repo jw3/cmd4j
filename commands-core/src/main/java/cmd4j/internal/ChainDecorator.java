@@ -31,12 +31,13 @@ import cmd4j.internal.Callables.VisitableToCallable;
 public class ChainDecorator
 	implements IChain {
 
-	private final List<ICommand2<ILinker>> operations = new LinkedList<ICommand2<ILinker>>();
+	private final List<ICommand> beforeHandlers = new LinkedList<ICommand>();
 	private final List<ICommand> successHandlers = new LinkedList<ICommand>();
 	private final List<ICommand> failureHandlers = new LinkedList<ICommand>();
+	private final List<ICommand> finishedHandlers = new LinkedList<ICommand>();
+	private final List<ICommand2<ILinker>> operations = new LinkedList<ICommand2<ILinker>>();
 
 	private final IChain chain;
-
 	private ExecutorService executor;
 
 
@@ -57,13 +58,25 @@ public class ChainDecorator
 	}
 
 
-	public ChainDecorator addSuccessHandlers(final ICommand... commands) {
+	public ChainDecorator before(final ICommand... commands) {
+		beforeHandlers.addAll(Arrays.asList(commands));
+		return this;
+	}
+
+
+	public ChainDecorator onFinished(final ICommand... commands) {
+		finishedHandlers.addAll(Arrays.asList(commands));
+		return this;
+	}
+
+
+	public ChainDecorator onSuccess(final ICommand... commands) {
 		successHandlers.addAll(Arrays.asList(commands));
 		return this;
 	}
 
 
-	public ChainDecorator addFailureHandlers(final ICommand... commands) {
+	public ChainDecorator onFailure(final ICommand... commands) {
 		failureHandlers.addAll(Arrays.asList(commands));
 		return this;
 	}
@@ -107,25 +120,31 @@ public class ChainDecorator
 		for (ICommand2<ILinker> operation : operations) {
 			operation.invoke(linker);
 		}
-		if (successHandlers.isEmpty() && failureHandlers.isEmpty()) {
-			this.executor.submit(Callables.linker(linker, dto)).get();
+
+		executeHandlers(beforeHandlers, dto);
+
+		if (finishedHandlers.isEmpty() && successHandlers.isEmpty() && failureHandlers.isEmpty()) {
+			executor().submit(Callables.linker(linker, dto)).get();
 		}
 		else {
 			try {
-				this.executor.submit(Callables.linker(linker, dto)).get();
-				handleCompletion(successHandlers, dto);
+				executor().submit(Callables.linker(linker, dto)).get();
+				executeHandlers(successHandlers, dto);
 			}
 			catch (ExecutionException e) {
-				handleCompletion(failureHandlers, e.getCause());
+				executeHandlers(failureHandlers, e.getCause());
 			}
 			catch (InterruptedException e) {
-				handleCompletion(failureHandlers, e);
+				executeHandlers(failureHandlers, e);
+			}
+			finally {
+				executeHandlers(finishedHandlers, dto);
 			}
 		}
 	}
 
 
-	private void handleCompletion(final List<ICommand> commands, final Object dto) {
+	private void executeHandlers(final List<ICommand> commands, final Object dto) {
 		try {
 			Chains.create(commands).invoke(dto);
 		}
