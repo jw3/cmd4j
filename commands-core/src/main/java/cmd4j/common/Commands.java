@@ -1,9 +1,9 @@
 package cmd4j.common;
 
 import cmd4j.ICommand;
-import cmd4j.ICommand1;
-import cmd4j.ICommand2;
-import cmd4j.ICommand3;
+import cmd4j.ICommand.ICommand1;
+import cmd4j.ICommand.ICommand2;
+import cmd4j.ICommand.ICommand3;
 
 /**
  * Utility methods for {@link ICommand commands}

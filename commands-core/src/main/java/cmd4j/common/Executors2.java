@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cmd4j.ICommand;
-import cmd4j.ICommand1;
+import cmd4j.ICommand.ICommand1;
 
 /**
  * Factory and utility methods for {@link ExecutorService executors}

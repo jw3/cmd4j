@@ -1,5 +1,8 @@
 package cmd4j;
 
+import cmd4j.ICommand.ICommand1;
+import cmd4j.ICommand.ICommand2;
+
 /**
  * A container of a set of {@link ILink links} that will execute sequentially. 
  * 

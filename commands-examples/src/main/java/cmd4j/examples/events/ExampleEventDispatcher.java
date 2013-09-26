@@ -6,9 +6,9 @@ import java.util.concurrent.Executors;
 import javax.swing.SwingUtilities;
 
 import cmd4j.ICommand;
-import cmd4j.ICommand1;
-import cmd4j.ICommand2;
-import cmd4j.ICommand3;
+import cmd4j.ICommand.ICommand1;
+import cmd4j.ICommand.ICommand2;
+import cmd4j.ICommand.ICommand3;
 import cmd4j.common.Chains;
 import cmd4j.common.Executors2;
 

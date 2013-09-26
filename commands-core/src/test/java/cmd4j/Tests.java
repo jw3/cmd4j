@@ -2,6 +2,9 @@ package cmd4j;
 
 import org.testng.Assert;
 
+import cmd4j.ICommand.ICommand1;
+import cmd4j.ICommand.ICommand2;
+import cmd4j.ICommand.ICommand3;
 import cmd4j.common.Chains;
 import cmd4j.common.Commands;
 

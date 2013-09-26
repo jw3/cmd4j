@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 
 import cmd4j.IChain;
 import cmd4j.ICommand;
-import cmd4j.ICommand2;
+import cmd4j.ICommand.ICommand2;
 import cmd4j.ILink;
 import cmd4j.common.Chains;
 import cmd4j.common.Executors2;

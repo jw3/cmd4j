@@ -7,10 +7,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import cmd4j.ICommand;
+import cmd4j.ICommand.ICommand1;
+import cmd4j.ICommand.ICommand2;
+import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.IUndo;
-import cmd4j.ICommand1;
-import cmd4j.ICommand2;
-import cmd4j.ICommand3;
 import cmd4j.ILink;
 import cmd4j.common.Commands.ICommandProxy;
 import cmd4j.common.Executors2;

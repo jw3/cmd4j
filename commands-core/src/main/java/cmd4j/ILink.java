@@ -1,5 +1,6 @@
 package cmd4j;
 
+import cmd4j.ICommand.ICommand3;
 import cmd4j.common.Links;
 
 /**

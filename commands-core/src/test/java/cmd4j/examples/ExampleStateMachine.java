@@ -3,8 +3,8 @@ package cmd4j.examples;
 import org.testng.annotations.Test;
 
 import cmd4j.ICommand;
-import cmd4j.ICommand2;
-import cmd4j.ICommand3;
+import cmd4j.ICommand.ICommand2;
+import cmd4j.ICommand.ICommand3;
 import cmd4j.common.Commands;
 
 /**

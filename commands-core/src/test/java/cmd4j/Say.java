@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import cmd4j.ICommand.ICommand2;
+
 /**
  * Some test utilities
  * 
