@@ -2,6 +2,8 @@ package cmd4j;
 
 import org.testng.Assert;
 
+import cmd4j.common.Chains;
+
 /**
  * Cmd4j Test Utils
  *
@@ -47,6 +49,23 @@ public enum Tests {
 				Assert.assertEquals(value, v.getValue());
 			}
 		};
+	}
+
+
+	/**
+	 * test the dto against the passed value
+	 */
+	public static <T> ICommand is(final T value) {
+		final Variable<Boolean> invoked = var(false);
+		return Chains.builder()//
+			.add(new ICommand2<T>() {
+				public void invoke(final T dto) {
+					invoked.setValue(true);
+					Assert.assertEquals(value, dto);
+				}
+			})
+			.add(is(invoked, true))
+			.build();
 	}
 
 

@@ -43,7 +43,7 @@ public class TestThreadBlockingScenarios {
 			.build()
 			.invoke();
 
-		Assert.assertEquals(var.getValue(), Boolean.TRUE);
+		var.assertEquals(true);
 	}
 
 
@@ -59,7 +59,7 @@ public class TestThreadBlockingScenarios {
 			.build(Service.t1.executor())
 			.invoke();
 
-		Assert.assertEquals(var.getValue(), Boolean.TRUE);
+		var.assertEquals(true);
 	}
 
 
@@ -86,7 +86,7 @@ public class TestThreadBlockingScenarios {
 		};
 
 		Service.t1.executor().submit(runChain).get();
-		Assert.assertEquals(var.getValue(), Boolean.TRUE);
+		var.assertEquals(true);
 	}
 
 
@@ -113,7 +113,7 @@ public class TestThreadBlockingScenarios {
 		};
 
 		Service.t2.executor().submit(runChain).get();
-		Assert.assertEquals(var.getValue(), Boolean.TRUE);
+		var.assertEquals(true);
 	}
 
 
@@ -163,14 +163,14 @@ public class TestThreadBlockingScenarios {
 				Chains.builder()//
 					.add(AssertThread.is(Service.t1))
 					.add(Tests.set(var, true))
-					.build(Service.multi10.executor())
+					.build(Service.multi1.executor())
 					.invoke();
 
 				return null;
 			}
 		};
 
-		Service.multi10.executor().submit(runChain).get();
-		Assert.assertEquals(var.getValue(), Boolean.TRUE);
+		Service.multi1.executor().submit(runChain).get();
+		var.assertEquals(true);
 	}
 }

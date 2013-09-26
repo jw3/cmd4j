@@ -13,7 +13,7 @@ public interface IService {
 	String name();
 
 
-	boolean isCurrent();
+	boolean isOwnerOfCurrentThread();
 
 
 	ExecutorService executor();

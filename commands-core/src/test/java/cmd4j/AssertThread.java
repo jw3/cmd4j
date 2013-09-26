@@ -34,7 +34,7 @@ public class AssertThread
 	public static AssertThread is(final IService service) {
 		return new AssertThread() {
 			public void invoke() {
-				Assert.assertTrue(service.isCurrent(), "expected to be run on " + service.name() + ", was run on " + Thread.currentThread().getName());
+				Assert.assertTrue(service.isOwnerOfCurrentThread(), "expected to be run on " + service.name() + ", was run on " + Thread.currentThread().getName());
 			}
 		};
 	}

@@ -1,16 +1,45 @@
 package cmd4j;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 
 /**
- * 
+ * Some test utilities
  * 
  * @author wassj
  *
  */
 abstract public class Say
 	implements ICommand2 {
+
+	public interface ISayFactory {
+		String toString();
+
+
+		Say nothing();
+
+
+		Say dto();
+
+
+		Say threadDto();
+
+
+		Say thread();
+
+
+		Say what(Object what);
+
+
+		Say boom();
+	}
+
+
+	public static ISayFactory factory() {
+		return new SayFactory();
+	}
+
 
 	public static Say nothing() {
 		return new Say() {
@@ -38,7 +67,7 @@ abstract public class Say
 	}
 
 
-	public static Say thread(final Writer... into) {
+	public static Say threadDto(final Writer... into) {
 		return new Say() {
 			public void invoke(final Object dto)
 				throws IOException {
@@ -49,6 +78,27 @@ abstract public class Say
 				if (dto != null) {
 					buffer.append("\t").append(String.valueOf(dto));
 				}
+				if (into.length == 0) {
+					System.out.println(buffer.toString());
+				}
+				else {
+					for (Writer out : into) {
+						out.write(buffer.toString());
+					}
+				}
+			}
+		};
+	}
+
+
+	public static Say thread(final Writer... into) {
+		return new Say() {
+			public void invoke(final Object dto)
+				throws IOException {
+
+				final StringBuilder buffer = new StringBuilder();
+				buffer.append(Thread.currentThread().getName());
+
 				if (into.length == 0) {
 					System.out.println(buffer.toString());
 				}
@@ -100,5 +150,53 @@ abstract public class Say
 				throw new Exception("boom");
 			}
 		};
+	}
+
+
+	/*
+	 * 
+	 * 
+	 * 
+	 */
+	private static class SayFactory
+		implements ISayFactory {
+
+		private final StringWriter writer = new StringWriter();
+
+
+		public Say what(final Object what) {
+			return Say.what(what, writer);
+		}
+
+
+		public Say threadDto() {
+			return Say.thread(writer);
+		}
+
+
+		public Say thread() {
+			return Say.thread(writer);
+		}
+
+
+		public Say nothing() {
+			return Say.nothing();
+		}
+
+
+		public Say dto() {
+			return Say.dto(writer);
+		}
+
+
+		public Say boom() {
+			return Say.boom();
+		}
+
+
+		@Override
+		public String toString() {
+			return writer.toString();
+		}
 	}
 }

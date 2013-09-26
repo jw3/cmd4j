@@ -19,10 +19,10 @@ import cmd4j.common.Executors2;
 public enum Service implements IService {
 	t1(Mode.SINGLE),
 	t2(Mode.SINGLE),
-	multi10(Mode.MULTI),
+	multi1(Mode.MULTI),
 	edt(Executors2.swingExecutor()) {
 		@Override
-		public boolean isCurrent() {
+		public boolean isOwnerOfCurrentThread() {
 			return SwingUtilities.isEventDispatchThread();
 		}
 	};
@@ -44,7 +44,7 @@ public enum Service implements IService {
 	}
 
 
-	public boolean isCurrent() {
+	public boolean isOwnerOfCurrentThread() {
 		return threads.contains(Thread.currentThread());
 	}
 
@@ -110,7 +110,7 @@ public enum Service implements IService {
 			}
 
 
-			public boolean isCurrent() {
+			public boolean isOwnerOfCurrentThread() {
 				return threads.contains(Thread.currentThread());
 			}
 
@@ -120,6 +120,25 @@ public enum Service implements IService {
 					executor = createExecutor(name(), mode, threads);
 				}
 				return executor;
+			}
+		};
+	}
+
+
+	public static IService current() {
+		return new IService() {
+			public String name() {
+				return Thread.currentThread().getName();
+			}
+
+
+			public boolean isOwnerOfCurrentThread() {
+				return true;
+			}
+
+
+			public ExecutorService executor() {
+				return Executors2.sameThreadExecutor();
 			}
 		};
 	}
