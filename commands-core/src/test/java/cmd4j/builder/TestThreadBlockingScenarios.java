@@ -29,7 +29,7 @@ import cmd4j.common.Chains;
  * @author wassj
  *
  */
-public class BlockCallingThreadOrNotTest {
+public class TestThreadBlockingScenarios {
 
 	// #1
 	@Test
@@ -43,7 +43,7 @@ public class BlockCallingThreadOrNotTest {
 			.build()
 			.invoke();
 
-		Assert.assertEquals(var.value(), Boolean.TRUE);
+		Assert.assertEquals(var.getValue(), Boolean.TRUE);
 	}
 
 
@@ -59,7 +59,7 @@ public class BlockCallingThreadOrNotTest {
 			.build(Service.t1.executor())
 			.invoke();
 
-		Assert.assertEquals(var.value(), Boolean.TRUE);
+		Assert.assertEquals(var.getValue(), Boolean.TRUE);
 	}
 
 
@@ -79,14 +79,14 @@ public class BlockCallingThreadOrNotTest {
 					.build()
 					.invoke();
 
-				Assert.assertEquals(var.value(), Boolean.TRUE);
+				Assert.assertEquals(var.getValue(), Boolean.TRUE);
 
 				return null;
 			}
 		};
 
 		Service.t1.executor().submit(runChain).get();
-		Assert.assertEquals(var.value(), Boolean.TRUE);
+		Assert.assertEquals(var.getValue(), Boolean.TRUE);
 	}
 
 
@@ -106,14 +106,14 @@ public class BlockCallingThreadOrNotTest {
 					.build(Service.t1.executor())
 					.invoke();
 
-				Assert.assertEquals(var.value(), Boolean.TRUE);
+				Assert.assertEquals(var.getValue(), Boolean.TRUE);
 
 				return null;
 			}
 		};
 
 		Service.t2.executor().submit(runChain).get();
-		Assert.assertEquals(var.value(), Boolean.TRUE);
+		Assert.assertEquals(var.getValue(), Boolean.TRUE);
 	}
 
 
@@ -171,6 +171,6 @@ public class BlockCallingThreadOrNotTest {
 		};
 
 		Service.multi10.executor().submit(runChain).get();
-		Assert.assertEquals(var.value(), Boolean.TRUE);
+		Assert.assertEquals(var.getValue(), Boolean.TRUE);
 	}
 }

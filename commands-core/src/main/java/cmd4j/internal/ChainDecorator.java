@@ -134,9 +134,11 @@ public class ChainDecorator
 			}
 			catch (ExecutionException e) {
 				executeHandlers(failureHandlers, e.getCause());
+				throw e;
 			}
 			catch (InterruptedException e) {
 				executeHandlers(failureHandlers, e);
+				throw e;
 			}
 			finally {
 				executeHandlers(finishedHandlers, dto);

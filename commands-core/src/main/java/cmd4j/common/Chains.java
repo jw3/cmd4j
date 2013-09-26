@@ -80,7 +80,7 @@ public enum Chains {
 	 * invocation will occurr regardless of success/failure of the chain
 	 * @return the chain, decorated
 	 */
-	public static IChain whenDone(final IChain chain, final ICommand... listeners) {
+	public static IChain after(final IChain chain, final ICommand... listeners) {
 		return decorator(chain).onFinished(listeners);
 	}
 

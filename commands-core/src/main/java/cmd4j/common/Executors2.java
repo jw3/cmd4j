@@ -15,6 +15,9 @@ import javax.swing.SwingUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cmd4j.ICommand;
+import cmd4j.ICommand1;
+
 /**
  * Factory and utility methods for {@link ExecutorService executors}
  *
@@ -31,6 +34,15 @@ public enum Executors2 {
 
 	public static ExecutorService sameThreadExecutor() {
 		return new SameThreadExecutorService();
+	}
+
+
+	public static ICommand shutdown(final ExecutorService executor) {
+		return new ICommand1() {
+			public void invoke() {
+				executor.shutdown();
+			}
+		};
 	}
 
 
