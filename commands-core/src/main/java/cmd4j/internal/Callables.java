@@ -12,6 +12,7 @@ import cmd4j.ICommand1;
 import cmd4j.ICommand2;
 import cmd4j.ICommand3;
 import cmd4j.ILink;
+import cmd4j.common.Commands.ICommandProxy;
 import cmd4j.common.Executors2;
 import cmd4j.internal.Linkers.ILinker;
 import cmd4j.internal.Linkers.IToCallable;
@@ -252,14 +253,17 @@ public enum Callables {
 	 * @return the generic param of t, or Object if there is none
 	 */
 	static Class<?> typedAs(ICommand t) {
-		for (Type type : t.getClass().getGenericInterfaces()) {
-			if (type instanceof ParameterizedType) {
-				final Type paramType = ((ParameterizedType)type).getActualTypeArguments()[0];
-				if (paramType instanceof Class<?>) {
-					return (Class<?>)paramType;
+		if (!(t instanceof ICommandProxy)) {
+			for (Type type : t.getClass().getGenericInterfaces()) {
+				if (type instanceof ParameterizedType) {
+					final Type paramType = ((ParameterizedType)type).getActualTypeArguments()[0];
+					if (paramType instanceof Class<?>) {
+						return (Class<?>)paramType;
+					}
 				}
 			}
+			return Object.class;
 		}
-		return Object.class;
+		return ((ICommandProxy<?>)t).type();
 	}
 }
