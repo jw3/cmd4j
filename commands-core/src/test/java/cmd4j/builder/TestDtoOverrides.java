@@ -1,14 +1,14 @@
 package cmd4j.builder;
 
-import static cmd4j.Tests.is;
+import static cmd4j.testing.Tests.is;
 
 import java.io.StringWriter;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import cmd4j.Say;
 import cmd4j.common.Chains;
+import cmd4j.testing.Say;
 
 /**
  * Test a variety of different dto usages

@@ -1,9 +1,10 @@
-package cmd4j;
+package cmd4j.testing;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand2;
 
 /**

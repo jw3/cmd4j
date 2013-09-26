@@ -1,4 +1,4 @@
-package cmd4j;
+package cmd4j.testing;
 
 import java.util.concurrent.ExecutorService;
 

@@ -1,6 +1,8 @@
-package cmd4j;
+package cmd4j.testing;
 
 import org.testng.Assert;
+
+import cmd4j.ICommand;
 
 /**
  * Utility factory class for making assertions about what thread a given point in a chain is executing on

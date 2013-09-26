@@ -7,13 +7,13 @@ import java.util.concurrent.TimeoutException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import cmd4j.AssertThread;
-import cmd4j.IService;
-import cmd4j.Service;
-import cmd4j.Service.Mode;
-import cmd4j.Tests;
-import cmd4j.Tests.Variable;
 import cmd4j.common.Chains;
+import cmd4j.testing.AssertThread;
+import cmd4j.testing.IService;
+import cmd4j.testing.Service;
+import cmd4j.testing.Tests;
+import cmd4j.testing.Service.Mode;
+import cmd4j.testing.Tests.Variable;
 
 /**
  * A test of thread blocking scenarios

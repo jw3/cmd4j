@@ -3,10 +3,10 @@ package cmd4j.builder;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import cmd4j.Say;
-import cmd4j.Say.ISayFactory;
-import cmd4j.Service;
 import cmd4j.common.Chains;
+import cmd4j.testing.Say;
+import cmd4j.testing.Service;
+import cmd4j.testing.Say.ISayFactory;
 
 /**
  * @author wassj

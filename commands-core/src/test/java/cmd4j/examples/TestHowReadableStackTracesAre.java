@@ -3,9 +3,9 @@ package cmd4j.examples;
 import org.testng.annotations.Test;
 
 import cmd4j.IChain;
-import cmd4j.Say;
 import cmd4j.common.Chains;
 import cmd4j.common.Chains.ChainBuilder;
+import cmd4j.testing.Say;
 
 /**
  *

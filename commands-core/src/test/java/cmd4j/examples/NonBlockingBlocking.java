@@ -7,9 +7,9 @@ import junit.framework.Assert;
 import org.testng.annotations.Test;
 
 import cmd4j.IChain;
-import cmd4j.Say;
-import cmd4j.Service;
 import cmd4j.common.Chains;
+import cmd4j.testing.Say;
+import cmd4j.testing.Service;
 
 /**
  * Here is an example of blocking the calling thread but not actually blocking the calling thread

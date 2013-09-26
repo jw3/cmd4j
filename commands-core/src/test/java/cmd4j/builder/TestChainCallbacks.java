@@ -1,15 +1,15 @@
 package cmd4j.builder;
 
-import static cmd4j.Tests.is;
-import static cmd4j.Tests.toggle;
-import static cmd4j.Tests.var;
+import static cmd4j.testing.Tests.is;
+import static cmd4j.testing.Tests.toggle;
+import static cmd4j.testing.Tests.var;
 
 import org.testng.annotations.Test;
 
 import cmd4j.IChain;
-import cmd4j.Say;
-import cmd4j.Tests.Variable;
 import cmd4j.common.Chains;
+import cmd4j.testing.Say;
+import cmd4j.testing.Tests.Variable;
 
 /**
  * Test the {@link IDoneCallback} functionality
