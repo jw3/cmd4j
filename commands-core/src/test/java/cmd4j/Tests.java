@@ -3,6 +3,7 @@ package cmd4j;
 import org.testng.Assert;
 
 import cmd4j.common.Chains;
+import cmd4j.common.Commands;
 
 /**
  * Cmd4j Test Utils
@@ -35,6 +36,24 @@ public enum Tests {
 				return null;
 			}
 		};
+	}
+
+
+	public static ICommand invoked(final Variable<Boolean> called) {
+		return new ICommand2() {
+			public void invoke(final Object dto) {
+				called.setValue(true);
+			}
+		};
+	}
+
+
+	public static <T> ICommand invoked(final Class<T> type, final Variable<Boolean> called) {
+		return Commands.tokenizeType(type, new ICommand2<T>() {
+			public void invoke(final T dto) {
+				called.setValue(true);
+			}
+		});
 	}
 
 

@@ -1,68 +1,66 @@
 package cmd4j.internal;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import static cmd4j.Tests.invoked;
+import static cmd4j.Tests.is;
+import static cmd4j.Tests.var;
 
-import org.junit.Assert;
 import org.testng.annotations.Test;
 
 import cmd4j.IChain;
 import cmd4j.ICommand;
-import cmd4j.ICommand2;
+import cmd4j.Tests.Variable;
 import cmd4j.common.Chains;
+import cmd4j.common.Commands;
 
 /**
  * Ensure that a DTO does not end up being passed to a {@link ICommand} that will not accept it.
+ * This also gives a workout to the {@link Commands#tokenizeType(Class, ICommand) type tokenization}
  *
  * @author wassj
  *
  */
 public class DtoTypesafetyTest {
 
-	/**
-	 * these tests all should pass as they match up to the command they are passed to
-	 * @throws Exception
-	 */
 	@Test
 	public void testCorrectTypes()
 		throws Exception {
 
 		{
-			final BaseInvoked invoked = new Untyped();
-			Chains.builder().add(invoked).build().invoke(new String());
-			Assert.assertTrue(invoked.wasInvoked());
+			final Variable<Boolean> v = var(false);
+			Chains.builder().add(invoked(v)).build().invoke(new String());
+			v.assertEquals(true);
 		}
 		{
-			final BaseInvoked invoked = new TypedNumber();
-			Chains.builder().add(invoked).build().invoke(1.1);
-			Assert.assertTrue(invoked.wasInvoked());
+			final Variable<Boolean> v = var(false);
+			Chains.builder().add(invoked(v)).build().invoke(1.1);
+			v.assertEquals(true);
 		}
 		{
-			final BaseInvoked invoked = new TypedInteger();
-			Chains.builder().add(invoked).build().invoke(1);
-			Assert.assertTrue(invoked.wasInvoked());
+			final Variable<Boolean> v = var(false);
+			Chains.builder().add(invoked(v)).build().invoke(1);
+			v.assertEquals(true);
 		}
 	}
 
 
 	@Test
-	public void testCorrectTypesInStrictMode()
+	public void testCorrectTypes2()
 		throws Exception {
 
 		{
-			final BaseInvoked invoked = new Untyped();
-			Chains.builder().add(invoked).build().invoke(new String());
-			Assert.assertTrue(invoked.wasInvoked());
+			final Variable<Boolean> v = var(false);
+			Chains.builder().add(invoked(v)).build().invoke("foo");
+			v.assertEquals(true);
 		}
 		{
-			final BaseInvoked invoked = new TypedNumber();
-			Chains.builder().add(invoked).build().invoke(1.1);
-			Assert.assertTrue(invoked.wasInvoked());
+			final Variable<Boolean> v = var(false);
+			Chains.builder().add(invoked(Number.class, v)).build().invoke(1.1);
+			v.assertEquals(true);
 		}
 		{
-			final BaseInvoked invoked = new TypedInteger();
-			Chains.builder().add(invoked).build().invoke(1);
-			Assert.assertTrue(invoked.wasInvoked());
+			final Variable<Boolean> v = var(false);
+			Chains.builder().add(invoked(Integer.class, v)).build().invoke(1);
+			v.assertEquals(true);
 		}
 	}
 
@@ -73,15 +71,19 @@ public class DtoTypesafetyTest {
 	public void testIncorrectTypes1()
 		throws Exception {
 
-		final BaseInvoked invoked = new Untyped();
-		final BaseInvoked invoked2 = new TypedString();
-		final BaseInvoked uninvoked = new TypedNumber();
+		final Variable<Boolean> v = var(false);
+		Chains.builder()//
+			.add(invoked(Number.class, v))
+			.add(is(v, false))
 
-		Chains.builder().add(uninvoked).add(invoked).add(invoked2).build().invoke("not a number");
+			.add(invoked(v))
+			.add(is(v, true))
 
-		Assert.assertFalse(uninvoked.wasInvoked());
-		Assert.assertTrue(invoked.wasInvoked());
-		Assert.assertTrue(invoked2.wasInvoked());
+			.add(invoked(String.class, v))
+			.add(is(v, true))
+
+			.build()
+			.invoke("not a number");
 	}
 
 
@@ -91,15 +93,20 @@ public class DtoTypesafetyTest {
 	public void testIncorrectTypes2()
 		throws Exception {
 
-		final BaseInvoked invoked = new Untyped();
-		final BaseInvoked invoked2 = new TypedNumber();
-		final BaseInvoked uninvoked = new TypedInteger();
+		final Variable<Boolean> v1 = var(false);
+		final Variable<Boolean> v2 = var(false);
+		final Variable<Boolean> v3 = var(false);
 
-		Chains.builder().add(uninvoked).add(invoked).add(invoked2).build().invoke(1.1);
+		Chains.builder()//
+			.add(invoked(Integer.class, v1))
+			.add(invoked(v2))
+			.add(invoked(Number.class, v3))
+			.build()
+			.invoke(1.1);
 
-		Assert.assertFalse(uninvoked.wasInvoked());
-		Assert.assertTrue(invoked.wasInvoked());
-		Assert.assertTrue(invoked2.wasInvoked());
+		v1.assertEquals(false);
+		v2.assertEquals(true);
+		v3.assertEquals(true);
 	}
 
 
@@ -110,16 +117,16 @@ public class DtoTypesafetyTest {
 	public void testIncorrectTypes1_visitable()
 		throws Exception {
 
-		final BaseInvoked invoked = new Untyped();
-		final BaseInvoked invoked2 = new TypedString();
-		final BaseInvoked uninvoked = new TypedNumber();
+		final Variable<Boolean> v1 = var(false);
+		final Variable<Boolean> v2 = var(false);
+		final Variable<Boolean> v3 = var(false);
 
-		final IChain chain = Chains.builder().add(uninvoked).add(invoked).add(invoked2).build();
+		final IChain chain = Chains.builder().add(invoked(Number.class, v1)).add(invoked(Integer.class, v2)).add(invoked(v3)).build();
 		Chains.makeVisitable(chain).invoke("not a number");
 
-		Assert.assertFalse(uninvoked.wasInvoked());
-		Assert.assertTrue(invoked.wasInvoked());
-		Assert.assertTrue(invoked2.wasInvoked());
+		v1.assertEquals(false);
+		v2.assertEquals(false);
+		v3.assertEquals(true);
 	}
 
 
@@ -130,80 +137,15 @@ public class DtoTypesafetyTest {
 	public void testIncorrectTypes2_visitable()
 		throws Exception {
 
-		final BaseInvoked invoked = new Untyped();
-		final BaseInvoked invoked2 = new TypedNumber();
-		final BaseInvoked uninvoked = new TypedInteger();
+		final Variable<Boolean> v1 = var(false);
+		final Variable<Boolean> v2 = var(false);
+		final Variable<Boolean> v3 = var(false);
 
-		final IChain chain = Chains.builder().add(uninvoked).add(invoked).add(invoked2).build();
+		final IChain chain = Chains.builder().add(invoked(Integer.class, v1)).add(invoked(Number.class, v2)).add(invoked(v3)).build();
 		Chains.makeVisitable(chain).invoke(1.1);
 
-		Assert.assertFalse(uninvoked.wasInvoked());
-		Assert.assertTrue(invoked.wasInvoked());
-		Assert.assertTrue(invoked2.wasInvoked());
-	}
-
-
-	private static class Untyped
-		extends BaseInvoked
-		implements ICommand2 {
-
-		public void invoke(Object dto) {
-			invoked = true;
-		}
-	}
-
-
-	private static class TypedString
-		extends BaseInvoked
-		implements ICommand2<String> {
-
-		public void invoke(String dto) {
-			invoked = true;
-		}
-	}
-
-
-	private static class TypedNumber
-		extends BaseInvoked
-		implements ICommand2<Number> {
-
-		public void invoke(Number dto) {
-			invoked = true;
-		}
-	}
-
-
-	private static class TypedInteger
-		extends BaseInvoked
-		implements ICommand2<Integer> {
-
-		public void invoke(Integer dto) {
-			invoked = true;
-		}
-	}
-
-
-	private abstract static class BaseInvoked
-		implements ICommand {
-
-		protected boolean invoked;
-
-
-		public boolean wasInvoked() {
-			return invoked;
-		}
-	}
-
-
-	public static Class<?> typedAs(ICommand t) {
-		for (Type type : t.getClass().getGenericInterfaces()) {
-			if (type instanceof ParameterizedType) {
-				final Type paramType = ((ParameterizedType)type).getActualTypeArguments()[0];
-				if (paramType instanceof Class<?>) {
-					return (Class<?>)paramType;
-				}
-			}
-		}
-		return Object.class;
+		v1.assertEquals(false);
+		v2.assertEquals(true);
+		v3.assertEquals(true);
 	}
 }
