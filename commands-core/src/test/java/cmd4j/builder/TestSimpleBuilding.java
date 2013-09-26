@@ -5,8 +5,8 @@ import org.testng.annotations.Test;
 
 import cmd4j.common.Chains;
 import cmd4j.testing.Say;
-import cmd4j.testing.Service;
 import cmd4j.testing.Say.ISayFactory;
+import cmd4j.testing.Service;
 
 /**
  * @author wassj

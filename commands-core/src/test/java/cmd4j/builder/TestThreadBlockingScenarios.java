@@ -11,8 +11,8 @@ import cmd4j.common.Chains;
 import cmd4j.testing.AssertThread;
 import cmd4j.testing.IService;
 import cmd4j.testing.Service;
-import cmd4j.testing.Tests;
 import cmd4j.testing.Service.Mode;
+import cmd4j.testing.Tests;
 import cmd4j.testing.Tests.Variable;
 
 /**
