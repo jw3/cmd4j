@@ -1,4 +1,4 @@
-package cmd4j.examples.swing;
+package cmd4j.examples;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -16,7 +16,7 @@ import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.IUndo;
 import cmd4j.common.Chains;
-import cmd4j.examples.Examples;
+import cmd4j.examples.common.Examples;
 import cmd4j.swing.event.ChainAction;
 
 /**
@@ -25,7 +25,7 @@ import cmd4j.swing.event.ChainAction;
  * @author wassj
  *
  */
-public class ButtonActionsWithUndo {
+public class ExampleButtonActionsWithUndo {
 	private static final Stack<IChain> undoStack = new Stack<IChain>();
 
 

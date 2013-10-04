@@ -1,4 +1,4 @@
-package cmd4j.examples.events;
+package cmd4j.examples;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -11,6 +11,8 @@ import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.common.Chains;
 import cmd4j.common.Executors2;
+import cmd4j.examples.events.Dispatcher;
+import cmd4j.examples.events.IListener;
 
 /**
  * Samples of event dispatcher that is implemeted using {@link ICommand commands} 

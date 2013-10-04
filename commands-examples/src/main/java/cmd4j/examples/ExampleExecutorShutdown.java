@@ -1,4 +1,4 @@
-package cmd4j.examples.concurrency;
+package cmd4j.examples;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
