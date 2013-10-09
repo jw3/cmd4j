@@ -3,6 +3,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<parent>
+		<groupId>cmd4j</groupId>
+		<artifactId>super-pom</artifactId>
+		<version>1.1</version>
+	</parent>
+
 	<name>Commands Parent</name>
 	<groupId>cmd4j</groupId>
 	<artifactId>cmd4j-parent</artifactId>
@@ -17,8 +23,6 @@
 
 	<properties>
 		<java.version>1.7</java.version>
-		<slf4j.version>1.7.5</slf4j.version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<dependencyManagement>
@@ -26,9 +30,8 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>15.0-rc1</version>
+				<version>${guava.version}</version>
 			</dependency>
-
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
@@ -43,24 +46,9 @@
 			<dependency>
 				<groupId>org.testng</groupId>
 				<artifactId>testng</artifactId>
-				<version>6.8.5</version>
+				<version>${testng.version}</version>
 				<scope>test</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
-				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-
 </project>
