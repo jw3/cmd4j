@@ -164,8 +164,9 @@ public enum Chains {
 
 
 	/**
+	 * 
+	 * 
 	 * Builder pattern implementation for creating {@link IChain} objects
-	 * There are two types of {@link IChain}s that can be created, static and dynamic.  This builder will assemble a static 
 	 *
 	 * @author wassj
 	 *
