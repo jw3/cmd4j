@@ -1,7 +1,5 @@
 package cmd4j.examples;
 
-import org.testng.annotations.Test;
-
 import cmd4j.IChain;
 import cmd4j.common.Chains;
 import cmd4j.common.Chains.ChainBuilder;
@@ -15,7 +13,8 @@ import cmd4j.testing.Say;
  */
 public class TestHowReadableStackTracesAre {
 
-	@Test(expectedExceptions = Exception.class)
+	//@Test
+	//(expectedExceptions = Exception.class)
 	public void tenChainsDeep()
 		throws Exception {
 
@@ -25,7 +24,6 @@ public class TestHowReadableStackTracesAre {
 
 
 	private IChain recurse(ChainBuilder parent, int count, int max) {
-		System.out.println("@" + count);
 		if (++count < max) {
 			final IChain chain = recurse(Chains.builder().add(Say.what(String.valueOf(count))), count, max);
 			parent.add(chain);
