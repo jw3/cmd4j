@@ -27,7 +27,7 @@ public enum Tests {
 
 
 	public static <T> ICommand invoked(final Class<T> type, final Variable<Boolean> called) {
-		return Commands.tokenizeType(type, new ICommand2<T>() {
+		return Commands.tokenize(type, new ICommand2<T>() {
 			public void invoke(final T dto) {
 				called.setValue(true);
 			}
