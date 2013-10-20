@@ -23,6 +23,17 @@ public enum Chains {
 	/*singleton-enum*/;
 
 	/**
+	 * 
+	 * @param chain
+	 * @param dto
+	 * @return
+	 */
+	public static <D> Callable<Void> asCallable(final IChain chain, final D dto) {
+		return new ChainCallable<D, Void>(chain, dto);
+	}
+
+
+	/**
 	 * creates a new {@link ChainBuilder}
 	 */
 	public static ChainBuilder builder() {
@@ -345,6 +356,33 @@ public enum Chains {
 			final ILinker linker = Linkers.create(this.head());
 			final Callable<Void> callableLinker = Callables.linker(linker, dto);
 			Executors2.sameThreadExecutor().submit(callableLinker).get();
+		}
+	}
+
+
+	public static class ChainCallable<D, R>
+		implements Callable<R> {
+
+		private final IChain chain;
+		private final D dto;
+
+
+		public ChainCallable(final IChain chain) {
+			this(chain, null);
+		}
+
+
+		public ChainCallable(final IChain chain, final D dto) {
+			this.chain = chain;
+			this.dto = dto;
+		}
+
+
+		public R call()
+			throws Exception {
+
+			chain.invoke(dto);
+			return null;
 		}
 	}
 }

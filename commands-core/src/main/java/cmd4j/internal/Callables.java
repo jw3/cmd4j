@@ -6,7 +6,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import cmd4j.IChain;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
@@ -30,18 +29,6 @@ public enum Callables {
 
 	public static Callable<Void> linker(final ILinker linker, final Object dto) {
 		return new CallableLinkerDecorator(linker, dto);
-	}
-
-
-	public static Callable<Void> chain(final IChain chain, final Object dto) {
-		return new Callable<Void>() {
-			public Void call()
-				throws Exception {
-
-				chain.invoke(dto);
-				return null;
-			}
-		};
 	}
 
 
