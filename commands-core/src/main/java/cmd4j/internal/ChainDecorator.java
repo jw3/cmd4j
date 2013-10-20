@@ -151,11 +151,6 @@ public class ChainDecorator
 	}
 
 
-	public ChainDecorator unthreaded() {
-		return this.addDecoration(new Unthreaded());
-	}
-
-
 	private static class Visitable
 		implements ICommand2<ILinker> {
 
@@ -174,17 +169,6 @@ public class ChainDecorator
 			throws Exception {
 
 			linker.setToCallable(new UndoToCallable());
-		}
-	}
-
-
-	private static class Unthreaded
-		implements ICommand2<ILinker> {
-
-		public void invoke(final ILinker linker)
-			throws Exception {
-
-			Linkers.makeUnthreaded(linker);
 		}
 	}
 }
