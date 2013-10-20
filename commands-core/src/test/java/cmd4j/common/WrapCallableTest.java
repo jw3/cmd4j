@@ -4,6 +4,8 @@ import java.util.concurrent.Callable;
 
 import org.testng.annotations.Test;
 
+import cmd4j.Chains;
+import cmd4j.Commands;
 import cmd4j.testing.AssertCommands;
 import cmd4j.testing.Tests.Variable;
 

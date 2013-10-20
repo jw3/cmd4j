@@ -1,8 +1,8 @@
 package cmd4j.examples;
 
+import cmd4j.Chains;
 import cmd4j.IChain;
-import cmd4j.common.Chains;
-import cmd4j.common.Chains.ChainBuilder;
+import cmd4j.Chains.ChainBuilder;
 import cmd4j.testing.Say;
 
 /**

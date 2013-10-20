@@ -1,16 +1,14 @@
-package cmd4j.common;
+package cmd4j;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.concurrent.ExecutorService;
 
-import cmd4j.ICommand;
+import cmd4j.Chains.ChainBuilder;
+import cmd4j.Commands.ICommandProxy;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
-import cmd4j.ILink;
-import cmd4j.common.Chains.ChainBuilder;
-import cmd4j.common.Commands.ICommandProxy;
 
 /**
  * Utility methods for {@link ILink links}

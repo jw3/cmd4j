@@ -5,12 +5,12 @@ import java.util.concurrent.Executors;
 
 import javax.swing.SwingUtilities;
 
+import cmd4j.Chains;
+import cmd4j.Executors2;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
-import cmd4j.common.Chains;
-import cmd4j.common.Executors2;
 import cmd4j.examples.events.Dispatcher;
 import cmd4j.examples.events.IListener;
 

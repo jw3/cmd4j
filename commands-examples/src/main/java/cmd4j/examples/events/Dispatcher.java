@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
+import cmd4j.Chains;
 import cmd4j.IChain;
 import cmd4j.ICommand;
-import cmd4j.common.Chains;
-import cmd4j.common.Chains.ChainBuilder;
+import cmd4j.Chains.ChainBuilder;
 
 /**
  * a simple event dispatcher that deals in {@link ICommand commands}

@@ -8,7 +8,7 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.swing.SwingUtilities;
 
-import cmd4j.common.Executors2;
+import cmd4j.Executors2;
 
 /**
  * Manage a set of executors for tests; 

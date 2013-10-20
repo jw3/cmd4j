@@ -1,8 +1,8 @@
 package cmd4j.examples;
 
+import cmd4j.Chains;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
-import cmd4j.common.Chains;
 import cmd4j.testing.Say;
 
 /**

@@ -1,5 +1,7 @@
 package cmd4j.common;
 
+import cmd4j.Chains;
+import cmd4j.Commands;
 import cmd4j.common.WrapCallableTest.IncrementVariable;
 import cmd4j.testing.AssertCommands;
 import cmd4j.testing.Service;

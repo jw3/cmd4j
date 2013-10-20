@@ -1,4 +1,4 @@
-package cmd4j.common;
+package cmd4j;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,7 +15,6 @@ import javax.swing.SwingUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
 
 /**

@@ -2,10 +2,10 @@ package cmd4j.examples;
 
 import org.testng.annotations.Test;
 
+import cmd4j.Commands;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
-import cmd4j.common.Commands;
 
 /**
  * Example of using {@link IBranch} to create states with dynamic flow.

@@ -1,4 +1,4 @@
-package cmd4j.common;
+package cmd4j;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,11 +9,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import cmd4j.IChain;
 import cmd4j.IChain.IObservableChain;
-import cmd4j.ICommand;
-import cmd4j.ILink;
-import cmd4j.common.Links.LinkBuilder;
+import cmd4j.Links.LinkBuilder;
 
 /**
  * Utility methods for {@link IChain chains}

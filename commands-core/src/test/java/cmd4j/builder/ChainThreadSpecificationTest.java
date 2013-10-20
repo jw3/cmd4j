@@ -2,9 +2,9 @@ package cmd4j.builder;
 
 import org.testng.annotations.Test;
 
+import cmd4j.Chains;
+import cmd4j.Executors2;
 import cmd4j.IChain;
-import cmd4j.common.Chains;
-import cmd4j.common.Executors2;
 import cmd4j.testing.AssertThread;
 import cmd4j.testing.Service;
 

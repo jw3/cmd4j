@@ -10,8 +10,8 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import cmd4j.Chains;
 import cmd4j.ICommand;
-import cmd4j.common.Chains;
 import cmd4j.examples.common.Examples;
 
 /**

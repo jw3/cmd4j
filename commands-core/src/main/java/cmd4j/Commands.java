@@ -1,9 +1,8 @@
-package cmd4j.common;
+package cmd4j;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;

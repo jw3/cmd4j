@@ -6,10 +6,10 @@ import static cmd4j.testing.Tests.var;
 
 import org.testng.annotations.Test;
 
+import cmd4j.Chains;
+import cmd4j.Commands;
 import cmd4j.IChain;
 import cmd4j.ICommand;
-import cmd4j.common.Chains;
-import cmd4j.common.Commands;
 import cmd4j.testing.Tests.Variable;
 
 /**

@@ -10,12 +10,12 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import cmd4j.Chains;
 import cmd4j.IChain;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.IUndo;
-import cmd4j.common.Chains;
 import cmd4j.examples.common.Examples;
 import cmd4j.swing.event.ChainAction;
 

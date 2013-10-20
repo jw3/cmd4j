@@ -4,8 +4,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import cmd4j.Chains;
 import cmd4j.IChain;
-import cmd4j.common.Chains;
 
 /**
  *

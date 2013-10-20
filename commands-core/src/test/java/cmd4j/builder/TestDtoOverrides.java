@@ -7,7 +7,7 @@ import java.io.StringWriter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import cmd4j.common.Chains;
+import cmd4j.Chains;
 import cmd4j.testing.Say;
 
 /**

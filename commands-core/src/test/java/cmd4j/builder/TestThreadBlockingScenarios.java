@@ -7,8 +7,8 @@ import java.util.concurrent.TimeoutException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import cmd4j.Chains;
 import cmd4j.IChain;
-import cmd4j.common.Chains;
 import cmd4j.testing.AssertThread;
 import cmd4j.testing.IService;
 import cmd4j.testing.Service;
