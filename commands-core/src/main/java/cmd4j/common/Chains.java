@@ -1,18 +1,19 @@
 package cmd4j.common;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import cmd4j.IChain;
+import cmd4j.IChain.IObservableChain;
 import cmd4j.ICommand;
 import cmd4j.ILink;
 import cmd4j.common.Links.LinkBuilder;
-import cmd4j.internal.Callables;
-import cmd4j.internal.ChainDecorator;
-import cmd4j.internal.Linkers;
-import cmd4j.internal.Linkers.ILinker;
 
 /**
  * Utility methods for {@link IChain chains}
@@ -114,7 +115,7 @@ public enum Chains {
 	 * add {@link ICommand commands} that will be invoked prior to the {@link IChain chain} execution
 	 * @return the chain, decorated
 	 */
-	public static IChain before(final IChain chain, final ICommand... listeners) {
+	public static IObservableChain before(final IChain chain, final ICommand... listeners) {
 		return decorator(chain).before(listeners);
 	}
 
@@ -124,7 +125,7 @@ public enum Chains {
 	 * invocation will occurr regardless of success/failure of the chain
 	 * @return the chain, decorated
 	 */
-	public static IChain after(final IChain chain, final ICommand... listeners) {
+	public static IObservableChain after(final IChain chain, final ICommand... listeners) {
 		return decorator(chain).onFinished(listeners);
 	}
 
@@ -133,7 +134,7 @@ public enum Chains {
 	 * add {@link ICommand commands} that will be invoked upon successful invocation of the {@link IChain chain}
 	 * @return the chain, decorated
 	 */
-	public static IChain onSuccess(final IChain chain, final ICommand... listeners) {
+	public static IObservableChain onSuccess(final IChain chain, final ICommand... listeners) {
 		return decorator(chain).onSuccess(listeners);
 	}
 
@@ -143,7 +144,7 @@ public enum Chains {
 	 * the cause of the failure will be available as the dto to any commands that will accept it
 	 * @return the chain, decorated
 	 */
-	public static IChain onFailure(final IChain chain, final ICommand... listeners) {
+	public static IObservableChain onFailure(final IChain chain, final ICommand... listeners) {
 		return decorator(chain).onFailure(listeners);
 	}
 
@@ -153,16 +154,7 @@ public enum Chains {
 	 * @return the chain, decorated
 	 */
 	public static IChain makeUndoable(final IChain chain) {
-		return decorator(chain).undo();
-	}
-
-
-	/**
-	 * enable visitor mode in a {@link IChain chain}
-	 * @return the chain, decorated
-	 */
-	public static IChain makeVisitable(final IChain chain) {
-		return decorator(chain).visitable();
+		return null;//decorator(chain).undo();
 	}
 
 
@@ -209,6 +201,7 @@ public enum Chains {
 	final public static class ChainBuilder {
 		private LinkBuilder head;
 		private LinkBuilder tail;
+		private boolean visits;
 
 
 		private ChainBuilder() {
@@ -223,6 +216,12 @@ public enum Chains {
 		private ChainBuilder init(final LinkBuilder builder) {
 			this.head = builder;
 			this.tail = builder;
+			return this;
+		}
+
+
+		public ChainBuilder visits(final boolean visits) {
+			this.visits = visits;
 			return this;
 		}
 
@@ -282,7 +281,7 @@ public enum Chains {
 		 */
 		public IChain build() {
 			if (head != null) {
-				return Chains.create(head.build());
+				return Chains.create(head.build(visits));
 			}
 			return Chains.empty();
 		}
@@ -299,8 +298,8 @@ public enum Chains {
 	 * 
 	 ******************************************************************************/
 
-	private static ChainDecorator decorator(final IChain chain) {
-		return chain instanceof ChainDecorator ? (ChainDecorator)chain : new ChainDecorator(chain);
+	private static IObservableChain decorator(final IChain chain) {
+		return chain instanceof IObservableChain ? (IObservableChain)chain : new ObservableChainDecorator(chain);
 	}
 
 
@@ -360,9 +359,8 @@ public enum Chains {
 		public void invoke(final Object dto)
 			throws Exception {
 
-			final ILinker linker = Linkers.create(this.head());
-			final Callable<Void> callableLinker = Callables.linker(linker, dto);
-			Executors2.sameThreadExecutor().submit(callableLinker).get();
+			final Linker linker = new Linker(this.head(), dto);
+			Executors2.sameThreadExecutor().submit(linker).get();
 		}
 	}
 
@@ -391,5 +389,164 @@ public enum Chains {
 			chain.invoke(dto);
 			return null;
 		}
+	}
+
+
+	/**
+	 * A {@link ILinker linker} is a traverser of {@link ILink links} in an {@link IChain chain}.  It controls the 
+	 * execution flow from link to link and ensures that each command is run by the appropriate {@link ExecutorService executor}.
+	 * 
+	 * @author wassj
+	 * @internal Intended for Command Framework use only.  Unsafe for direct client usage.
+	 *
+	 */
+	private static class Linker
+		implements Callable<Void> {
+
+		private final ILink head;
+		private final Object dto;
+
+
+		public Linker(final ILink head, final Object dto) {
+			this.head = head;
+			this.dto = dto;
+		}
+
+
+		public ILink head() {
+			return head;
+		}
+
+
+		public Void call()
+			throws Exception {
+
+			ILink next = head();
+			while (next != null) {
+				next = callImpl(next);
+			}
+			return null;
+		}
+
+
+		private ILink callImpl(final ILink link)
+			throws Exception {
+
+			if (dto != null && link.dto() == null) {
+				link.dto(dto);
+			}
+			final ExecutorService executor = link.executor();
+			if (executor != null) {
+				final Future<ILink> future = executor.submit(link);
+				return future.get();
+			}
+			return link.call();
+		}
+	}
+
+
+	/**
+	 *
+	 * @author wassj
+	 */
+	public static class ObservableChainDecorator
+		implements IObservableChain, IChainDecorator {
+
+		private final List<ICommand> beforeHandlers = new LinkedList<ICommand>();
+		private final List<ICommand> successHandlers = new LinkedList<ICommand>();
+		private final List<ICommand> failureHandlers = new LinkedList<ICommand>();
+		private final List<ICommand> finishedHandlers = new LinkedList<ICommand>();
+
+		private final IChain chain;
+
+
+		public ObservableChainDecorator(final IChain chain) {
+			this.chain = chain;
+		}
+
+
+		public IChain getDecorating() {
+			return chain;
+		}
+
+
+		public IObservableChain before(final ICommand... commands) {
+			beforeHandlers.addAll(Arrays.asList(commands));
+			return this;
+		}
+
+
+		public IObservableChain onFinished(final ICommand... commands) {
+			finishedHandlers.addAll(Arrays.asList(commands));
+			return this;
+		}
+
+
+		public IObservableChain onSuccess(final ICommand... commands) {
+			successHandlers.addAll(Arrays.asList(commands));
+			return this;
+		}
+
+
+		public IObservableChain onFailure(final ICommand... commands) {
+			failureHandlers.addAll(Arrays.asList(commands));
+			return this;
+		}
+
+
+		/*
+		 * 
+		 * IChain impl
+		 * 
+		 */
+		public ILink head() {
+			return chain.head();
+		}
+
+
+		public void invoke()
+			throws Exception {
+
+			this.invoke(null);
+		}
+
+
+		public void invoke(final Object dto)
+			throws Exception {
+
+			executeHandlers(beforeHandlers, dto);
+
+			try {
+				chain.invoke(dto);
+				executeHandlers(successHandlers, dto);
+			}
+			catch (ExecutionException e) {
+				executeHandlers(failureHandlers, e.getCause());
+				throw e;
+			}
+			catch (InterruptedException e) {
+				executeHandlers(failureHandlers, e);
+				throw e;
+			}
+			finally {
+				executeHandlers(finishedHandlers, dto);
+			}
+		}
+
+
+		private void executeHandlers(final List<ICommand> commands, final Object dto) {
+			try {
+				Chains.create(commands).invoke(dto);
+			}
+			catch (Throwable t) {
+				// REVISIT the show must go on
+				t.printStackTrace();
+			}
+		}
+	}
+
+
+	private interface IChainDecorator {
+		IChain getDecorating();
 	}
 }

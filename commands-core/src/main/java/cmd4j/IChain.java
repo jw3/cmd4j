@@ -28,4 +28,24 @@ public interface IChain
 	 * @return {@link ILink} the first link
 	 */
 	ILink head();
+
+
+	/**
+	 *
+	 * @author wassj
+	 */
+	public interface IObservableChain
+		extends IChain {
+
+		IObservableChain before(final ICommand... commands);
+
+
+		IObservableChain onFinished(final ICommand... commands);
+
+
+		IObservableChain onSuccess(final ICommand... commands);
+
+
+		IObservableChain onFailure(final ICommand... commands);
+	}
 }

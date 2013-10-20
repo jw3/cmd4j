@@ -1,10 +1,16 @@
 package cmd4j.common;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.concurrent.ExecutorService;
 
 import cmd4j.ICommand;
+import cmd4j.ICommand.ICommand1;
+import cmd4j.ICommand.ICommand2;
+import cmd4j.ICommand.ICommand3;
 import cmd4j.ILink;
 import cmd4j.common.Chains.ChainBuilder;
+import cmd4j.common.Commands.ICommandProxy;
 
 /**
  * Utility methods for {@link ILink links}
@@ -33,22 +39,6 @@ public enum Links {
 	}
 
 
-	public static ILink makeThreaded(final ILink link, final ExecutorService executor) {
-		return new LinkThreadingDecorator(link, executor);
-	}
-
-
-	/**
-	 * Marks a {@link ILink link} for execution by a specified {@link ExecutorService executor}
-	 *
-	 * @author wassj
-	 * @internal Intended for Command Framework use only.  Unsafe for direct client usage.
-	 */
-	public interface IThreaded {
-		ExecutorService executor();
-	}
-
-
 	/******************************************************************************
 	 * 
 	 * 
@@ -73,11 +63,8 @@ public enum Links {
 		private final ILink next;
 
 		private Object dto;
-
-
-		public DefaultLink(final ICommand command) {
-			this(command, null);
-		}
+		private ExecutorService executor;
+		private boolean ignoreDtoMismatch;
 
 
 		public DefaultLink(final ICommand command, final ILink next) {
@@ -105,6 +92,64 @@ public enum Links {
 		public ILink next() {
 			return next;
 		}
+
+
+		public ExecutorService executor() {
+			return executor;
+		}
+
+
+		public DefaultLink executor(final ExecutorService executor) {
+			this.executor = executor;
+			return this;
+		}
+
+
+		public DefaultLink ignoreDtoMismatch(final boolean ignoreDtoMismatch) {
+			this.ignoreDtoMismatch = ignoreDtoMismatch;
+			return this;
+		}
+
+
+		/**
+		 * Execute the {@link ICommand} and return the next {@link ILink}
+		 */
+		public ILink call()
+			throws Exception {
+
+			//		try {
+			ICommand command = cmd();
+			while (command != null) {
+				final Object dto = dto() != null ? dto() : this.dto;
+				command = invokeCommand(command, dto, ignoreDtoMismatch);
+			}
+			return next();
+			//		}
+			//		catch (Exception e) {
+			//			if (failsafe) {
+			//				return next();
+			//			}
+			//			throw e;
+			//		}
+		}
+
+		/*		public ILink call()
+					throws Exception {
+
+					//		try {
+					ICommand command = cmd();
+					if (command instanceof IUndo) {
+						((IUndo)command).undo();
+					}
+					return next();
+					//		}
+					//		catch (Exception e) {
+					//			if (failsafe) {
+					//				return next();
+					//			}
+					//			throw e;
+					//		}
+				}*/
 	}
 
 
@@ -160,50 +205,12 @@ public enum Links {
 
 
 		ILink build() {
-			final ILink link = new DefaultLink(command, next != null ? next.build() : null).dto(dto);
-			if (executor != null) {
-				return Links.makeThreaded(link, executor);
-			}
-			return link;
-		}
-	}
-
-
-	/**
-	 * Decorate a {@link ILink link} with an {@link ExecutorService executor} to provide threading capability
-	 *
-	 * @author wassj
-	 */
-	private static class LinkThreadingDecorator
-		implements ILink, IThreaded {
-
-		private final ILink link;
-		private final ExecutorService executor;
-
-
-		public LinkThreadingDecorator(final ILink link, final ExecutorService executor) {
-			this.link = link;
-			this.executor = executor;
+			return new DefaultLink(command, next != null ? next.build() : null).executor(executor).dto(dto);
 		}
 
 
-		public ExecutorService executor() {
-			return executor;
-		}
-
-
-		public ILink next() {
-			return link.next();
-		}
-
-
-		public ICommand cmd() {
-			return link.cmd();
-		}
-
-
-		public Object dto() {
-			return link.dto();
+		ILink build(boolean visits) {
+			return new DefaultLink(command, next != null ? next.build(visits) : null).executor(executor).dto(dto).ignoreDtoMismatch(visits);
 		}
 	}
 
@@ -227,8 +234,97 @@ public enum Links {
 		}
 
 
+		public ILink dto(Object dto) {
+			return this;
+		}
+
+
 		public ICommand cmd() {
 			return Commands.nop();
 		}
+
+
+		public ExecutorService executor() {
+			return null;
+		}
+
+
+		public ILink call() {
+			return next();
+		}
+	}
+
+
+	/*
+	 * 
+	 * utils
+	 * 
+	 * 
+	 */
+	/**
+	 * util for executing and handling any return value from a given {@link ICommand}
+	 * @param command
+	 * @param dto
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	/// safely suppressed here: we do some extra checking to ensure the dto fits in the invocation
+	static ICommand invokeCommand(final ICommand command, final Object dto, final boolean ignoreDtoMismatch)
+		throws Exception {
+
+		final boolean castable = dtoIsCastableForCommand(command, dto);
+		if (castable) {
+			if (command instanceof ICommand3) {
+				return ((ICommand3)command).invoke(dto);
+			}
+			else if (command instanceof ICommand2) {
+				((ICommand2)command).invoke(dto);
+			}
+			else if (command instanceof ICommand1) {
+				((ICommand1)command).invoke();
+			}
+		}
+		else if (!ignoreDtoMismatch) {
+			throw new IllegalArgumentException("dto does not fit");
+		}
+		return null;
+	}
+
+
+	/**
+	 * check that the passed dto fits into the passed ICommand#invoke method.
+	 * @param command
+	 * @param dto
+	 * @return
+	 */
+	static boolean dtoIsCastableForCommand(final ICommand command, final Object dto) {
+		if (dto != null) {
+			final Class<?> cmdType = typedAs(command);
+			final Class<?> dtoType = dto.getClass();
+			return cmdType.isAssignableFrom(dtoType);
+		}
+		return true;
+	}
+
+
+	/**
+	 * get the type parameter of the command
+	 * @param t {@link ICommand} the command 
+	 * @return the generic param of t, or Object if there is none
+	 */
+	static Class<?> typedAs(ICommand t) {
+		if (!(t instanceof ICommandProxy)) {
+			for (Type type : t.getClass().getGenericInterfaces()) {
+				if (type instanceof ParameterizedType) {
+					final Type paramType = ((ParameterizedType)type).getActualTypeArguments()[0];
+					if (paramType instanceof Class<?>) {
+						return (Class<?>)paramType;
+					}
+				}
+			}
+			return Object.class;
+		}
+		return ((ICommandProxy<?>)t).type();
 	}
 }

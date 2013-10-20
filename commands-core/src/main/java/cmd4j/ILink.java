@@ -1,5 +1,8 @@
 package cmd4j;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+
 import cmd4j.ICommand.ICommand3;
 import cmd4j.common.Links;
 
@@ -16,7 +19,8 @@ import cmd4j.common.Links;
  * 
  * @see Links
  */
-public interface ILink {
+public interface ILink
+	extends Callable<ILink> {
 
 	/**
 	 * get the {@link ILink link} to be executed after this 
@@ -33,6 +37,9 @@ public interface ILink {
 	Object dto();
 
 
+	ILink dto(Object dto);
+
+
 	/**
 	 * the {@link ICommand command} in this link.  The actual command type will be inspected 
 	 * at execution time.  It is possible that through the use of {@link ICommand3 command3}
@@ -41,4 +48,7 @@ public interface ILink {
 	 * @return {@link ICommand}
 	 */
 	ICommand cmd();
+
+
+	ExecutorService executor();
 }
