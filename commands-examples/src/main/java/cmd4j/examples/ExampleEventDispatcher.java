@@ -59,7 +59,8 @@ public class ExampleEventDispatcher {
 		Dispatcher.addListener(new IListener<String>() {
 			public ICommand handle(String t) {
 				// specify the edt executor (Event Dispatch Thread) for this listener
-				return Chains.makeThreaded(Chains.create(isEdt()), Executors2.swingExecutor());
+				//return Chains.makeThreaded(Chains.create(isEdt()), Executors2.swingExecutor());
+				return Chains.builder().add(isEdt()).executor(Executors2.swingExecutor()).build();
 			};
 		});
 		Dispatcher.fire("edt?");
