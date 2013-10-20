@@ -7,6 +7,7 @@ import java.util.concurrent.TimeoutException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import cmd4j.IChain;
 import cmd4j.common.Chains;
 import cmd4j.testing.AssertThread;
 import cmd4j.testing.IService;
@@ -53,11 +54,11 @@ public class TestThreadBlockingScenarios {
 		throws Exception {
 
 		final Variable<Boolean> var = new Variable<Boolean>();
-		Chains.builder()//
+		final IChain chain = Chains.builder()//
 			.add(AssertThread.is(Service.t1))
 			.add(Tests.set(var, true))
-			.build(Service.t1.executor())
-			.invoke();
+			.build();
+		Chains.submit(chain, Service.t1.executor()).get();
 
 		var.assertEquals(true);
 	}
@@ -100,11 +101,11 @@ public class TestThreadBlockingScenarios {
 			public Void call()
 				throws Exception {
 
-				Chains.builder()//
+				final IChain chain = Chains.builder()//
 					.add(AssertThread.is(Service.t1))
 					.add(Tests.set(var, true))
-					.build(Service.t1.executor())
-					.invoke();
+					.build();
+				Chains.submit(chain, Service.t1.executor()).get();
 
 				Assert.assertEquals(var.getValue(), Boolean.TRUE);
 
@@ -133,11 +134,11 @@ public class TestThreadBlockingScenarios {
 			public Void call()
 				throws Exception {
 
-				Chains.builder()//
+				final IChain chain = Chains.builder()//
 					.add(AssertThread.is(service))
 					.add(Tests.set(var, true))
-					.build(service.executor())
-					.invoke();
+					.build();
+				Chains.submit(chain, service.executor()).get();
 
 				return null;
 			}
@@ -160,11 +161,11 @@ public class TestThreadBlockingScenarios {
 			public Void call()
 				throws Exception {
 
-				Chains.builder()//
+				final IChain chain = Chains.builder()//
 					.add(AssertThread.is(Service.t1))
 					.add(Tests.set(var, true))
-					.build(Service.multi1.executor())
-					.invoke();
+					.build();
+				Chains.submit(chain, Service.multi1.executor()).get();
 
 				return null;
 			}

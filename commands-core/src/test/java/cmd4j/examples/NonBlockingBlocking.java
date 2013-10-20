@@ -31,9 +31,9 @@ public class NonBlockingBlocking {
 		buffer.append(0);
 
 		// create a chain that has a couple commands and runs on the EDT
-		final IChain chain1 = Chains.builder().add(Say.threadDto()).add(Say.what(4, buffer)).add(Say.what("chain 1 done")).add(Say.what(5, buffer)).build(Service.edt.executor());
-		final IChain chain2 = Chains.builder().add(Say.threadDto()).add(Say.what(7, buffer)).add(Say.what("chain 2 done")).add(Say.what(8, buffer)).build(Service.edt.executor());
-		final IChain chain3 = Chains.builder().add(Say.threadDto()).add(Say.what(14, buffer)).add(Say.what("chain 3 done")).add(Say.what(15, buffer)).build(Service.edt.executor());
+		final IChain chain1 = Chains.builder().add(Say.threadDto()).add(Say.what(4, buffer)).add(Say.what("chain 1 done")).add(Say.what(5, buffer)).build();
+		final IChain chain2 = Chains.builder().add(Say.threadDto()).add(Say.what(7, buffer)).add(Say.what("chain 2 done")).add(Say.what(8, buffer)).build();
+		final IChain chain3 = Chains.builder().add(Say.threadDto()).add(Say.what(14, buffer)).add(Say.what("chain 3 done")).add(Say.what(15, buffer)).build();
 
 		buffer.append(1);
 
@@ -46,9 +46,9 @@ public class NonBlockingBlocking {
 			public void run() {
 				try {
 					buffer.append(3);
-					chain1.invoke();
+					Chains.submit(chain1, Service.edt.executor());
 					buffer.append(6);
-					chain2.invoke();
+					Chains.submit(chain2, Service.edt.executor());
 					buffer.append(9);
 				}
 				catch (Exception e) {
@@ -70,7 +70,7 @@ public class NonBlockingBlocking {
 			public void run() {
 				try {
 					buffer.append(13);
-					chain3.invoke();
+					Chains.submit(chain3, Service.edt.executor());
 					buffer.append(16);
 				}
 				catch (Exception e) {

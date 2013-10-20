@@ -90,7 +90,8 @@ public class TestExecutorSpecification {
 		throws Exception {
 
 		final ISayFactory say = Say.factory();
-		Chains.makeThreaded(Chains.builder().add(say.thread()).build(), Service.t1.executor()).invoke();
+		final IChain chain = Chains.builder().add(say.thread()).build();
+		Chains.submit(chain, Service.t1.executor()).get();
 		Assert.assertEquals(say.toString(), name(Service.t1));
 	}
 
@@ -108,7 +109,7 @@ public class TestExecutorSpecification {
 			.executor(Service.t2.executor())
 			.build();
 
-		Chains.makeThreaded(chain, Service.t1.executor()).invoke();
+		Chains.submit(chain, Service.t1.executor()).get();
 		Assert.assertEquals(say.toString(), name(Service.t1, Service.t2));
 	}
 
@@ -135,7 +136,7 @@ public class TestExecutorSpecification {
 		final IChain b = Chains.builder().add(say.thread()).build();
 		final IChain c = Chains.builder().add(a).add(b).build();
 
-		Chains.makeThreaded(c, Service.t1.executor()).invoke();
+		Chains.submit(c, Service.t1.executor()).get();
 
 		Assert.assertEquals(say.toString(), name(Service.t1, Service.t1));
 	}
@@ -150,7 +151,7 @@ public class TestExecutorSpecification {
 		final IChain b = Chains.builder().add(say.thread()).executor(Service.t2.executor()).build();
 		final IChain c = Chains.builder().add(a).add(b).build();
 
-		Chains.makeThreaded(c, Service.t1.executor()).invoke();
+		Chains.submit(c, Service.t1.executor()).get();
 
 		Assert.assertEquals(say.toString(), name(Service.t1, Service.t2));
 	}
