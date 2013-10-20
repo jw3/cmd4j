@@ -24,7 +24,7 @@ public class TestChainCallbacks {
 		throws Exception {
 
 		final Variable<Boolean> v = var(false);
-		Chains.onSuccess(Chains.empty(), toggle(v)).invoke();
+		Chains.observable(Chains.empty()).onSuccess(toggle(v)).invoke();
 		v.assertEquals(true);
 	}
 
@@ -32,7 +32,7 @@ public class TestChainCallbacks {
 	@Test
 	public void testOnSuccessHandlerWithFailure() {
 		final Variable<Boolean> v = var(false);
-		final IChain chain = Chains.onSuccess(Chains.create(Say.boom()), toggle(v));
+		final IChain chain = Chains.observable(Chains.create(Say.boom())).onSuccess(toggle(v));
 		try {
 			chain.invoke();
 		}
@@ -48,7 +48,7 @@ public class TestChainCallbacks {
 	@Test
 	public void testOnFailureHandler() {
 		final Variable<Boolean> v = var(false);
-		final IChain chain = Chains.onFailure(Chains.builder().add(Say.boom()).build(), toggle(v));
+		final IChain chain = Chains.observable(Chains.builder().add(Say.boom()).build()).onFailure(toggle(v));
 		try {
 			chain.invoke();
 		}
@@ -66,7 +66,7 @@ public class TestChainCallbacks {
 		throws Exception {
 
 		final Variable<Boolean> v = var(false);
-		Chains.onFailure(Chains.empty(), toggle(v)).invoke();
+		Chains.observable(Chains.empty()).onFailure(toggle(v)).invoke();
 		v.assertEquals(false);
 	}
 
@@ -80,7 +80,7 @@ public class TestChainCallbacks {
 		throws Exception {
 
 		final Variable<Boolean> v = var(false);
-		Chains.before(Chains.builder().add(is(v, true)).build(), toggle(v)).invoke();
+		Chains.observable(Chains.builder().add(is(v, true)).build()).before(toggle(v)).invoke();
 	}
 
 
@@ -93,7 +93,7 @@ public class TestChainCallbacks {
 		throws Exception {
 
 		final Variable<Boolean> v = var(false);
-		Chains.after(Chains.builder().add(is(v, false)).build(), toggle(v)).invoke();
+		Chains.observable(Chains.builder().add(is(v, false)).build()).after(toggle(v)).invoke();
 		v.assertEquals(true);
 	}
 
@@ -105,7 +105,7 @@ public class TestChainCallbacks {
 	@Test
 	public void testAfterWithFailure() {
 		final Variable<Boolean> v = var(false);
-		final IChain chain = Chains.after(Chains.builder().add(is(v, false)).add(Say.boom()).build(), toggle(v));
+		final IChain chain = Chains.observable(Chains.builder().add(is(v, false)).add(Say.boom()).build()).after(toggle(v));
 		try {
 			chain.invoke();
 		}

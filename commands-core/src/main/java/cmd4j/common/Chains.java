@@ -112,40 +112,12 @@ public enum Chains {
 
 
 	/**
-	 * add {@link ICommand commands} that will be invoked prior to the {@link IChain chain} execution
-	 * @return the chain, decorated
+	 * decorate a chain with observable capability
+	 * @param chain
+	 * @return
 	 */
-	public static IObservableChain before(final IChain chain, final ICommand... listeners) {
-		return decorator(chain).before(listeners);
-	}
-
-
-	/**
-	 * add {@link ICommand commands} that will be invoked after the {@link IChain chain} execution completes
-	 * invocation will occurr regardless of success/failure of the chain
-	 * @return the chain, decorated
-	 */
-	public static IObservableChain after(final IChain chain, final ICommand... listeners) {
-		return decorator(chain).onFinished(listeners);
-	}
-
-
-	/**
-	 * add {@link ICommand commands} that will be invoked upon successful invocation of the {@link IChain chain}
-	 * @return the chain, decorated
-	 */
-	public static IObservableChain onSuccess(final IChain chain, final ICommand... listeners) {
-		return decorator(chain).onSuccess(listeners);
-	}
-
-
-	/**
-	 * add {@link ICommand commands} that will be invoked upon failed invocation of the {@link IChain chain}
-	 * the cause of the failure will be available as the dto to any commands that will accept it
-	 * @return the chain, decorated
-	 */
-	public static IObservableChain onFailure(final IChain chain, final ICommand... listeners) {
-		return decorator(chain).onFailure(listeners);
+	public static IObservableChain observable(final IChain chain) {
+		return decorator(chain);
 	}
 
 
@@ -453,9 +425,9 @@ public enum Chains {
 		implements IObservableChain, IChainDecorator {
 
 		private final List<ICommand> beforeHandlers = new LinkedList<ICommand>();
+		private final List<ICommand> afterHandlers = new LinkedList<ICommand>();
 		private final List<ICommand> successHandlers = new LinkedList<ICommand>();
 		private final List<ICommand> failureHandlers = new LinkedList<ICommand>();
-		private final List<ICommand> finishedHandlers = new LinkedList<ICommand>();
 
 		private final IChain chain;
 
@@ -476,8 +448,8 @@ public enum Chains {
 		}
 
 
-		public IObservableChain onFinished(final ICommand... commands) {
-			finishedHandlers.addAll(Arrays.asList(commands));
+		public IObservableChain after(final ICommand... commands) {
+			afterHandlers.addAll(Arrays.asList(commands));
 			return this;
 		}
 
@@ -529,7 +501,7 @@ public enum Chains {
 				throw e;
 			}
 			finally {
-				executeHandlers(finishedHandlers, dto);
+				executeHandlers(afterHandlers, dto);
 			}
 		}
 
