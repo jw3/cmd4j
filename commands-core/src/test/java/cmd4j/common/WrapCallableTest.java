@@ -52,7 +52,7 @@ public class WrapCallableTest {
 		public Void call()
 			throws Exception {
 
-			Thread.currentThread().sleep(delay);
+			Thread.sleep(delay);
 			var.setValue(var.getValue() + 1);
 
 			return null;
