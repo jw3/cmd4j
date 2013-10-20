@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 
 import cmd4j.IChain;
 import cmd4j.ICommand;
@@ -38,17 +37,10 @@ public class ChainDecorator
 	private final List<ICommand2<ILinker>> operations = new LinkedList<ICommand2<ILinker>>();
 
 	private final IChain chain;
-	private ExecutorService executor;
 
 
 	public ChainDecorator(final IChain chain) {
-		this(chain, null);
-	}
-
-
-	public ChainDecorator(final IChain chain, final ExecutorService executor) {
 		this.chain = chain;
-		this.executor = executor;
 	}
 
 
@@ -82,20 +74,6 @@ public class ChainDecorator
 	}
 
 
-	public ExecutorService executor() {
-		if (executor == null) {
-			executor = Executors2.sameThreadExecutor();
-		}
-		return executor;
-	}
-
-
-	public ChainDecorator executor(ExecutorService executor) {
-		this.executor = executor;
-		return this;
-	}
-
-
 	/*
 	 * 
 	 * IChain impl
@@ -124,11 +102,11 @@ public class ChainDecorator
 		executeHandlers(beforeHandlers, dto);
 
 		if (finishedHandlers.isEmpty() && successHandlers.isEmpty() && failureHandlers.isEmpty()) {
-			executor().submit(Callables.linker(linker, dto)).get();
+			Executors2.sameThreadExecutor().submit(Callables.linker(linker, dto)).get();
 		}
 		else {
 			try {
-				executor().submit(Callables.linker(linker, dto)).get();
+				Executors2.sameThreadExecutor().submit(Callables.linker(linker, dto)).get();
 				executeHandlers(successHandlers, dto);
 			}
 			catch (ExecutionException e) {

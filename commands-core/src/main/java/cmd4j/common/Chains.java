@@ -3,6 +3,7 @@ package cmd4j.common;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import cmd4j.IChain;
 import cmd4j.ICommand;
@@ -21,6 +22,38 @@ import cmd4j.internal.Linkers.ILinker;
  */
 public enum Chains {
 	/*singleton-enum*/;
+
+	/**
+	 * 
+	 * @param chain
+	 * @param executor
+	 * @return
+	 */
+	public static Future<Void> submit(final IChain chain, final ExecutorService executor) {
+		return executor.submit(asCallable(chain));
+	}
+
+
+	/**
+	 * 
+	 * @param chain
+	 * @param executor
+	 * @return
+	 */
+	public static <D> Future<Void> submit(final IChain chain, final D dto, final ExecutorService executor) {
+		return executor.submit(asCallable(chain, dto));
+	}
+
+
+	/**
+	 * 
+	 * @param chain
+	 * @return
+	 */
+	public static Callable<Void> asCallable(final IChain chain) {
+		return new ChainCallable<Void, Void>(chain);
+	}
+
 
 	/**
 	 * 
@@ -112,15 +145,6 @@ public enum Chains {
 	 */
 	public static IChain onFailure(final IChain chain, final ICommand... listeners) {
 		return decorator(chain).onFailure(listeners);
-	}
-
-
-	/**
-	 * specify that the {@link IChain chain} will run on the given {@link ExecutorService executor}
-	 * @return the chain, decorated
-	 */
-	public static IChain makeThreaded(final IChain chain, final ExecutorService executor) {
-		return decorator(chain).executor(executor);
 	}
 
 
@@ -257,23 +281,6 @@ public enum Chains {
 		 * @return
 		 */
 		public IChain build() {
-			return this.buildImpl();
-		}
-
-
-		/**
-		 * @param executor
-		 * @return
-		 */
-		public IChain build(final ExecutorService executor) {
-			if (executor == null) {
-				throw new IllegalArgumentException("executor cannot be null");
-			}
-			return Chains.makeThreaded(this.buildImpl(), executor);
-		}
-
-
-		private IChain buildImpl() {
 			if (head != null) {
 				return Chains.create(head.build());
 			}
