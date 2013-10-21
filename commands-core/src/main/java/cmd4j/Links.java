@@ -9,6 +9,7 @@ import cmd4j.Commands.ICommandProxy;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
+import cmd4j.ICommand.IUndo;
 
 /**
  * Utility methods for {@link ILink links}
@@ -34,6 +35,11 @@ public enum Links {
 
 	public static ILink create(final ICommand command, ExecutorService executor) {
 		return new LinkBuilder(command).executor(executor).build();
+	}
+
+
+	static ILink undo(final ILink link) {
+		return new LinkUndoDecorator(link);
 	}
 
 
@@ -130,24 +136,6 @@ public enum Links {
 			//			throw e;
 			//		}
 		}
-
-		/*		public ILink call()
-					throws Exception {
-
-					//		try {
-					ICommand command = cmd();
-					if (command instanceof IUndo) {
-						((IUndo)command).undo();
-					}
-					return next();
-					//		}
-					//		catch (Exception e) {
-					//			if (failsafe) {
-					//				return next();
-					//			}
-					//			throw e;
-					//		}
-				}*/
 	}
 
 
@@ -249,6 +237,63 @@ public enum Links {
 
 		public ILink call() {
 			return next();
+		}
+	}
+
+
+	private static class LinkUndoDecorator
+		implements ILink {
+
+		private final ILink link;
+
+
+		public LinkUndoDecorator(final ILink link) {
+			this.link = link;
+		}
+
+
+		public ILink next() {
+			return link.next();
+		}
+
+
+		public Object dto() {
+			return link.dto();
+		}
+
+
+		public ILink dto(Object dto) {
+			return link.dto(dto);
+		}
+
+
+		public ICommand cmd() {
+			return link.cmd();
+		}
+
+
+		public ExecutorService executor() {
+			return link.executor();
+		}
+
+
+		@Override
+		public ILink call()
+			throws Exception {
+
+			//		try {
+			ICommand command = cmd();
+			if (command instanceof IUndo) {
+				((IUndo)command).undo();
+			}
+			return next();
+			//		}
+			//		catch (Exception e) {
+			//			if (failsafe) {
+			//				return next();
+			//			}
+			//			throw e;
+			//		}
 		}
 	}
 

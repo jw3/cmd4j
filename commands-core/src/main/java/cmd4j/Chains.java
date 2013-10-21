@@ -123,7 +123,7 @@ public enum Chains {
 	 * @return the chain, decorated
 	 */
 	public static IChain makeUndoable(final IChain chain) {
-		return null;//decorator(chain).undo();
+		return new UndoableChainDecorator(chain);
 	}
 
 
@@ -398,7 +398,7 @@ public enum Chains {
 		}
 
 
-		private ILink callImpl(final ILink link)
+		protected ILink callImpl(final ILink link)
 			throws Exception {
 
 			if (dto != null && link.dto() == null) {
@@ -411,6 +411,42 @@ public enum Chains {
 			}
 			return link.call();
 		}
+	}
+
+
+	/**
+	 * 
+	 * @author wassj
+	 */
+	private static class UndoLinker
+		extends Linker {
+
+		public UndoLinker(final ILink head, final Object dto) {
+			super(head, dto);
+		}
+
+
+		public Void call()
+			throws Exception {
+
+			ILink next = head();
+			while (next != null) {
+				next = Links.undo(next);
+				next = callImpl(next);
+			}
+			return null;
+		}
+	}
+
+
+	/**
+	 *
+	 * @author wassj
+	 */
+	private interface IChainDecorator
+		extends IChain {
+
+		IChain getDecorating();
 	}
 
 
@@ -515,7 +551,43 @@ public enum Chains {
 	}
 
 
-	private interface IChainDecorator {
-		IChain getDecorating();
+	/**
+	 *
+	 * @author wassj
+	 */
+	public static class UndoableChainDecorator
+		implements IChainDecorator {
+
+		private final IChain chain;
+
+
+		public UndoableChainDecorator(final IChain chain) {
+			this.chain = chain;
+		}
+
+
+		public IChain getDecorating() {
+			return chain;
+		}
+
+
+		public ILink head() {
+			return chain.head();
+		}
+
+
+		public void invoke()
+			throws Exception {
+
+			this.invoke(null);
+		}
+
+
+		public void invoke(final Object dto)
+			throws Exception {
+
+			final Linker linker = new UndoLinker(this.head(), dto);
+			Executors2.sameThreadExecutor().submit(linker).get();
+		}
 	}
 }

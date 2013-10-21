@@ -7,6 +7,7 @@ import cmd4j.Commands;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
+import cmd4j.ICommand.IUndo;
 
 /**
  * Cmd4j Test Utils
@@ -84,6 +85,37 @@ public enum Tests {
 				v.setValue(value);
 			}
 		};
+	}
+
+
+	public static <T> ICommand undoableSet(final Variable<T> v, final T value) {
+		return new UndodoableSetter<T>(v, value);
+	}
+
+
+	private static class UndodoableSetter<T>
+		implements ICommand1, IUndo {
+
+		private final T original;
+		private final T modified;
+		private final Variable<T> var;
+
+
+		public UndodoableSetter(final Variable<T> var, final T modified) {
+			this.original = var.getValue();
+			this.modified = modified;
+			this.var = var;
+		}
+
+
+		public void invoke() {
+			var.setValue(modified);
+		}
+
+
+		public void undo() {
+			var.setValue(original);
+		}
 	}
 
 
