@@ -3,10 +3,8 @@
 <suite name="Suite1" verbose="1">
 	<test name="General">
 		<packages>
-			<package name="cmd4j.builder" />
-			<package name="cmd4j.common" />
+			<package name="cmd4j" />
 			<package name="cmd4j.examples" />
-			<package name="cmd4j.internal" />
 		</packages>
 	</test>
 </suite>

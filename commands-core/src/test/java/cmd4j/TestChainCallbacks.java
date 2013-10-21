@@ -1,4 +1,4 @@
-package cmd4j.builder;
+package cmd4j;
 
 import static cmd4j.testing.Tests.is;
 import static cmd4j.testing.Tests.toggle;

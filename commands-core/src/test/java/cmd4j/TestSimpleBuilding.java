@@ -1,4 +1,4 @@
-package cmd4j.builder;
+package cmd4j;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;

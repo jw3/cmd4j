@@ -1,4 +1,4 @@
-package cmd4j.builder;
+package cmd4j;
 
 import java.util.concurrent.ExecutorService;
 

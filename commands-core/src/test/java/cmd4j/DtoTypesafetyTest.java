@@ -1,4 +1,4 @@
-package cmd4j.internal;
+package cmd4j;
 
 import static cmd4j.testing.Tests.invoked;
 import static cmd4j.testing.Tests.is;

@@ -1,4 +1,4 @@
-package cmd4j.common;
+package cmd4j;
 
 import java.util.concurrent.Callable;
 

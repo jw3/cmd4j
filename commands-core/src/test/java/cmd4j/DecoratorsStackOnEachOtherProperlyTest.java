@@ -1,4 +1,4 @@
-package cmd4j.common;
+package cmd4j;
 
 /**
  * Because decorators are used unknowingly by the client one or more may be applied to a single object.
