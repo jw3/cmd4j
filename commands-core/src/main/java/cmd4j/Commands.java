@@ -1,7 +1,9 @@
 package cmd4j;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
@@ -19,10 +21,67 @@ public enum Commands {
 	 * execute the specified {@link ICommand command}
 	 * @throws Exception
 	 */
-	public static void execute(ICommand command)
+	public static void execute(final ICommand command)
 		throws Exception {
 
 		Chains.builder().add(command).build().invoke();
+	}
+
+
+	/**
+	 * {@link ICommand command} that will wait for a specified number of {@link TimeUnit#MILLISECONDS milliseconds}
+	 * @param timeout
+	 * @return
+	 */
+	public static ICommand waitFor(final long timeout) {
+		return waitFor(timeout, TimeUnit.MILLISECONDS);
+	}
+
+
+	/**
+	 * {@link ICommand command} that will wait for a specified number of specified {@link TimeUnit time unit}
+	 * @param timeout
+	 * @return
+	 */
+	public static ICommand waitFor(final long timeout, final TimeUnit unit) {
+		return new ICommand1() {
+			public void invoke()
+				throws Exception {
+
+				new CountDownLatch(1).await(timeout, unit);
+			}
+		};
+	}
+
+
+	/**
+	 * wait on the latch to open
+	 * @param latch
+	 * @return Command that is blocked until latch is released
+	 */
+	public static ICommand waitFor(final CountDownLatch latch) {
+		return new ICommand1() {
+			public void invoke()
+				throws Exception {
+
+				latch.await();
+			}
+		};
+	}
+
+
+	/**
+	 * count down the latch
+	 * @param latch
+	 * @return
+	 */
+	public static ICommand countDown(final CountDownLatch latch) {
+		return new ICommand1() {
+			public void invoke()
+				throws Exception {
+				latch.countDown();
+			}
+		};
 	}
 
 
