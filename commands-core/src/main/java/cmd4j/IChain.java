@@ -30,45 +30,12 @@ public interface IChain
 	ILink head();
 
 
+	/**
+	 * at long last a chain that returns; now document it..
+	 * @author wassj
+	 * @param <R>
+	 */
 	public interface IReturningChain<R>
 		extends ICommand1_1<R>, ICommand2_1<Object, R> {
-	}
-
-
-	/**
-	 *
-	 * @author wassj
-	 */
-	public interface IObservableChain
-		extends IChain {
-
-		/**
-		 * add {@link ICommand commands} that will be invoked prior to the {@link IChain chain} execution
-		 * @return the chain, decorated
-		 */
-		IObservableChain before(final ICommand... commands);
-
-
-		/**
-		 * add {@link ICommand commands} that will be invoked after the {@link IChain chain} execution completes
-		 * invocation will occurr regardless of success/failure of the chain
-		 * @return the chain, decorated
-		 */
-		IObservableChain after(final ICommand... listeners);
-
-
-		/**
-		 * add {@link ICommand commands} that will be invoked upon successful invocation of the {@link IChain chain}
-		 * @return the chain, decorated
-		 */
-		IObservableChain onSuccess(final ICommand... commands);
-
-
-		/**
-		 * add {@link ICommand commands} that will be invoked upon failed invocation of the {@link IChain chain}
-		 * the cause of the failure will be available as the dto to any commands that will accept it
-		 * @return the chain, decorated
-		 */
-		IObservableChain onFailure(final ICommand... commands);
 	}
 }

@@ -1,15 +1,10 @@
 package cmd4j;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import cmd4j.IChain.IObservableChain;
 import cmd4j.IChain.IReturningChain;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Links.LinkBuilder;
@@ -112,16 +107,6 @@ public enum Chains {
 
 	public static <R> IReturningChain<R> create(final IReturningCommand<R> command) {
 		return new ReturningChain<R>(command);
-	}
-
-
-	/**
-	 * decorate a chain with observable capability
-	 * @param chain
-	 * @return
-	 */
-	public static IObservableChain observable(final IChain chain) {
-		return decorator(chain);
 	}
 
 
@@ -273,11 +258,6 @@ public enum Chains {
 	 * 
 	 * 
 	 ******************************************************************************/
-
-	private static IObservableChain decorator(final IChain chain) {
-		return chain instanceof IObservableChain ? (IObservableChain)chain : new ObservableChainDecorator(chain);
-	}
-
 
 	/**
 	 * An empty {@link IChain} implementation
@@ -488,107 +468,6 @@ public enum Chains {
 		extends IChain {
 
 		IChain getDecorating();
-	}
-
-
-	/**
-	 *
-	 * @author wassj
-	 */
-	public static class ObservableChainDecorator
-		implements IObservableChain, IChainDecorator {
-
-		private final List<ICommand> beforeHandlers = new LinkedList<ICommand>();
-		private final List<ICommand> afterHandlers = new LinkedList<ICommand>();
-		private final List<ICommand> successHandlers = new LinkedList<ICommand>();
-		private final List<ICommand> failureHandlers = new LinkedList<ICommand>();
-
-		private final IChain chain;
-
-
-		public ObservableChainDecorator(final IChain chain) {
-			this.chain = chain;
-		}
-
-
-		public IChain getDecorating() {
-			return chain;
-		}
-
-
-		public IObservableChain before(final ICommand... commands) {
-			beforeHandlers.addAll(Arrays.asList(commands));
-			return this;
-		}
-
-
-		public IObservableChain after(final ICommand... commands) {
-			afterHandlers.addAll(Arrays.asList(commands));
-			return this;
-		}
-
-
-		public IObservableChain onSuccess(final ICommand... commands) {
-			successHandlers.addAll(Arrays.asList(commands));
-			return this;
-		}
-
-
-		public IObservableChain onFailure(final ICommand... commands) {
-			failureHandlers.addAll(Arrays.asList(commands));
-			return this;
-		}
-
-
-		/*
-		 * 
-		 * IChain impl
-		 * 
-		 */
-		public ILink head() {
-			return chain.head();
-		}
-
-
-		public void invoke()
-			throws Exception {
-
-			this.invoke(null);
-		}
-
-
-		public void invoke(final Object dto)
-			throws Exception {
-
-			executeHandlers(beforeHandlers, dto);
-
-			try {
-				chain.invoke(dto);
-				executeHandlers(successHandlers, dto);
-			}
-			catch (ExecutionException e) {
-				executeHandlers(failureHandlers, e.getCause());
-				throw e;
-			}
-			catch (InterruptedException e) {
-				executeHandlers(failureHandlers, e);
-				throw e;
-			}
-			finally {
-				executeHandlers(afterHandlers, dto);
-			}
-		}
-
-
-		private void executeHandlers(final List<ICommand> commands, final Object dto) {
-			try {
-				Chains.create(commands).invoke(dto);
-			}
-			catch (Throwable t) {
-				// REVISIT the show must go on
-				t.printStackTrace();
-			}
-		}
 	}
 
 

@@ -6,8 +6,6 @@ import static cmd4j.testing.Tests.var;
 
 import org.testng.annotations.Test;
 
-import cmd4j.Chains;
-import cmd4j.IChain;
 import cmd4j.testing.Say;
 import cmd4j.testing.Tests.Variable;
 
@@ -17,14 +15,14 @@ import cmd4j.testing.Tests.Variable;
  * @author wassj
  *
  */
-public class TestChainCallbacks {
+public class CallbackChainTest {
 
 	@Test
 	public void testOnSuccessHandler()
 		throws Exception {
 
 		final Variable<Boolean> v = var(false);
-		Chains.observable(Chains.empty()).onSuccess(toggle(v)).invoke();
+		Chains.create(Commands.observable(Chains.empty()).onSuccess(toggle(v))).invoke();
 		v.assertEquals(true);
 	}
 
@@ -32,7 +30,7 @@ public class TestChainCallbacks {
 	@Test
 	public void testOnSuccessHandlerWithFailure() {
 		final Variable<Boolean> v = var(false);
-		final IChain chain = Chains.observable(Chains.create(Say.boom())).onSuccess(toggle(v));
+		final IChain chain = Chains.create(Commands.observable(Chains.create(Say.boom())).onSuccess(toggle(v)));
 		try {
 			chain.invoke();
 		}
@@ -48,7 +46,7 @@ public class TestChainCallbacks {
 	@Test
 	public void testOnFailureHandler() {
 		final Variable<Boolean> v = var(false);
-		final IChain chain = Chains.observable(Chains.builder().add(Say.boom()).build()).onFailure(toggle(v));
+		final IChain chain = Chains.create(Commands.observable(Chains.builder().add(Say.boom()).build()).onFailure(toggle(v)));
 		try {
 			chain.invoke();
 		}
@@ -66,7 +64,7 @@ public class TestChainCallbacks {
 		throws Exception {
 
 		final Variable<Boolean> v = var(false);
-		Chains.observable(Chains.empty()).onFailure(toggle(v)).invoke();
+		Chains.create(Commands.observable(Chains.empty()).onFailure(toggle(v))).invoke();
 		v.assertEquals(false);
 	}
 
@@ -80,7 +78,7 @@ public class TestChainCallbacks {
 		throws Exception {
 
 		final Variable<Boolean> v = var(false);
-		Chains.observable(Chains.builder().add(is(v, true)).build()).before(toggle(v)).invoke();
+		Chains.create(Commands.observable(Chains.builder().add(is(v, true)).build()).before(toggle(v))).invoke();
 	}
 
 
@@ -93,7 +91,7 @@ public class TestChainCallbacks {
 		throws Exception {
 
 		final Variable<Boolean> v = var(false);
-		Chains.observable(Chains.builder().add(is(v, false)).build()).after(toggle(v)).invoke();
+		Chains.create(Commands.observable(Chains.builder().add(is(v, false)).build()).after(toggle(v))).invoke();
 		v.assertEquals(true);
 	}
 
@@ -105,7 +103,7 @@ public class TestChainCallbacks {
 	@Test
 	public void testAfterWithFailure() {
 		final Variable<Boolean> v = var(false);
-		final IChain chain = Chains.observable(Chains.builder().add(is(v, false)).add(Say.boom()).build()).after(toggle(v));
+		final IChain chain = Chains.create(Commands.observable(Chains.builder().add(is(v, false)).add(Say.boom()).build()).after(toggle(v)));
 		try {
 			chain.invoke();
 		}

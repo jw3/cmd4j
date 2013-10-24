@@ -17,7 +17,7 @@ import cmd4j.testing.Tests.Variable;
  * @author wassj
  *
  */
-public class CallbacksTest {
+public class CallbackCommandTest {
 
 	@Test
 	public void onResults()
