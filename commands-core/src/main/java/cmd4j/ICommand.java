@@ -32,7 +32,7 @@ public interface ICommand {
 
 
 	public interface ICommand1_1<R>
-		extends ICommand {
+		extends ICommand, IReturningCommand<R> {
 
 		R invoke()
 			throws Exception;
@@ -62,7 +62,7 @@ public interface ICommand {
 
 
 	public interface ICommand2_1<T, R>
-		extends ICommand {
+		extends ICommand, IReturningCommand<R> {
 
 		R invoke(T dto)
 			throws Exception;
@@ -82,7 +82,7 @@ public interface ICommand {
 	 *
 	 */
 	public interface ICommand3<T>
-		extends ICommand2_1<T, ICommand> {
+		extends ICommand2_1<T, ICommand>, IReturningCommand<ICommand> {
 
 		/**
 		 * invoke this command, optionally returning a {@link ICommand command} to be run upon completion of this
@@ -96,7 +96,7 @@ public interface ICommand {
 
 
 	public interface ICommand3_0
-		extends ICommand1_1<ICommand> {
+		extends ICommand1_1<ICommand>, IReturningCommand<ICommand> {
 
 		ICommand invoke()
 			throws Exception;
@@ -123,10 +123,15 @@ public interface ICommand {
 	}
 
 
-	public interface ICommandCallback {
-		void onSuccess();
+	public interface IReturningCommand<T>
+		extends ICommand {
+	}
 
 
-		void onFailure(/*Exception e*/);
+	public interface ICommandCallback<T> {
+		void onSuccess(T returns);
+
+
+		void onFailure(Exception e);
 	}
 }

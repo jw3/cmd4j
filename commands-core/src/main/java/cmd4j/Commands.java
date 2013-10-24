@@ -9,6 +9,7 @@ import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommandCallback;
+import cmd4j.ICommand.IReturningCommand;
 
 /**
  * Utility methods for {@link ICommand commands}
@@ -136,7 +137,7 @@ public enum Commands {
 	 * @return
 	 */
 	public static <T> ICommand tokenize(Class<T> type, ICommand2<T> command) {
-		return new CommandProxy<T>(command, type);
+		return new DtoTokenizerProxy<T>(command, type);
 	}
 
 
@@ -148,21 +149,33 @@ public enum Commands {
 	 * @return
 	 */
 	public static <T> ICommand tokenize(Class<T> type, ICommand3<T> command) {
-		if (command instanceof ICommandProxy<?>) {
-			final Class<?> previous = ((ICommandProxy)command).type();
-			if (previous != null) {
-				throw new IllegalArgumentException("command was already proxied with " + previous.getName());
-			}
+		if (command instanceof ITokenized<?>) {
+			throw new IllegalArgumentException("command was already tokenized");
 		}
-		return new CommandProxy<T>(command, type);
+		return new DtoTokenizerProxy<T>(command, type);
 	}
 
 
-	public static ICommand callback(final ICommand command, final ICommandCallback callback) {
-		if (command instanceof ICommandProxy<?>) {
-			return ((ICommandProxy)command).callback(callback);
+	public static ICommand callback(final ICommand command, final ICommandCallback<Void> callback) {
+		if (command instanceof ICallbackProxy<?>) {
+			throw new IllegalArgumentException("callback already installed");
 		}
-		return new CommandProxy(command).callback(callback);
+		return new CallbackProxy<Void>(command, callback);
+	}
+
+
+	public static <R> ICommand callback(final IReturningCommand<R> command, final ICommandCallback<R> callback) {
+		if (command instanceof ICallbackProxy<?>) {
+			throw new IllegalArgumentException("callback already installed");
+		}
+		return new CallbackProxy<R>(command, callback);
+	}
+
+
+	public interface ICommandProxy
+		extends ICommand {
+
+		ICommand command();
 	}
 
 
@@ -172,73 +185,70 @@ public enum Commands {
 	 *
 	 * @author wassj
 	 */
-	public interface ICommandProxy<T>
-		extends ICommand {
+	public interface ITokenized<T>
+		extends ICommandProxy {
 
-		Class<T> type();
-
-
-		ICommand callback(ICommandCallback callback);
+		Class<T> dtoType();
 	}
 
 
-	private static class CommandProxy<T>
-		implements ICommandProxy<T>, ICommand3<T> {
+	private static class DtoTokenizerProxy<T>
+		implements ITokenized<T> {
 
 		private final ICommand command;
-
-		private Class<T> type;
-		private ICommandCallback callback;
+		private final Class<T> type;
 
 
-		public CommandProxy(final ICommand command) {
-			this.command = command;
-		}
-
-
-		public CommandProxy(final ICommand command, final Class<T> type) {
+		public DtoTokenizerProxy(final ICommand command, final Class<T> type) {
 			this.command = command;
 			this.type = type;
 		}
 
 
-		public Class<T> type() {
+		public Class<T> dtoType() {
 			return type;
 		}
 
 
-		public ICommand callback(final ICommandCallback callback) {
+		public ICommand command() {
+			return command;
+		}
+	}
+
+
+	public interface ICallbackProxy<R>
+		extends ICommandProxy {
+
+		ICommandCallback<R> callback();
+	}
+
+
+	private static class CallbackProxy<R>
+		implements ICallbackProxy<R> {
+
+		private final ICommand command;
+		private final ICommandCallback<R> callback;
+
+
+		public CallbackProxy(final ICommand command, final ICommandCallback<R> callback) {
+			this.command = command;
 			this.callback = callback;
-			return this;
 		}
 
 
-		public ICommand invoke(final T dto)
-			throws Exception {
+		public CallbackProxy(final IReturningCommand<R> command, final ICommandCallback<R> callback) {
+			this.command = command;
+			this.callback = callback;
+		}
 
-			if (callback != null) {
-				final IChain chain = Chains.builder().add(command).build();
-				return Chains.observable(chain).onSuccess(this.onSuccess()).onFailure(this.onFailure());
-			}
+
+		public ICommand command() {
 			return command;
 		}
 
 
-		private ICommand onSuccess() {
-			return new ICommand1() {
-				public void invoke() {
-					callback.onSuccess();
-				}
-			};
-		}
-
-
-		private ICommand onFailure() {
-			return new ICommand1() {
-				public void invoke() {
-					callback.onFailure();
-				}
-			};
+		public ICommandCallback<R> callback() {
+			return callback;
 		}
 	}
 }

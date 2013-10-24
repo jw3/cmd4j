@@ -5,10 +5,16 @@ import java.lang.reflect.Type;
 import java.util.concurrent.ExecutorService;
 
 import cmd4j.Chains.ChainBuilder;
+import cmd4j.Commands.ICallbackProxy;
 import cmd4j.Commands.ICommandProxy;
+import cmd4j.Commands.ITokenized;
 import cmd4j.ICommand.ICommand1;
+import cmd4j.ICommand.ICommand1_1;
 import cmd4j.ICommand.ICommand2;
+import cmd4j.ICommand.ICommand2_1;
 import cmd4j.ICommand.ICommand3;
+import cmd4j.ICommand.ICommand3_0;
+import cmd4j.ICommand.ICommandCallback;
 import cmd4j.ICommand.IUndo;
 
 /**
@@ -125,7 +131,8 @@ public enum Links {
 			ICommand command = cmd();
 			while (command != null) {
 				final Object dto = dto() != null ? dto() : this.dto;
-				command = invokeCommand(command, dto, ignoreDtoMismatch);
+				final Object returned = invokeCommand(command, dto, ignoreDtoMismatch);
+				command = returned instanceof ICommand ? (ICommand)returned : null;
 			}
 			return next();
 			//		}
@@ -313,25 +320,64 @@ public enum Links {
 	 */
 	@SuppressWarnings("unchecked")
 	/// safely suppressed here: we do some extra checking to ensure the dto fits in the invocation
-	static ICommand invokeCommand(final ICommand command, final Object dto, final boolean ignoreDtoMismatch)
+	static Object invokeCommand(final ICommand command, final Object dto, final boolean ignoreDtoMismatch)
 		throws Exception {
 
 		final boolean castable = dtoIsCastableForCommand(command, dto);
 		if (castable) {
-			if (command instanceof ICommand3) {
-				return ((ICommand3)command).invoke(dto);
+			try {
+				if (command instanceof ICommand3<?>) {
+					return ((ICommand3)command).invoke(dto);
+				}
+				else if (command instanceof ICommand3_0) {
+					return ((ICommand3_0)command).invoke();
+				}
+				else if (command instanceof ICommand2_1<?, ?>) {
+					return ((ICommand2_1)command).invoke(dto);
+				}
+				else if (command instanceof ICommand2<?>) {
+					((ICommand2)command).invoke(dto);
+				}
+				else if (command instanceof ICommand1_1<?>) {
+					return ((ICommand1_1)command).invoke();
+				}
+				else if (command instanceof ICommand1) {
+					((ICommand1)command).invoke();
+				}
+				else if (command instanceof ICommandProxy) {
+					final Object returned = invokeCommand(((ICommandProxy)command).command(), dto, ignoreDtoMismatch);
+					invokeSuccessCallbacks(command, returned);
+				}
 			}
-			else if (command instanceof ICommand2) {
-				((ICommand2)command).invoke(dto);
-			}
-			else if (command instanceof ICommand1) {
-				((ICommand1)command).invoke();
+			catch (final Exception e) {
+				invokeFailureCallbacks(command, e);
+				throw e;
 			}
 		}
 		else if (!ignoreDtoMismatch) {
 			throw new IllegalArgumentException("dto does not fit");
 		}
 		return null;
+	}
+
+
+	@SuppressWarnings("unchecked")
+	/// safely suppressed here: we do some extra checking to ensure the returned value fits in the invocation
+	static void invokeSuccessCallbacks(final ICommand command, final Object returned) {
+		if (command instanceof ICallbackProxy<?>) {
+			final ICommandCallback callback = ((ICallbackProxy)command).callback();
+			final Class<?> callbackType = typedAs2(callback);
+			if (returned == null || callbackType.isAssignableFrom(returned.getClass())) {
+				callback.onSuccess(returned);
+			}
+		}
+	}
+
+
+	static void invokeFailureCallbacks(final ICommand command, final Exception exception) {
+		if (command instanceof ICallbackProxy<?>) {
+			((ICallbackProxy)command).callback().onFailure(exception);
+		}
 	}
 
 
@@ -357,7 +403,7 @@ public enum Links {
 	 * @return the generic param of t, or Object if there is none
 	 */
 	static Class<?> typedAs(ICommand t) {
-		if (!(t instanceof ICommandProxy)) {
+		if (!(t instanceof ITokenized<?>)) {
 			for (Type type : t.getClass().getGenericInterfaces()) {
 				if (type instanceof ParameterizedType) {
 					final Type paramType = ((ParameterizedType)type).getActualTypeArguments()[0];
@@ -368,6 +414,19 @@ public enum Links {
 			}
 			return Object.class;
 		}
-		return ((ICommandProxy<?>)t).type();
+		return ((ITokenized<?>)t).dtoType();
+	}
+
+
+	static Class<?> typedAs2(final Object object) {
+		for (Type type : object.getClass().getGenericInterfaces()) {
+			if (type instanceof ParameterizedType) {
+				final Type[] args = ((ParameterizedType)type).getActualTypeArguments();
+				if (args.length > 0 && args[0] instanceof Class<?>) {
+					return (Class<?>)args[0];
+				}
+			}
+		}
+		return Object.class;
 	}
 }
