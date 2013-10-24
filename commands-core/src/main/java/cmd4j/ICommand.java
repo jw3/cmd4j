@@ -31,14 +31,6 @@ public interface ICommand {
 	}
 
 
-	public interface ICommand1_1<R>
-		extends ICommand, IReturningCommand<R> {
-
-		R invoke()
-			throws Exception;
-	}
-
-
 	/**
 	 * A {@link ICommand command} implementation that supports having a Data Transfer Object (dto) passed in at execution time.
 	 * The containing {@link ILink link} is responsible for providing the dto to the command at the time it is invoked.
@@ -49,7 +41,7 @@ public interface ICommand {
 	 *
 	 */
 	public interface ICommand2<T>
-		extends ICommand {
+		extends ICommand, IDtoCommand<T> {
 
 		/**
 		 * invoke this command
@@ -61,44 +53,37 @@ public interface ICommand {
 	}
 
 
-	public interface ICommand2_1<T, R>
+	/**
+	 *
+	 * @see IReturningCommand 
+	 * @author wassj
+	 * @param <R>
+	 */
+	public interface ICommand3<R>
 		extends ICommand, IReturningCommand<R> {
 
-		R invoke(T dto)
+		R invoke()
 			throws Exception;
 	}
 
 
 	/**
-	 * A {@link ICommand command} implementation that supports returning another command instance that should
-	 * be run immediately upon this commands successful completion.
-	 * 
-	 * The returned command could also be an {@link ICommand3 command3} and return an {@link ICommand command3} 
-	 * which would result in it also being run.  This process will continue until a command returns null.
-	 * 
-	 * The containing {@link ILink link} is not finished until all commands execute. This provides a very simple to implement state machine behavior.
 	 *
+	 * @see IReturningCommand
 	 * @author wassj
-	 *
+	 * @param <T>
+	 * @param <R>
 	 */
-	public interface ICommand3<T>
-		extends ICommand2_1<T, ICommand>, IReturningCommand<ICommand> {
+	public interface ICommand4<R, T>
+		extends ICommand, IReturningCommand<R>, IDtoCommand<T> {
 
 		/**
-		 * invoke this command, optionally returning a {@link ICommand command} to be run upon completion of this
+		 * invoke this command, returning value of type R
 		 * @param dto Data Transfer Object
-		 * @return the {@link ICommand command} to be run next, or null
+		 * @return the return value
 		 * @throws Exception
 		 */
-		ICommand invoke(final T dto)
-			throws Exception;
-	}
-
-
-	public interface ICommand3_0
-		extends ICommand1_1<ICommand>, IReturningCommand<ICommand> {
-
-		ICommand invoke()
+		R invoke(T dto)
 			throws Exception;
 	}
 
@@ -123,7 +108,29 @@ public interface ICommand {
 	}
 
 
-	public interface IReturningCommand<T>
+	/**
+	 * A {@link ICommand command} implementation that supports returning a value.  If that value happens to be another command instance, it will
+	 * be run immediately upon this commands successful completion.
+	 * 
+	 * The returned command could also be a {@link IReturningCommand} and return another {@link IReturningCommand}, so on and so on until a non {@link ICommand}
+	 * value (or null) is returned.
+	 * 
+	 * The containing {@link ILink link} is not finished until all commands execute. This provides a very simple to implement state machine behavior.
+	 *
+	 * @author wassj
+	 *
+	 */
+	public interface IReturningCommand<R>
+		extends ICommand {
+	}
+
+
+	/**
+	 *
+	 * @author wassj
+	 * @param <T>
+	 */
+	public interface IDtoCommand<T>
 		extends ICommand {
 	}
 

@@ -36,6 +36,6 @@ public interface IChain
 	 * @param <R>
 	 */
 	public interface IReturningChain<R>
-		extends ICommand1_1<R>, ICommand2_1<Object, R> {
+		extends ICommand3<R>, ICommand4<R, Object> {
 	}
 }

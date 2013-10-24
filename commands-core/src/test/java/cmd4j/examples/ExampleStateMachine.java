@@ -4,8 +4,8 @@ import org.testng.annotations.Test;
 
 import cmd4j.Commands;
 import cmd4j.ICommand;
-import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
+import cmd4j.ICommand.ICommand2;
 
 /**
  * Example of using {@link IBranch} to create states with dynamic flow.
@@ -31,15 +31,15 @@ public class ExampleStateMachine {
 	private long current;
 	private long count;
 
-	private final ICommand3 configure = new ICommand3() {
-		public ICommand invoke(Object dto) {
+	private final ICommand3<ICommand> configure = new ICommand3<ICommand>() {
+		public ICommand invoke() {
 			current = seed = System.currentTimeMillis();
 			return divide;
 		}
 	};
 
-	private final ICommand3 divide = new ICommand3() {
-		public ICommand invoke(Object dto) {
+	private final ICommand3<ICommand> divide = new ICommand3<ICommand>() {
+		public ICommand invoke() {
 			++count;
 			current = current / 2;
 			System.out.println(current);

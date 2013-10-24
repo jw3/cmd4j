@@ -8,11 +8,9 @@ import cmd4j.Chains.ChainBuilder;
 import cmd4j.Commands.ICommandProxy;
 import cmd4j.Commands.ITokenized;
 import cmd4j.ICommand.ICommand1;
-import cmd4j.ICommand.ICommand1_1;
-import cmd4j.ICommand.ICommand2;
-import cmd4j.ICommand.ICommand2_1;
 import cmd4j.ICommand.ICommand3;
-import cmd4j.ICommand.ICommand3_0;
+import cmd4j.ICommand.ICommand2;
+import cmd4j.ICommand.ICommand4;
 import cmd4j.ICommand.IUndo;
 
 /**
@@ -324,31 +322,20 @@ public enum Links {
 		// REVISIT will have to check the proxy out prior to the castable call in some cases
 		final boolean castable = dtoIsCastableForCommand(command, dto);
 		if (castable) {
-			Object returned = null;
-			if (command instanceof ICommand3<?>) {
-				return ((ICommand3)command).invoke(dto);
-			}
-			else if (command instanceof ICommand3_0) {
-				return ((ICommand3_0)command).invoke();
-			}
-			else if (command instanceof ICommand2_1<?, ?>) {
-				return ((ICommand2_1)command).invoke(dto);
+			if (command instanceof ICommand4<?, ?>) {
+				return ((ICommand4)command).invoke(dto);
 			}
 			else if (command instanceof ICommand2<?>) {
 				((ICommand2)command).invoke(dto);
 			}
-			else if (command instanceof ICommand1_1<?>) {
-				return ((ICommand1_1)command).invoke();
+			else if (command instanceof ICommand3<?>) {
+				return ((ICommand3)command).invoke();
 			}
 			else if (command instanceof ICommand1) {
 				((ICommand1)command).invoke();
 			}
 			else if (command instanceof ICommandProxy) {
-				returned = invokeCommand(((ICommandProxy)command).command(), dto, ignoreDtoMismatch);
-			}
-
-			if (returned instanceof ICommand) {
-				invokeCommand((ICommand)returned, dto, ignoreDtoMismatch);
+				return ((ICommandProxy)command).command();
 			}
 		}
 		else if (!ignoreDtoMismatch) {

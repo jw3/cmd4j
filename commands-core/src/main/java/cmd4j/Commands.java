@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
-import cmd4j.ICommand.ICommand3;
+import cmd4j.ICommand.IDtoCommand;
 import cmd4j.ICommand.IObservableCommand;
 
 /**
@@ -30,6 +30,11 @@ public enum Commands {
 		throws Exception {
 
 		Chains.builder().add(command).build().invoke();
+	}
+
+
+	public static IObservableCommand observable(final ICommand command) {
+		return decorator(command);
 	}
 
 
@@ -139,30 +144,15 @@ public enum Commands {
 	 * @param command
 	 * @return
 	 */
-	public static <T> ICommand tokenize(Class<T> type, ICommand2<T> command) {
+	public static <T> ICommand tokenize(Class<T> type, IDtoCommand<T> command) {
 		return new DtoTokenizerProxy<T>(command, type);
 	}
 
 
-	/**
-	 * tokenize the type parameter of the command
-	 * useful only when erasure is removing necessary type information
-	 * @param type
-	 * @param command
-	 * @return
-	 */
-	public static <T> ICommand tokenize(Class<T> type, ICommand3<T> command) {
-		if (command instanceof ITokenized<?>) {
-			throw new IllegalArgumentException("command was already tokenized");
-		}
-		return new DtoTokenizerProxy<T>(command, type);
-	}
-
-
-	public interface ICommandProxy
+	public interface ICommandProxy<C extends ICommand>
 		extends ICommand {
 
-		ICommand command();
+		IDtoCommand<C> command();
 	}
 
 
@@ -182,11 +172,11 @@ public enum Commands {
 	private static class DtoTokenizerProxy<T>
 		implements ITokenized<T> {
 
-		private final ICommand command;
+		private final IDtoCommand<T> command;
 		private final Class<T> type;
 
 
-		public DtoTokenizerProxy(final ICommand command, final Class<T> type) {
+		public DtoTokenizerProxy(final IDtoCommand<T> command, final Class<T> type) {
 			this.command = command;
 			this.type = type;
 		}
@@ -197,7 +187,7 @@ public enum Commands {
 		}
 
 
-		public ICommand command() {
+		public IDtoCommand<T> command() {
 			return command;
 		}
 	}
@@ -205,11 +195,6 @@ public enum Commands {
 
 	private static IObservableCommand decorator(final ICommand chain) {
 		return chain instanceof IObservableCommand ? (IObservableCommand)chain : new ObservableCommandDecorator(chain);
-	}
-
-
-	public static IObservableCommand observable(final ICommand command) {
-		return decorator(command);
 	}
 
 

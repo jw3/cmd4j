@@ -6,7 +6,7 @@ import cmd4j.Chains;
 import cmd4j.Commands;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
-import cmd4j.ICommand.ICommand1_1;
+import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.ICommand.IUndo;
@@ -100,7 +100,7 @@ public enum Tests {
 
 
 	public static <R> IReturningCommand<R> returns(final R val) {
-		return new ICommand1_1<R>() {
+		return new ICommand3<R>() {
 			public R invoke() {
 				return val;
 			}
@@ -109,7 +109,7 @@ public enum Tests {
 
 
 	public static <R> IReturningCommand<R> returns(final Variable<R> val) {
-		return new ICommand1_1<R>() {
+		return new ICommand3<R>() {
 			public R invoke() {
 				return val.getValue();
 			}
