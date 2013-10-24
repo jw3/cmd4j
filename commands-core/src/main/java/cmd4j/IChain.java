@@ -30,6 +30,11 @@ public interface IChain
 	ILink head();
 
 
+	public interface IReturningChain<R>
+		extends ICommand1_1<R>, ICommand2_1<Object, R> {
+	}
+
+
 	/**
 	 *
 	 * @author wassj

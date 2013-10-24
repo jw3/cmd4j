@@ -10,6 +10,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import cmd4j.IChain.IObservableChain;
+import cmd4j.IChain.IReturningChain;
+import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Links.LinkBuilder;
 
 /**
@@ -105,6 +107,11 @@ public enum Chains {
 			builder.add(command);
 		}
 		return builder.build();
+	}
+
+
+	public static <R> IReturningChain<R> create(final IReturningCommand<R> command) {
+		return new ReturningChain<R>(command);
 	}
 
 
@@ -330,6 +337,40 @@ public enum Chains {
 
 			final Linker linker = new Linker(this.head(), dto);
 			Executors2.sameThreadExecutor().submit(linker).get();
+		}
+	}
+
+
+	/**
+	 * the default {@link IChain} implementation
+	 *
+	 * @author wassj
+	 */
+	private static class ReturningChain<R>
+		implements IReturningChain<R> {
+
+		private final IReturningCommand<R> command;
+
+
+		public ReturningChain(final IReturningCommand<R> command) {
+			this.command = command;
+		}
+
+
+		public R invoke()
+			throws Exception {
+
+			return this.invoke(null);
+		}
+
+
+		public R invoke(Object dto)
+			throws Exception {
+
+			@SuppressWarnings("unchecked")
+			// this should be safe, the class param guards it
+			final R returned = (R)Links.invokeCommand(command, dto, false);
+			return returned;
 		}
 	}
 

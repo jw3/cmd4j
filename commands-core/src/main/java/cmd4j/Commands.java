@@ -1,15 +1,18 @@
 package cmd4j;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
-import cmd4j.ICommand.ICommandCallback;
-import cmd4j.ICommand.IReturningCommand;
+import cmd4j.ICommand.IObservableCommand;
 
 /**
  * Utility methods for {@link ICommand commands}
@@ -156,22 +159,6 @@ public enum Commands {
 	}
 
 
-	public static ICommand callback(final ICommand command, final ICommandCallback<Void> callback) {
-		if (command instanceof ICallbackProxy<?>) {
-			throw new IllegalArgumentException("callback already installed");
-		}
-		return new CallbackProxy<Void>(command, callback);
-	}
-
-
-	public static <R> ICommand callback(final IReturningCommand<R> command, final ICommandCallback<R> callback) {
-		if (command instanceof ICallbackProxy<?>) {
-			throw new IllegalArgumentException("callback already installed");
-		}
-		return new CallbackProxy<R>(command, callback);
-	}
-
-
 	public interface ICommandProxy
 		extends ICommand {
 
@@ -216,29 +203,34 @@ public enum Commands {
 	}
 
 
-	public interface ICallbackProxy<R>
-		extends ICommandProxy {
-
-		ICommandCallback<R> callback();
+	private static IObservableCommand decorator(final ICommand chain) {
+		return chain instanceof IObservableCommand ? (IObservableCommand)chain : new ObservableCommandDecorator(chain);
 	}
 
 
-	private static class CallbackProxy<R>
-		implements ICallbackProxy<R> {
+	public static IObservableCommand observable(final ICommand command) {
+		return decorator(command);
+	}
+
+
+	/**
+	 *
+	 * @author wassj
+	 */
+	public static class ObservableCommandDecorator
+		implements IObservableCommand, ICommand2<Object> {
+
+		private final List<ICommand> afterHandlers = new LinkedList<ICommand>();
+		private final List<ICommand> beforeHandlers = new LinkedList<ICommand>();
+		private final List<ICommand> resultsHandlers = new LinkedList<ICommand>();
+		private final List<ICommand> successHandlers = new LinkedList<ICommand>();
+		private final List<ICommand> failureHandlers = new LinkedList<ICommand>();
 
 		private final ICommand command;
-		private final ICommandCallback<R> callback;
 
 
-		public CallbackProxy(final ICommand command, final ICommandCallback<R> callback) {
+		public ObservableCommandDecorator(final ICommand command) {
 			this.command = command;
-			this.callback = callback;
-		}
-
-
-		public CallbackProxy(final IReturningCommand<R> command, final ICommandCallback<R> callback) {
-			this.command = command;
-			this.callback = callback;
 		}
 
 
@@ -247,8 +239,79 @@ public enum Commands {
 		}
 
 
-		public ICommandCallback<R> callback() {
-			return callback;
+		public IObservableCommand before(final ICommand... commands) {
+			beforeHandlers.addAll(Arrays.asList(commands));
+			return this;
+		}
+
+
+		public IObservableCommand after(final ICommand... commands) {
+			afterHandlers.addAll(Arrays.asList(commands));
+			return this;
+		}
+
+
+		public IObservableCommand results(ICommand... commands) {
+			resultsHandlers.addAll(Arrays.asList(commands));
+			return this;
+		}
+
+
+		public IObservableCommand onSuccess(final ICommand... commands) {
+			successHandlers.addAll(Arrays.asList(commands));
+			return this;
+		}
+
+
+		public IObservableCommand onFailure(final ICommand... commands) {
+			failureHandlers.addAll(Arrays.asList(commands));
+			return this;
+		}
+
+
+		/**
+		 * i am only calling the result handlers when the command was a {@link IReturningCommand}
+		 * not convinced on the semantics of this at this point... perhaps the success handler should
+		 * be called; but then what do you do about dto vs returned?  calling the success handlers 2x,
+		 * once with each of those could be an answer.  nothing really stands out now as the best choice
+		 * though that could be because it is 0041 and there is no coffee left... 
+		 */
+		public void invoke(final Object dto)
+			throws Exception {
+
+			try {
+				executeHandlers(beforeHandlers, dto);
+				if (command instanceof IReturningCommand<?>) {
+					final Object returned = Chains.create((IReturningCommand<?>)command).invoke(dto);
+					executeHandlers(resultsHandlers, returned);
+				}
+				else {
+					Chains.create(command).invoke(dto);
+				}
+				executeHandlers(successHandlers, dto);
+			}
+			catch (ExecutionException e) {
+				executeHandlers(failureHandlers, e.getCause());
+				throw e;
+			}
+			catch (InterruptedException e) {
+				executeHandlers(failureHandlers, e);
+				throw e;
+			}
+			finally {
+				executeHandlers(afterHandlers, dto);
+			}
+		}
+
+
+		private void executeHandlers(final List<ICommand> commands, final Object dto) {
+			try {
+				Chains.create(commands).invoke(dto);
+			}
+			catch (Throwable t) {
+				// REVISIT the show must go on
+				t.printStackTrace();
+			}
 		}
 	}
 }

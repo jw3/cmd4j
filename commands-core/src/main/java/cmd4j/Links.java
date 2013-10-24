@@ -5,7 +5,6 @@ import java.lang.reflect.Type;
 import java.util.concurrent.ExecutorService;
 
 import cmd4j.Chains.ChainBuilder;
-import cmd4j.Commands.ICallbackProxy;
 import cmd4j.Commands.ICommandProxy;
 import cmd4j.Commands.ITokenized;
 import cmd4j.ICommand.ICommand1;
@@ -14,7 +13,6 @@ import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand2_1;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommand3_0;
-import cmd4j.ICommand.ICommandCallback;
 import cmd4j.ICommand.IUndo;
 
 /**
@@ -326,58 +324,37 @@ public enum Links {
 		// REVISIT will have to check the proxy out prior to the castable call in some cases
 		final boolean castable = dtoIsCastableForCommand(command, dto);
 		if (castable) {
-			try {
-				if (command instanceof ICommand3<?>) {
-					return ((ICommand3)command).invoke(dto);
-				}
-				else if (command instanceof ICommand3_0) {
-					return ((ICommand3_0)command).invoke();
-				}
-				else if (command instanceof ICommand2_1<?, ?>) {
-					return ((ICommand2_1)command).invoke(dto);
-				}
-				else if (command instanceof ICommand2<?>) {
-					((ICommand2)command).invoke(dto);
-				}
-				else if (command instanceof ICommand1_1<?>) {
-					return ((ICommand1_1)command).invoke();
-				}
-				else if (command instanceof ICommand1) {
-					((ICommand1)command).invoke();
-				}
-				else if (command instanceof ICommandProxy) {
-					final Object returned = invokeCommand(((ICommandProxy)command).command(), dto, ignoreDtoMismatch);
-					invokeSuccessCallbacks(command, returned);
-				}
+			Object returned = null;
+			if (command instanceof ICommand3<?>) {
+				return ((ICommand3)command).invoke(dto);
 			}
-			catch (final Exception e) {
-				invokeFailureCallbacks(command, e);
-				throw e;
+			else if (command instanceof ICommand3_0) {
+				return ((ICommand3_0)command).invoke();
+			}
+			else if (command instanceof ICommand2_1<?, ?>) {
+				return ((ICommand2_1)command).invoke(dto);
+			}
+			else if (command instanceof ICommand2<?>) {
+				((ICommand2)command).invoke(dto);
+			}
+			else if (command instanceof ICommand1_1<?>) {
+				return ((ICommand1_1)command).invoke();
+			}
+			else if (command instanceof ICommand1) {
+				((ICommand1)command).invoke();
+			}
+			else if (command instanceof ICommandProxy) {
+				returned = invokeCommand(((ICommandProxy)command).command(), dto, ignoreDtoMismatch);
+			}
+
+			if (returned instanceof ICommand) {
+				invokeCommand((ICommand)returned, dto, ignoreDtoMismatch);
 			}
 		}
 		else if (!ignoreDtoMismatch) {
 			throw new IllegalArgumentException("dto does not fit");
 		}
 		return null;
-	}
-
-
-	@SuppressWarnings("unchecked")
-	/// safely suppressed here: we do some extra checking to ensure the returned value fits in the invocation
-	static void invokeSuccessCallbacks(final ICommand command, final Object returned) {
-		if (command instanceof ICallbackProxy<?>) {
-			final ICommandCallback callback = ((ICallbackProxy)command).callback();
-			if (returned == null || callbackIsCastableForCommand(callback, returned)) {
-				callback.onSuccess(returned);
-			}
-		}
-	}
-
-
-	static void invokeFailureCallbacks(final ICommand command, final Exception exception) {
-		if (command instanceof ICallbackProxy<?>) {
-			((ICallbackProxy)command).callback().onFailure(exception);
-		}
 	}
 
 
@@ -390,22 +367,6 @@ public enum Links {
 	static boolean dtoIsCastableForCommand(final ICommand command, final Object dto) {
 		if (dto != null) {
 			final Class<?> cmdType = command instanceof ITokenized<?> ? ((ITokenized<?>)command).dtoType() : typedAs(command);
-			final Class<?> dtoType = dto.getClass();
-			return cmdType.isAssignableFrom(dtoType);
-		}
-		return true;
-	}
-
-
-	/**
-	 * check that the passed dto fits into the passed ICommand#invoke method.
-	 * @param command
-	 * @param dto
-	 * @return
-	 */
-	static boolean callbackIsCastableForCommand(final ICommandCallback command, final Object dto) {
-		if (dto != null) {
-			final Class<?> cmdType = typedAs(command);
 			final Class<?> dtoType = dto.getClass();
 			return cmdType.isAssignableFrom(dtoType);
 		}

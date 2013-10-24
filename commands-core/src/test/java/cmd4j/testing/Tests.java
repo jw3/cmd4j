@@ -90,6 +90,15 @@ public enum Tests {
 	}
 
 
+	public static <T> ICommand set(final Variable<T> v) {
+		return new ICommand2<T>() {
+			public void invoke(final T value) {
+				v.setValue(value);
+			}
+		};
+	}
+
+
 	public static <R> IReturningCommand<R> returns(final R val) {
 		return new ICommand1_1<R>() {
 			public R invoke() {

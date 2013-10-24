@@ -7,7 +7,6 @@ import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
-import cmd4j.ICommand.ICommandCallback;
 import cmd4j.testing.Say;
 import cmd4j.testing.Tests;
 import cmd4j.testing.Tests.Variable;
@@ -21,21 +20,13 @@ import cmd4j.testing.Tests.Variable;
 public class CallbacksTest {
 
 	@Test
-	public void onSuccess_1_1()
+	public void onResults()
 		throws Exception {
 
 		final Variable<String> called = Variable.create();
 		final String value = UUID.randomUUID().toString().substring(0, 6);
 
-		final ICommand command = Commands.callback(Tests.returns(value), new ICommandCallback<String>() {
-			public void onSuccess(final String returns) {
-				called.setValue(returns);
-			}
-
-
-			public void onFailure(final Exception e) {
-			}
-		});
+		final ICommand command = Commands.observable(Tests.returns(value)).results(Tests.set(called));
 
 		Commands.execute(command);
 		called.assertEquals(value);
@@ -43,36 +34,20 @@ public class CallbacksTest {
 
 
 	@Test
-	public void onSuccess_void()
+	public void onSuccess()
 		throws Exception {
 
 		final Variable<Boolean> called = Variable.create(false);
-		final ICommand command = Commands.callback(Commands.nop(), new ICommandCallback<Void>() {
-			public void onSuccess(final Void returns) {
-				called.setValue(true);
-			}
-
-
-			public void onFailure(final Exception e) {
-			}
-		});
+		final ICommand command = Commands.observable(Commands.nop()).onSuccess(Tests.set(called, true));
 		Commands.execute(command);
 		called.assertEquals(true);
 	}
 
 
 	@Test
-	public void onFailure_void() {
+	public void onFailure() {
 		final Variable<Boolean> called = Variable.create(false);
-		final ICommand command = Commands.callback(Say.boom(), new ICommandCallback<Void>() {
-			public void onSuccess(final Void returns) {
-			}
-
-
-			public void onFailure(final Exception e) {
-				called.setValue(true);
-			}
-		});
+		final ICommand command = Commands.observable(Say.boom()).onFailure(Tests.set(called, true));
 		try {
 			Commands.execute(command);
 		}
