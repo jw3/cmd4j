@@ -1,4 +1,4 @@
-package cmd4j.swing.event;
+package cmd4j.examples;
 
 import java.awt.event.ActionEvent;
 
@@ -13,7 +13,7 @@ import cmd4j.IChain;
  * @author wassj
  *
  */
-abstract public class ChainAction
+abstract public class ExampleChainAction
 	extends AbstractAction {
 
 	//private IChain chain;
@@ -30,7 +30,7 @@ abstract public class ChainAction
 		return chainAction;
 	}*/
 
-	protected ChainAction() {
+	protected ExampleChainAction() {
 	}
 
 
@@ -45,7 +45,7 @@ abstract public class ChainAction
 	}
 
 
-	public ChainAction setValue(String key, String value) {
+	public ExampleChainAction setValue(String key, String value) {
 		this.putValue(key, value);
 		return this;
 	}

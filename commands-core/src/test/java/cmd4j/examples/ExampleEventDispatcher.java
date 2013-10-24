@@ -11,6 +11,7 @@ import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
+import cmd4j.ICommand.ICommand4;
 import cmd4j.examples.events.Dispatcher;
 import cmd4j.examples.events.IListener;
 
@@ -112,8 +113,8 @@ public class ExampleEventDispatcher {
 	/**
 	 * demonstration that {@link ICommand3 command3s} work through the dispatcher
 	 */
-	static ICommand countDown(final int count) {
-		return new ICommand3<Integer>() {
+	static ICommand countDown(final Integer count) {
+		return new ICommand4<ICommand, Integer>() {
 			public ICommand invoke(Integer original) {
 				System.out.println(count + " (" + original + ")");
 

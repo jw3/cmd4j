@@ -12,7 +12,6 @@ import javax.swing.JPanel;
 
 import cmd4j.Chains;
 import cmd4j.ICommand;
-import cmd4j.examples.common.Examples;
 
 /**
  * A basic example to show how to tie commands into a JButton action listener

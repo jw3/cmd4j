@@ -14,10 +14,8 @@ import cmd4j.Chains;
 import cmd4j.IChain;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
-import cmd4j.ICommand.ICommand3;
+import cmd4j.ICommand.ICommand4;
 import cmd4j.ICommand.IUndo;
-import cmd4j.examples.common.Examples;
-import cmd4j.swing.event.ChainAction;
 
 /**
  * example of a small ui with some actions tied into undoable commands
@@ -39,7 +37,7 @@ public class ExampleButtonActionsWithUndo {
 		buttons.add(createColorButton(Color.red, panel));
 		buttons.add(createColorButton(Color.green, panel));
 		buttons.add(createColorButton(Color.blue, panel));
-		buttons.add(new JButton(new UndoAction().setValue(ChainAction.NAME, "undo")));
+		buttons.add(new JButton(new UndoAction().setValue(ExampleChainAction.NAME, "undo")));
 
 		final JFrame frame = Examples.createFrame();
 		frame.add(panel, BorderLayout.CENTER);
@@ -95,13 +93,13 @@ public class ExampleButtonActionsWithUndo {
 
 
 	/**
-	 * example implementation of a {@link ChainAction} which sets the component color using an {@link IUndo} {@link ICommand}
+	 * example implementation of a {@link ExampleChainAction} which sets the component color using an {@link IUndo} {@link ICommand}
 	 *
 	 * @author wassj
 	 *
 	 */
 	private static final class SetColorAction
-		extends ChainAction {
+		extends ExampleChainAction {
 
 		private final Color color;
 		private final JComponent target;
@@ -131,16 +129,16 @@ public class ExampleButtonActionsWithUndo {
 
 
 	/**
-	 * {@link ChainAction} that pops and invokes {@link IChain}s from the undo stack
+	 * {@link ExampleChainAction} that pops and invokes {@link IChain}s from the undo stack
 	 *
 	 * @author wassj
 	 *
 	 */
 	private static final class UndoAction
-		extends ChainAction {
+		extends ExampleChainAction {
 
 		public IChain getChain() {
-			return Chains.create(new ICommand3() {
+			return Chains.create((ICommand)new ICommand4<ICommand, Object>() {
 				public ICommand invoke(Object dto) {
 					if (!undoStack.isEmpty()) {
 						return Chains.makeUndoable(undoStack.pop());

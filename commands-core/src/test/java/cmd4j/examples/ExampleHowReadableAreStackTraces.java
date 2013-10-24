@@ -11,7 +11,7 @@ import cmd4j.testing.Says;
  * @author wassj
  *
  */
-public class TestHowReadableStackTracesAre {
+public class ExampleHowReadableAreStackTraces {
 
 	//@Test
 	//(expectedExceptions = Exception.class)

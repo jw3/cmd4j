@@ -20,7 +20,7 @@ import cmd4j.testing.Services;
  * @author wassj
  *
  */
-public class NonBlockingBlocking {
+public class ExampleNonBlockingBlocking {
 
 	@Test
 	public void blockingCallFromEdtThatExecutesOnEdt()
