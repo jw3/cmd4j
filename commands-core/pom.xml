@@ -4,29 +4,43 @@
 
 	<parent>
 		<groupId>cmd4j</groupId>
-		<artifactId>cmd4j-parent</artifactId>
-		<version>0.1.0-SNAPSHOT</version>
+		<artifactId>super-pom</artifactId>
+		<version>1.1</version>
+
+		<!-- leave the empty relative path here -->
+		<relativePath></relativePath>
+		<!-- see http://stackoverflow.com/a/6006098 -->
 	</parent>
 
 	<name>Commands Core</name>
+	<groupId>cmd4j</groupId>
 	<artifactId>commands-core</artifactId>
 	<version>0.0.8-SNAPSHOT</version>
+
+	<properties>
+		<java.version>1.7</java.version>
+	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
 		</dependency>
+
+		<!-- test -->
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
+			<version>${slf4j.version}</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
+			<version>${testng.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
