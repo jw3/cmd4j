@@ -323,6 +323,7 @@ public enum Links {
 	static Object invokeCommand(final ICommand command, final Object dto, final boolean ignoreDtoMismatch)
 		throws Exception {
 
+		// REVISIT will have to check the proxy out prior to the castable call in some cases
 		final boolean castable = dtoIsCastableForCommand(command, dto);
 		if (castable) {
 			try {
@@ -366,8 +367,7 @@ public enum Links {
 	static void invokeSuccessCallbacks(final ICommand command, final Object returned) {
 		if (command instanceof ICallbackProxy<?>) {
 			final ICommandCallback callback = ((ICallbackProxy)command).callback();
-			final Class<?> callbackType = typedAs2(callback);
-			if (returned == null || callbackType.isAssignableFrom(returned.getClass())) {
+			if (returned == null || callbackIsCastableForCommand(callback, returned)) {
 				callback.onSuccess(returned);
 			}
 		}
@@ -389,6 +389,22 @@ public enum Links {
 	 */
 	static boolean dtoIsCastableForCommand(final ICommand command, final Object dto) {
 		if (dto != null) {
+			final Class<?> cmdType = command instanceof ITokenized<?> ? ((ITokenized<?>)command).dtoType() : typedAs(command);
+			final Class<?> dtoType = dto.getClass();
+			return cmdType.isAssignableFrom(dtoType);
+		}
+		return true;
+	}
+
+
+	/**
+	 * check that the passed dto fits into the passed ICommand#invoke method.
+	 * @param command
+	 * @param dto
+	 * @return
+	 */
+	static boolean callbackIsCastableForCommand(final ICommandCallback command, final Object dto) {
+		if (dto != null) {
 			final Class<?> cmdType = typedAs(command);
 			final Class<?> dtoType = dto.getClass();
 			return cmdType.isAssignableFrom(dtoType);
@@ -398,27 +414,9 @@ public enum Links {
 
 
 	/**
-	 * get the type parameter of the command
-	 * @param t {@link ICommand} the command 
-	 * @return the generic param of t, or Object if there is none
+	 * get the type parameter; if any
 	 */
-	static Class<?> typedAs(ICommand t) {
-		if (!(t instanceof ITokenized<?>)) {
-			for (Type type : t.getClass().getGenericInterfaces()) {
-				if (type instanceof ParameterizedType) {
-					final Type paramType = ((ParameterizedType)type).getActualTypeArguments()[0];
-					if (paramType instanceof Class<?>) {
-						return (Class<?>)paramType;
-					}
-				}
-			}
-			return Object.class;
-		}
-		return ((ITokenized<?>)t).dtoType();
-	}
-
-
-	static Class<?> typedAs2(final Object object) {
+	static Class<?> typedAs(final Object object) {
 		for (Type type : object.getClass().getGenericInterfaces()) {
 			if (type instanceof ParameterizedType) {
 				final Type[] args = ((ParameterizedType)type).getActualTypeArguments();
