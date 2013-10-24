@@ -14,8 +14,8 @@ import cmd4j.Chains;
 import cmd4j.IChain;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
+import cmd4j.ICommand.ICommand1.IUndo;
 import cmd4j.ICommand.ICommand4;
-import cmd4j.ICommand.IUndo;
 
 /**
  * example of a small ui with some actions tied into undoable commands
@@ -62,7 +62,7 @@ public class ExampleButtonActionsWithUndo {
 	 *
 	 */
 	private static class UndoableChangeColor
-		implements ICommand1, IUndo {
+		implements ICommand1, ICommand1.IUndo {
 
 		private final Color color;
 		private final Color original;

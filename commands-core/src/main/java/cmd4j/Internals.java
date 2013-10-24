@@ -17,7 +17,6 @@ import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommand4;
 import cmd4j.ICommand.IObservableCommand;
-import cmd4j.ICommand.IUndo;
 import cmd4j.Internals.Command.ICommandProxy;
 import cmd4j.Internals.Command.ITokenized;
 
@@ -278,6 +277,7 @@ enum Internals {
 				//		try {
 				ICommand command = cmd();
 				while (command != null) {
+					// REVISIT not sure what the following is doing?
 					final Object dto = dto() != null ? dto() : this.dto;
 					final Object returned = invokeCommand(command, dto, ignoreDtoMismatch);
 					command = returned instanceof ICommand ? (ICommand)returned : null;
@@ -396,6 +396,7 @@ enum Internals {
 		}
 
 
+		// REVISIT should this support dto mismatch ignores?
 		static class LinkUndoDecorator
 			implements ILink {
 
@@ -437,9 +438,15 @@ enum Internals {
 				throws Exception {
 
 				//		try {
+				/*
+				 * REVISIT lots of duplication with DefaultLink now, perhaps these can be rolled together?
+				 */
 				ICommand command = cmd();
-				if (command instanceof IUndo) {
-					((IUndo)command).undo();
+				while (command != null) {
+					// REVISIT not sure what the following is doing? 
+					final Object dto = dto() != null ? dto() : this.dto();
+					final Object returned = invokeUndoCommand(command, dto, false);
+					command = returned instanceof ICommand ? (ICommand)returned : null;
 				}
 				return next();
 				//		}
@@ -459,6 +466,14 @@ enum Internals {
 		 * 
 		 * 
 		 */
+
+		///---------------------------------------------------------------------------------------------------------------------
+		//
+		//
+		// invokeCommand and invokeUndoCommand should be rolled up in some way, the inspection duplication will be a maintenance hazard
+		//
+		//
+
 		/**
 		 * util for executing and handling any return value from a given {@link ICommand}
 		 * @param command
@@ -496,6 +511,47 @@ enum Internals {
 			return null;
 		}
 
+
+		/*
+		 * NOTE that the command param was intentionally left as ICommand in order to support
+		 * ICommandProxy instances that may return a wrapped up undoable command.  Typing this to
+		 * IUndoCommand would limit that or require some additional work on the proxy side to support undo
+		 */
+		@SuppressWarnings("unchecked")
+		/// safely suppressed here: we do some extra checking to ensure the dto fits in the invocation
+		static Object invokeUndoCommand(final ICommand command, final Object dto, final boolean ignoreDtoMismatch)
+			throws Exception {
+
+			// REVISIT will have to check the proxy out prior to the castable call in some cases
+			final boolean castable = dtoIsCastableForCommand(command, dto);
+			if (castable) {
+				if (command instanceof ICommand4.IUndo<?, ?>) {
+					return ((ICommand4.IUndo)command).undo(dto);
+				}
+				else if (command instanceof ICommand2.IUndo<?>) {
+					((ICommand2.IUndo)command).undo(dto);
+				}
+				else if (command instanceof ICommand3.IUndo<?>) {
+					return ((ICommand3.IUndo)command).undo();
+				}
+				else if (command instanceof ICommand1.IUndo) {
+					((ICommand1.IUndo)command).undo();
+				}
+				else if (command instanceof ICommandProxy) {
+					return ((ICommandProxy)command).command();
+				}
+			}
+			else if (!ignoreDtoMismatch) {
+				throw new IllegalArgumentException("dto does not fit");
+			}
+			return null;
+		}
+
+
+		//
+		//
+		//
+		///---------------------------------------------------------------------------------------------------------------------
 
 		/**
 		 * check that the passed dto fits into the passed ICommand#invoke method.

@@ -9,7 +9,6 @@ import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.IReturningCommand;
-import cmd4j.ICommand.IUndo;
 
 /**
  * Cmd4j Test Utils
@@ -123,7 +122,7 @@ public enum Does {
 
 
 	private static class UndodoableSetter<T>
-		implements ICommand1, IUndo {
+		implements ICommand1, ICommand1.IUndo {
 
 		private final T original;
 		private final T modified;

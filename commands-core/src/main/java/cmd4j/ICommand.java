@@ -28,6 +28,18 @@ public interface ICommand {
 		 */
 		void invoke()
 			throws Exception;
+
+
+		/**
+		 *
+		 * @author wassj
+		 */
+		public interface IUndo
+			extends ICommand1, IUndoCommand {
+
+			void undo()
+				throws Exception;
+		}
 	}
 
 
@@ -50,6 +62,19 @@ public interface ICommand {
 		 */
 		void invoke(T dto)
 			throws Exception;
+
+
+		/**
+		 *
+		 * @author wassj
+		 * @param <T>
+		 */
+		public interface IUndo<T>
+			extends ICommand2<T>, IUndoCommand {
+
+			void undo(T dto)
+				throws Exception;
+		}
 	}
 
 
@@ -64,6 +89,19 @@ public interface ICommand {
 
 		R invoke()
 			throws Exception;
+
+
+		/**
+		 *
+		 * @author wassj
+		 * @param <R>
+		 */
+		public interface IUndo<R>
+			extends ICommand3<R>, IUndoCommand {
+
+			R undo()
+				throws Exception;
+		}
 	}
 
 
@@ -85,6 +123,20 @@ public interface ICommand {
 		 */
 		R invoke(T dto)
 			throws Exception;
+
+
+		/**
+		 *
+		 * @author wassj
+		 * @param <R>
+		 * @param <T>
+		 */
+		public interface IUndo<R, T>
+			extends ICommand4<R, T> {
+
+			R undo(T dto)
+				throws Exception;
+		}
 	}
 
 
@@ -93,18 +145,13 @@ public interface ICommand {
 	 * to provide the capability to reverse the Command, this interface simply provides the calling
 	 * capability to run that reversing logic in the Command framework.
 	 * 
+	 * This is a tagging interface only, see the subtypes of this:
+	 * 
 	 * @author wassj
 	 *
 	 */
-	public interface IUndo
+	public interface IUndoCommand
 		extends ICommand {
-
-		/**
-		 * undo this command
-		 * @throws Exception
-		 */
-		void undo()
-			throws Exception;
 	}
 
 
