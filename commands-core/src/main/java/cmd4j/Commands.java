@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
+import cmd4j.ICommand.ICommandCallback;
 
 /**
  * Utility methods for {@link ICommand commands}
@@ -135,7 +136,7 @@ public enum Commands {
 	 * @return
 	 */
 	public static <T> ICommand tokenize(Class<T> type, ICommand2<T> command) {
-		return new Command2Proxy<T>(command, type);
+		return new CommandProxy<T>(command, type);
 	}
 
 
@@ -147,12 +148,27 @@ public enum Commands {
 	 * @return
 	 */
 	public static <T> ICommand tokenize(Class<T> type, ICommand3<T> command) {
-		return new Command3Proxy<T>(command, type);
+		if (command instanceof ICommandProxy<?>) {
+			final Class<?> previous = ((ICommandProxy)command).type();
+			if (previous != null) {
+				throw new IllegalArgumentException("command was already proxied with " + previous.getName());
+			}
+		}
+		return new CommandProxy<T>(command, type);
+	}
+
+
+	public static ICommand callback(final ICommand command, final ICommandCallback callback) {
+		if (command instanceof ICommandProxy<?>) {
+			return ((ICommandProxy)command).callback(callback);
+		}
+		return new CommandProxy(command).callback(callback);
 	}
 
 
 	/**
 	 * Provide the means of storing the acceptable dto type on a command, useful as a workaround to erasure.
+	 * Provide callback capability
 	 *
 	 * @author wassj
 	 */
@@ -162,49 +178,25 @@ public enum Commands {
 		Class<T> type();
 
 
-		ICommand command();
+		ICommand callback(ICommandCallback callback);
 	}
 
 
-	private static class Command2Proxy<T>
-		implements ICommandProxy<T>, ICommand2<T> {
-
-		private final Class<T> type;
-		private final ICommand2<T> command;
-
-
-		public Command2Proxy(final ICommand2<T> command, final Class<T> type) {
-			this.command = command;
-			this.type = type;
-		}
-
-
-		public Class<T> type() {
-			return type;
-		}
-
-
-		public ICommand command() {
-			return command;
-		}
-
-
-		public void invoke(final T dto)
-			throws Exception {
-
-			command.invoke(dto);
-		}
-	}
-
-
-	private static class Command3Proxy<T>
+	private static class CommandProxy<T>
 		implements ICommandProxy<T>, ICommand3<T> {
 
-		private final Class<T> type;
-		private final ICommand3<T> command;
+		private final ICommand command;
+
+		private Class<T> type;
+		private ICommandCallback callback;
 
 
-		public Command3Proxy(final ICommand3<T> command, final Class<T> type) {
+		public CommandProxy(final ICommand command) {
+			this.command = command;
+		}
+
+
+		public CommandProxy(final ICommand command, final Class<T> type) {
 			this.command = command;
 			this.type = type;
 		}
@@ -215,15 +207,38 @@ public enum Commands {
 		}
 
 
-		public ICommand command() {
-			return command;
+		public ICommand callback(final ICommandCallback callback) {
+			this.callback = callback;
+			return this;
 		}
 
 
 		public ICommand invoke(final T dto)
 			throws Exception {
 
-			return command.invoke(dto);
+			if (callback != null) {
+				final IChain chain = Chains.builder().add(command).build();
+				return Chains.observable(chain).onSuccess(this.onSuccess()).onFailure(this.onFailure());
+			}
+			return command;
+		}
+
+
+		private ICommand onSuccess() {
+			return new ICommand1() {
+				public void invoke() {
+					callback.onSuccess();
+				}
+			};
+		}
+
+
+		private ICommand onFailure() {
+			return new ICommand1() {
+				public void invoke() {
+					callback.onFailure();
+				}
+			};
 		}
 	}
 }

@@ -31,6 +31,14 @@ public interface ICommand {
 	}
 
 
+	public interface ICommand1_1<R>
+		extends ICommand {
+
+		R invoke()
+			throws Exception;
+	}
+
+
 	/**
 	 * A {@link ICommand command} implementation that supports having a Data Transfer Object (dto) passed in at execution time.
 	 * The containing {@link ILink link} is responsible for providing the dto to the command at the time it is invoked.
@@ -53,6 +61,14 @@ public interface ICommand {
 	}
 
 
+	public interface ICommand2_1<T, R>
+		extends ICommand {
+
+		R invoke(T dto)
+			throws Exception;
+	}
+
+
 	/**
 	 * A {@link ICommand command} implementation that supports returning another command instance that should
 	 * be run immediately upon this commands successful completion.
@@ -66,7 +82,7 @@ public interface ICommand {
 	 *
 	 */
 	public interface ICommand3<T>
-		extends ICommand {
+		extends ICommand2_1<T, ICommand> {
 
 		/**
 		 * invoke this command, optionally returning a {@link ICommand command} to be run upon completion of this
@@ -75,6 +91,14 @@ public interface ICommand {
 		 * @throws Exception
 		 */
 		ICommand invoke(final T dto)
+			throws Exception;
+	}
+
+
+	public interface ICommand3_0
+		extends ICommand1_1<ICommand> {
+
+		ICommand invoke()
 			throws Exception;
 	}
 
@@ -96,5 +120,13 @@ public interface ICommand {
 		 */
 		void undo()
 			throws Exception;
+	}
+
+
+	public interface ICommandCallback {
+		void onSuccess();
+
+
+		void onFailure(/*Exception e*/);
 	}
 }

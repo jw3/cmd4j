@@ -131,6 +131,16 @@ public enum Tests {
 		private T value;
 
 
+		public static <T> Variable<T> create() {
+			return new Variable<T>();
+		}
+
+
+		public static <T> Variable<T> create(final T value) {
+			return new Variable<T>(value);
+		}
+
+
 		public Variable() {
 		}
 

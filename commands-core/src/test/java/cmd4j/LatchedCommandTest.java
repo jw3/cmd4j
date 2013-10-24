@@ -26,7 +26,7 @@ public class LatchedCommandTest {
 		final StringBuilder buffer = new StringBuilder();
 
 		final IChain chain = Chains.builder().add(Say.what("0", buffer)).add(Commands.waitFor(latch)).add(Say.what("2", buffer)).build();
-		final IChain chain2 = Chains.builder().add(Commands.waitFor(1000)).add(Say.what("1", buffer)).add(Commands.countDown(latch)).build();
+		final IChain chain2 = Chains.builder().add(Commands.waitFor(100)).add(Say.what("1", buffer)).add(Commands.countDown(latch)).build();
 		final Future<Void> f = Chains.submit(chain, Service.multi1.executor());
 		Chains.submit(chain2, Service.multi1.executor());
 		f.get();
