@@ -1,14 +1,13 @@
 package cmd4j;
 
-import static cmd4j.testing.Tests.is;
+import static cmd4j.testing.Does.is;
 
 import java.io.StringWriter;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import cmd4j.Chains;
-import cmd4j.testing.Say;
+import cmd4j.testing.Says;
 
 /**
  * Test a variety of different dto usages
@@ -16,7 +15,7 @@ import cmd4j.testing.Say;
  * @author wassj
  *
  */
-public class TestDtoOverrides {
+public class DtoOverridesTest {
 
 	/**
 	 * test to ensure that the dto that was passed to the chain matches the command dto
@@ -89,7 +88,7 @@ public class TestDtoOverrides {
 		throws Exception {
 
 		final StringWriter writer = new StringWriter();
-		Chains.builder().add(Say.dto(writer)).add(Say.dto(writer)).dto("1").add(Say.dto(writer)).build().invoke("0");
+		Chains.builder().add(Says.dto(writer)).add(Says.dto(writer)).dto("1").add(Says.dto(writer)).build().invoke("0");
 		Assert.assertEquals(writer.toString(), "010");
 	}
 }

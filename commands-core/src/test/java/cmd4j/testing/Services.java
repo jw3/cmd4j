@@ -16,7 +16,7 @@ import cmd4j.Executors2;
  * @author wassj
  *
  */
-public enum Service implements IService {
+public enum Services implements IService {
 	t1(Mode.SINGLE),
 	t2(Mode.SINGLE),
 	multi1(Mode.MULTI),
@@ -33,13 +33,13 @@ public enum Service implements IService {
 	private ExecutorService executor;
 
 
-	private Service(final ExecutorService executor) {
+	private Services(final ExecutorService executor) {
 		this(Mode.PROVIDED);
 		this.executor = executor;
 	}
 
 
-	private Service(final Mode mode) {
+	private Services(final Mode mode) {
 		this.mode = mode;
 	}
 
@@ -58,7 +58,7 @@ public enum Service implements IService {
 
 
 	public static void shutdown() {
-		for (Service t : Service.values()) {
+		for (Services t : Services.values()) {
 			t.executor.shutdownNow();
 		}
 	}

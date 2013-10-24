@@ -2,11 +2,8 @@ package cmd4j;
 
 import org.testng.annotations.Test;
 
-import cmd4j.Chains;
-import cmd4j.Executors2;
-import cmd4j.IChain;
-import cmd4j.testing.AssertThread;
-import cmd4j.testing.Service;
+import cmd4j.testing.Asserts;
+import cmd4j.testing.Services;
 
 /**
  *
@@ -24,7 +21,7 @@ public class ChainThreadSpecificationTest {
 	public void trivialEdtExecutionTest()
 		throws Exception {
 
-		Chains.builder().add(AssertThread.isEDT()).executor(Service.edt.executor()).build().invoke();
+		Chains.builder().add(Asserts.isEDT()).executor(Services.edt.executor()).build().invoke();
 	}
 
 
@@ -34,11 +31,11 @@ public class ChainThreadSpecificationTest {
 
 		Chains.builder()
 		//
-			.add(AssertThread.isEDT())
-			.executor(Service.edt.executor())
+			.add(Asserts.isEDT())
+			.executor(Services.edt.executor())
 			//
-			.add(AssertThread.is(Service.t1))
-			.executor(Service.t1.executor())
+			.add(Asserts.is(Services.t1))
+			.executor(Services.t1.executor())
 			//
 			.build()
 			.invoke();
@@ -53,7 +50,7 @@ public class ChainThreadSpecificationTest {
 	public void unspecifiedExecutorChainRunsOnSameThread()
 		throws Exception {
 
-		Chains.builder().add(AssertThread.isCurrent()).build().invoke();
+		Chains.builder().add(Asserts.isCurrent()).build().invoke();
 	}
 
 
@@ -66,16 +63,16 @@ public class ChainThreadSpecificationTest {
 		throws Exception {
 
 		Chains.builder()//
-			.add(AssertThread.is(Service.t1))
-			.executor(Service.t1.executor())
+			.add(Asserts.is(Services.t1))
+			.executor(Services.t1.executor())
 
-			.add(AssertThread.isCurrent())
-			.executor(Service.edt.executor())
+			.add(Asserts.isCurrent())
+			.executor(Services.edt.executor())
 
-			.add(AssertThread.is(Service.t2))
-			.executor(Service.t2.executor())
+			.add(Asserts.is(Services.t2))
+			.executor(Services.t2.executor())
 
-			.add(AssertThread.isCurrent())
+			.add(Asserts.isCurrent())
 
 			.build()
 			.invoke();
@@ -90,7 +87,7 @@ public class ChainThreadSpecificationTest {
 	public void unspecifiedRunsOnChainThread1()
 		throws Exception {
 
-		Chains.submit(Chains.builder().add(AssertThread.is(Service.t1)).build(), Service.t1.executor());
+		Chains.submit(Chains.builder().add(Asserts.is(Services.t1)).build(), Services.t1.executor());
 	}
 
 
@@ -103,15 +100,15 @@ public class ChainThreadSpecificationTest {
 		throws Exception {
 
 		final IChain chain = Chains.builder()//
-			.add(AssertThread.is(Service.t1))
+			.add(Asserts.is(Services.t1))
 
-			.add(AssertThread.isEDT())
-			.executor(Service.edt.executor())
+			.add(Asserts.isEDT())
+			.executor(Services.edt.executor())
 
-			.add(AssertThread.is(Service.t1))
+			.add(Asserts.is(Services.t1))
 
 			.build();
-		Chains.submit(chain, Service.t1.executor());
+		Chains.submit(chain, Services.t1.executor());
 	}
 
 
@@ -121,11 +118,11 @@ public class ChainThreadSpecificationTest {
 
 		final IChain chain = Chains.builder()
 		//
-			.add(AssertThread.isCurrent())
+			.add(Asserts.isCurrent())
 
-			.add(AssertThread.isCurrent())
+			.add(Asserts.isCurrent())
 
-			.add(AssertThread.isCurrent())
+			.add(Asserts.isCurrent())
 
 			.build();
 		Chains.submit(chain, Executors2.sameThreadExecutor());
@@ -138,14 +135,14 @@ public class ChainThreadSpecificationTest {
 
 		final IChain chain = Chains.builder()
 		//
-			.add(AssertThread.isEDT())
+			.add(Asserts.isEDT())
 
-			.add(AssertThread.isEDT())
+			.add(Asserts.isEDT())
 
-			.add(AssertThread.isEDT())
+			.add(Asserts.isEDT())
 
 			.build();
-		Chains.submit(chain, Service.edt.executor());
+		Chains.submit(chain, Services.edt.executor());
 	}
 
 
@@ -155,14 +152,14 @@ public class ChainThreadSpecificationTest {
 
 		final IChain chain = Chains.builder()
 		//
-			.add(AssertThread.is(Service.edt))
+			.add(Asserts.is(Services.edt))
 
-			.add(AssertThread.is(Service.edt))
+			.add(Asserts.is(Services.edt))
 
-			.add(AssertThread.is(Service.edt))
+			.add(Asserts.is(Services.edt))
 
 			.build();
-		Chains.submit(chain, Service.edt.executor());
+		Chains.submit(chain, Services.edt.executor());
 	}
 
 
@@ -172,15 +169,15 @@ public class ChainThreadSpecificationTest {
 
 		final IChain chain = Chains.builder()
 		//
-			.add(AssertThread.isCurrent())
+			.add(Asserts.isCurrent())
 
-			.add(AssertThread.isEDT())
-			.executor(Service.edt.executor())
+			.add(Asserts.isEDT())
+			.executor(Services.edt.executor())
 
-			.add(AssertThread.isCurrent())
+			.add(Asserts.isCurrent())
 
-			.add(AssertThread.is(Service.t1))
-			.executor(Service.t1.executor())
+			.add(Asserts.is(Services.t1))
+			.executor(Services.t1.executor())
 
 			.build();
 		Chains.submit(chain, Executors2.sameThreadExecutor());

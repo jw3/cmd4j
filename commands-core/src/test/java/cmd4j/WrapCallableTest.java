@@ -4,10 +4,8 @@ import java.util.concurrent.Callable;
 
 import org.testng.annotations.Test;
 
-import cmd4j.Chains;
-import cmd4j.Commands;
-import cmd4j.testing.AssertCommands;
-import cmd4j.testing.Tests.Variable;
+import cmd4j.testing.Asserts;
+import cmd4j.testing.Does.Variable;
 
 /**
  *
@@ -23,11 +21,11 @@ public class WrapCallableTest {
 
 		final Variable<Integer> var = new Variable<Integer>(0);
 		Chains.builder() //
-			.add(AssertCommands.assertEquals(var, 0))
+			.add(Asserts.isEquals(var, 0))
 			.add(Commands.callable(new IncrementVariable(var)))
-			.add(AssertCommands.assertEquals(var, 1))
+			.add(Asserts.isEquals(var, 1))
 			.add(Commands.callable(new IncrementVariable(var)))
-			.add(AssertCommands.assertEquals(var, 2))
+			.add(Asserts.isEquals(var, 2))
 			.build()
 			.invoke();
 	}

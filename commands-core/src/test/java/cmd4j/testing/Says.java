@@ -12,29 +12,29 @@ import cmd4j.ICommand.ICommand2;
  * @author wassj
  *
  */
-abstract public class Say
+abstract public class Says
 	implements ICommand2 {
 
 	public interface ISayFactory {
 		String toString();
 
 
-		Say nothing();
+		Says nothing();
 
 
-		Say dto();
+		Says dto();
 
 
-		Say threadDto();
+		Says threadDto();
 
 
-		Say thread();
+		Says thread();
 
 
-		Say what(Object what);
+		Says what(Object what);
 
 
-		Say boom();
+		Says boom();
 	}
 
 
@@ -43,16 +43,16 @@ abstract public class Say
 	}
 
 
-	public static Say nothing() {
-		return new Say() {
+	public static Says nothing() {
+		return new Says() {
 			public void invoke(final Object dto) {
 			}
 		};
 	}
 
 
-	public static Say dto(final Writer... into) {
-		return new Say() {
+	public static Says dto(final Writer... into) {
+		return new Says() {
 			public void invoke(final Object dto)
 				throws Exception {
 
@@ -69,8 +69,8 @@ abstract public class Say
 	}
 
 
-	public static Say threadDto(final Writer... into) {
-		return new Say() {
+	public static Says threadDto(final Writer... into) {
+		return new Says() {
 			public void invoke(final Object dto)
 				throws IOException {
 
@@ -93,8 +93,8 @@ abstract public class Say
 	}
 
 
-	public static Say thread(final Writer... into) {
-		return new Say() {
+	public static Says thread(final Writer... into) {
+		return new Says() {
 			public void invoke(final Object dto)
 				throws IOException {
 
@@ -114,8 +114,8 @@ abstract public class Say
 	}
 
 
-	public static Say what(final Object toSay, final Object... into) {
-		return new Say() {
+	public static Says what(final Object toSay, final Object... into) {
+		return new Says() {
 			public void invoke(final Object dto)
 				throws IOException {
 
@@ -144,8 +144,8 @@ abstract public class Say
 	}
 
 
-	public static Say boom() {
-		return new Say() {
+	public static Says boom() {
+		return new Says() {
 			public void invoke(final Object dto)
 				throws Exception {
 
@@ -166,33 +166,33 @@ abstract public class Say
 		private final StringWriter writer = new StringWriter();
 
 
-		public Say what(final Object what) {
-			return Say.what(what, writer);
+		public Says what(final Object what) {
+			return Says.what(what, writer);
 		}
 
 
-		public Say threadDto() {
-			return Say.thread(writer);
+		public Says threadDto() {
+			return Says.thread(writer);
 		}
 
 
-		public Say thread() {
-			return Say.thread(writer);
+		public Says thread() {
+			return Says.thread(writer);
 		}
 
 
-		public Say nothing() {
-			return Say.nothing();
+		public Says nothing() {
+			return Says.nothing();
 		}
 
 
-		public Say dto() {
-			return Say.dto(writer);
+		public Says dto() {
+			return Says.dto(writer);
 		}
 
 
-		public Say boom() {
-			return Say.boom();
+		public Says boom() {
+			return Says.boom();
 		}
 
 

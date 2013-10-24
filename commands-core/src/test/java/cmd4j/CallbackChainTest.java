@@ -1,13 +1,13 @@
 package cmd4j;
 
-import static cmd4j.testing.Tests.is;
-import static cmd4j.testing.Tests.toggle;
-import static cmd4j.testing.Tests.var;
+import static cmd4j.testing.Does.is;
+import static cmd4j.testing.Does.toggle;
+import static cmd4j.testing.Does.var;
 
 import org.testng.annotations.Test;
 
-import cmd4j.testing.Say;
-import cmd4j.testing.Tests.Variable;
+import cmd4j.testing.Does.Variable;
+import cmd4j.testing.Says;
 
 /**
  * Test the {@link IDoneCallback} functionality
@@ -30,7 +30,7 @@ public class CallbackChainTest {
 	@Test
 	public void testOnSuccessHandlerWithFailure() {
 		final Variable<Boolean> v = var(false);
-		final IChain chain = Chains.create(Commands.observable(Chains.create(Say.boom())).onSuccess(toggle(v)));
+		final IChain chain = Chains.create(Commands.observable(Chains.create(Says.boom())).onSuccess(toggle(v)));
 		try {
 			chain.invoke();
 		}
@@ -46,7 +46,7 @@ public class CallbackChainTest {
 	@Test
 	public void testOnFailureHandler() {
 		final Variable<Boolean> v = var(false);
-		final IChain chain = Chains.create(Commands.observable(Chains.builder().add(Say.boom()).build()).onFailure(toggle(v)));
+		final IChain chain = Chains.create(Commands.observable(Chains.builder().add(Says.boom()).build()).onFailure(toggle(v)));
 		try {
 			chain.invoke();
 		}
@@ -103,7 +103,7 @@ public class CallbackChainTest {
 	@Test
 	public void testAfterWithFailure() {
 		final Variable<Boolean> v = var(false);
-		final IChain chain = Chains.create(Commands.observable(Chains.builder().add(is(v, false)).add(Say.boom()).build()).after(toggle(v)));
+		final IChain chain = Chains.create(Commands.observable(Chains.builder().add(is(v, false)).add(Says.boom()).build()).after(toggle(v)));
 		try {
 			chain.invoke();
 		}

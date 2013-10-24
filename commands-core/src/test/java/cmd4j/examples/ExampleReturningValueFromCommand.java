@@ -3,7 +3,7 @@ package cmd4j.examples;
 import cmd4j.Chains;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
-import cmd4j.testing.Say;
+import cmd4j.testing.Says;
 
 /**
  *
@@ -17,7 +17,7 @@ public class ExampleReturningValueFromCommand {
 		throws Exception {
 
 		final Returns<Integer> result = new Returns<Integer>();
-		Chains.builder().add(add(1, 2, result)).add(Say.what(result)).build().invoke();
+		Chains.builder().add(add(1, 2, result)).add(Says.what(result)).build().invoke();
 	}
 
 

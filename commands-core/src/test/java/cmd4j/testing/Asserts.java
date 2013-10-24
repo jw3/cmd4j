@@ -3,6 +3,7 @@ package cmd4j.testing;
 import org.testng.Assert;
 
 import cmd4j.ICommand;
+import cmd4j.testing.Does.Variable;
 
 /**
  * Utility factory class for making assertions about what thread a given point in a chain is executing on
@@ -10,7 +11,7 @@ import cmd4j.ICommand;
  * @author wassj
  *
  */
-public class AssertThread
+public class Asserts
 	implements ICommand {
 
 	private final Thread expected;
@@ -20,23 +21,32 @@ public class AssertThread
 	 * Assert that the thread that creates this assertion will also execute it
 	 * @return
 	 */
-	public static AssertThread isCurrent() {
-		return new AssertThread(Thread.currentThread());
+	public static Asserts isCurrent() {
+		return new Asserts(Thread.currentThread());
 	}
 
 
 	/**
 	 * Assert that the passed thread is used to execute this assertion
 	 */
-	public static AssertThread is(final Thread thread) {
-		return new AssertThread(thread);
+	public static Asserts is(final Thread thread) {
+		return new Asserts(thread);
 	}
 
 
-	public static AssertThread is(final IService service) {
-		return new AssertThread() {
+	public static Asserts is(final IService service) {
+		return new Asserts() {
 			public void invoke() {
 				Assert.assertTrue(service.isOwnerOfCurrentThread(), "expected to be run on " + service.name() + ", was run on " + Thread.currentThread().getName());
+			}
+		};
+	}
+
+
+	public static <T> ICommand isEquals(final Variable<T> var, final T val) {
+		return new ICommand1() {
+			public void invoke() {
+				Assert.assertEquals(val, var.getValue());
 			}
 		};
 	}
@@ -45,8 +55,8 @@ public class AssertThread
 	/**
 	 * Assert that this assertion is run on the Event Dispatch Thread 
 	 */
-	public static AssertThread isEDT() {
-		return is(Service.edt);
+	public static Asserts isEDT() {
+		return is(Services.edt);
 	}
 
 
@@ -61,12 +71,12 @@ public class AssertThread
 	}
 
 
-	AssertThread() {
+	Asserts() {
 		this.expected = null;
 	}
 
 
-	AssertThread(final Thread thread) {
+	Asserts(final Thread thread) {
 		this.expected = thread;
 	}
 

@@ -3,22 +3,21 @@ package cmd4j;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import cmd4j.Chains;
-import cmd4j.testing.Say;
-import cmd4j.testing.Say.ISayFactory;
-import cmd4j.testing.Service;
+import cmd4j.testing.Says;
+import cmd4j.testing.Says.ISayFactory;
+import cmd4j.testing.Services;
 
 /**
  * @author wassj
  *
  */
-public class TestSimpleBuilding {
+public class SimpleBuildingTest {
 
 	@Test
 	public void firstTest()
 		throws Exception {
 
-		Chains.builder().add(Say.what("hello")).executor(Service.edt.executor()).add(Say.what("world")).executor(Service.t2.executor()).add(Say.what("!")).executor(Service.t1.executor()).build().invoke();
+		Chains.builder().add(Says.what("hello")).executor(Services.edt.executor()).add(Says.what("world")).executor(Services.t2.executor()).add(Says.what("!")).executor(Services.t1.executor()).build().invoke();
 	}
 
 
@@ -26,7 +25,7 @@ public class TestSimpleBuilding {
 	public void building1()
 		throws Exception {
 
-		final ISayFactory say = Say.factory();
+		final ISayFactory say = Says.factory();
 		Chains.builder().add(say.what("success")).build().invoke();
 		Assert.assertEquals(say.toString(), "success");
 	}
@@ -36,7 +35,7 @@ public class TestSimpleBuilding {
 	public void building2()
 		throws Exception {
 
-		final ISayFactory say = Say.factory();
+		final ISayFactory say = Says.factory();
 		Chains.builder().add(say.what("succ")).add(say.what("ess")).build().invoke();
 		Assert.assertEquals(say.toString(), "success");
 	}
@@ -46,19 +45,19 @@ public class TestSimpleBuilding {
 	public void buildingOnDifferentExecutors()
 		throws Exception {
 
-		final ISayFactory say = Say.factory();
+		final ISayFactory say = Says.factory();
 		Chains.builder()//
 			.add(say.what("1"))
-			.executor(Service.t1.executor())
+			.executor(Services.t1.executor())
 
 			.add(say.what("2"))
-			.executor(Service.t2.executor())
+			.executor(Services.t2.executor())
 
 			.add(say.what("3"))
-			.executor(Service.multi1.executor())
+			.executor(Services.multi1.executor())
 
 			.add(say.what("4"))
-			.executor(Service.edt.executor())
+			.executor(Services.edt.executor())
 
 			.build()
 			.invoke();

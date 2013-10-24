@@ -6,8 +6,8 @@ import cmd4j.Chains;
 import cmd4j.Commands;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
-import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommand2;
+import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.ICommand.IUndo;
 
@@ -17,7 +17,7 @@ import cmd4j.ICommand.IUndo;
  * @author wassj
  *
  */
-public enum Tests {
+public enum Does {
 	/*singleton-enum*/;
 
 	public static ICommand invoked(final Variable<Boolean> called) {

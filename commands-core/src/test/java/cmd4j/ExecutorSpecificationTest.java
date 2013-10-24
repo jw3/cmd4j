@@ -5,12 +5,10 @@ import java.util.concurrent.ExecutorService;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import cmd4j.Chains;
-import cmd4j.IChain;
 import cmd4j.testing.IService;
-import cmd4j.testing.Say;
-import cmd4j.testing.Say.ISayFactory;
-import cmd4j.testing.Service;
+import cmd4j.testing.Says;
+import cmd4j.testing.Says.ISayFactory;
+import cmd4j.testing.Services;
 
 /**
  * Test a variety of different {@link ExecutorService executor} usages
@@ -18,12 +16,12 @@ import cmd4j.testing.Service;
  * @author wassj
  *
  */
-public class TestExecutorSpecification {
+public class ExecutorSpecificationTest {
 
 	@Test
 	public void test()
 		throws Exception {
-		Chains.builder().add(Say.what(1)).add(Say.what("...")).executor(Service.t1.executor()).add(Say.what(2)).build().invoke("mississippi");
+		Chains.builder().add(Says.what(1)).add(Says.what("...")).executor(Services.t1.executor()).add(Says.what(2)).build().invoke("mississippi");
 	}
 
 
@@ -31,7 +29,7 @@ public class TestExecutorSpecification {
 	public void testUnspecifiedLinkExecutor()
 		throws Exception {
 
-		final ISayFactory say = Say.factory();
+		final ISayFactory say = Says.factory();
 		Chains.builder().add(say.thread()).build().invoke();
 		Assert.assertEquals(say.toString(), name());
 	}
@@ -41,9 +39,9 @@ public class TestExecutorSpecification {
 	public void testLinkExecutor()
 		throws Exception {
 
-		final ISayFactory say = Say.factory();
-		Chains.builder().add(say.thread()).executor(Service.t1.executor()).build().invoke();
-		Assert.assertEquals(say.toString(), name(Service.t1));
+		final ISayFactory say = Says.factory();
+		Chains.builder().add(say.thread()).executor(Services.t1.executor()).build().invoke();
+		Assert.assertEquals(say.toString(), name(Services.t1));
 	}
 
 
@@ -51,18 +49,18 @@ public class TestExecutorSpecification {
 	public void testLinkExecutorX2()
 		throws Exception {
 
-		final ISayFactory say = Say.factory();
+		final ISayFactory say = Says.factory();
 		Chains.builder()//
 			.add(say.thread())
-			.executor(Service.t1.executor())
+			.executor(Services.t1.executor())
 
 			.add(say.thread())
-			.executor(Service.t1.executor())
+			.executor(Services.t1.executor())
 
 			.build()
 			.invoke();
 
-		Assert.assertEquals(say.toString(), name(Service.t1, Service.t1));
+		Assert.assertEquals(say.toString(), name(Services.t1, Services.t1));
 	}
 
 
@@ -70,18 +68,18 @@ public class TestExecutorSpecification {
 	public void testDifferentLinkExecutorX2()
 		throws Exception {
 
-		final ISayFactory say = Say.factory();
+		final ISayFactory say = Says.factory();
 		Chains.builder()//
 			.add(say.thread())
-			.executor(Service.t1.executor())
+			.executor(Services.t1.executor())
 
 			.add(say.thread())
-			.executor(Service.t2.executor())
+			.executor(Services.t2.executor())
 
 			.build()
 			.invoke();
 
-		Assert.assertEquals(say.toString(), name(Service.t1, Service.t2));
+		Assert.assertEquals(say.toString(), name(Services.t1, Services.t2));
 	}
 
 
@@ -89,10 +87,10 @@ public class TestExecutorSpecification {
 	public void testChainExecutor()
 		throws Exception {
 
-		final ISayFactory say = Say.factory();
+		final ISayFactory say = Says.factory();
 		final IChain chain = Chains.builder().add(say.thread()).build();
-		Chains.submit(chain, Service.t1.executor()).get();
-		Assert.assertEquals(say.toString(), name(Service.t1));
+		Chains.submit(chain, Services.t1.executor()).get();
+		Assert.assertEquals(say.toString(), name(Services.t1));
 	}
 
 
@@ -100,17 +98,17 @@ public class TestExecutorSpecification {
 	public void testChainExecutorWithLinkOverride()
 		throws Exception {
 
-		final ISayFactory say = Say.factory();
+		final ISayFactory say = Says.factory();
 		final IChain chain = Chains.builder()//
 			.add(say.thread())
 			//.executor(provided by the chain)
 
 			.add(say.thread())
-			.executor(Service.t2.executor())
+			.executor(Services.t2.executor())
 			.build();
 
-		Chains.submit(chain, Service.t1.executor()).get();
-		Assert.assertEquals(say.toString(), name(Service.t1, Service.t2));
+		Chains.submit(chain, Services.t1.executor()).get();
+		Assert.assertEquals(say.toString(), name(Services.t1, Services.t2));
 	}
 
 
@@ -118,12 +116,12 @@ public class TestExecutorSpecification {
 	public void testMultipleChains()
 		throws Exception {
 
-		final ISayFactory say = Say.factory();
+		final ISayFactory say = Says.factory();
 		final IChain a = Chains.builder().add(say.thread()).build();
 		final IChain b = Chains.builder().add(say.thread()).build();
 		Chains.builder().add(a).add(b).build().invoke();
 
-		Assert.assertEquals(say.toString(), name(Service.current(), Service.current()));
+		Assert.assertEquals(say.toString(), name(Services.current(), Services.current()));
 	}
 
 
@@ -131,14 +129,14 @@ public class TestExecutorSpecification {
 	public void testMultipleChainsMakeCompositeThreaded()
 		throws Exception {
 
-		final ISayFactory say = Say.factory();
+		final ISayFactory say = Says.factory();
 		final IChain a = Chains.builder().add(say.thread()).build();
 		final IChain b = Chains.builder().add(say.thread()).build();
 		final IChain c = Chains.builder().add(a).add(b).build();
 
-		Chains.submit(c, Service.t1.executor()).get();
+		Chains.submit(c, Services.t1.executor()).get();
 
-		Assert.assertEquals(say.toString(), name(Service.t1, Service.t1));
+		Assert.assertEquals(say.toString(), name(Services.t1, Services.t1));
 	}
 
 
@@ -146,14 +144,14 @@ public class TestExecutorSpecification {
 	public void testMultipleChainsMakeCompositeThreadedWhileOverriddingOneLink()
 		throws Exception {
 
-		final ISayFactory say = Say.factory();
+		final ISayFactory say = Says.factory();
 		final IChain a = Chains.builder().add(say.thread()).build();
-		final IChain b = Chains.builder().add(say.thread()).executor(Service.t2.executor()).build();
+		final IChain b = Chains.builder().add(say.thread()).executor(Services.t2.executor()).build();
 		final IChain c = Chains.builder().add(a).add(b).build();
 
-		Chains.submit(c, Service.t1.executor()).get();
+		Chains.submit(c, Services.t1.executor()).get();
 
-		Assert.assertEquals(say.toString(), name(Service.t1, Service.t2));
+		Assert.assertEquals(say.toString(), name(Services.t1, Services.t2));
 	}
 
 
@@ -161,12 +159,12 @@ public class TestExecutorSpecification {
 	public void testMultipleChainsOverideOne()
 		throws Exception {
 
-		final ISayFactory say = Say.factory();
+		final ISayFactory say = Says.factory();
 		final IChain a = Chains.builder().add(say.thread()).build();
 		final IChain b = Chains.builder().add(say.thread()).build();
-		Chains.builder().add(a).executor(Service.t1.executor()).add(b).build().invoke();
+		Chains.builder().add(a).executor(Services.t1.executor()).add(b).build().invoke();
 
-		Assert.assertEquals(say.toString(), name(Service.t1, Service.current()));
+		Assert.assertEquals(say.toString(), name(Services.t1, Services.current()));
 	}
 
 
@@ -184,7 +182,7 @@ public class TestExecutorSpecification {
 			}
 		}
 		else {
-			buffer.append(Service.current().name());
+			buffer.append(Services.current().name());
 		}
 		return buffer.toString();
 	}

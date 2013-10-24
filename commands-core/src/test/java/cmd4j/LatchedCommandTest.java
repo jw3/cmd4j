@@ -7,8 +7,8 @@ import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
-import cmd4j.testing.Say;
-import cmd4j.testing.Service;
+import cmd4j.testing.Says;
+import cmd4j.testing.Services;
 
 /**
  *
@@ -25,10 +25,10 @@ public class LatchedCommandTest {
 		final CountDownLatch latch = new CountDownLatch(1);
 		final StringBuilder buffer = new StringBuilder();
 
-		final IChain chain = Chains.builder().add(Say.what("0", buffer)).add(Commands.waitFor(latch)).add(Say.what("2", buffer)).build();
-		final IChain chain2 = Chains.builder().add(Commands.waitFor(100)).add(Say.what("1", buffer)).add(Commands.countDown(latch)).build();
-		final Future<Void> f = Chains.submit(chain, Service.multi1.executor());
-		Chains.submit(chain2, Service.multi1.executor());
+		final IChain chain = Chains.builder().add(Says.what("0", buffer)).add(Commands.waitFor(latch)).add(Says.what("2", buffer)).build();
+		final IChain chain2 = Chains.builder().add(Commands.waitFor(100)).add(Says.what("1", buffer)).add(Commands.countDown(latch)).build();
+		final Future<Void> f = Chains.submit(chain, Services.multi1.executor());
+		Chains.submit(chain2, Services.multi1.executor());
 		f.get();
 
 		final String result = buffer.toString();

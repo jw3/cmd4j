@@ -1,9 +1,9 @@
 package cmd4j.examples;
 
 import cmd4j.Chains;
-import cmd4j.IChain;
 import cmd4j.Chains.ChainBuilder;
-import cmd4j.testing.Say;
+import cmd4j.IChain;
+import cmd4j.testing.Says;
 
 /**
  *
@@ -25,9 +25,9 @@ public class TestHowReadableStackTracesAre {
 
 	private IChain recurse(ChainBuilder parent, int count, int max) {
 		if (++count < max) {
-			final IChain chain = recurse(Chains.builder().add(Say.what(String.valueOf(count))), count, max);
+			final IChain chain = recurse(Chains.builder().add(Says.what(String.valueOf(count))), count, max);
 			parent.add(chain);
 		}
-		return parent.add(Say.boom()).build();
+		return parent.add(Says.boom()).build();
 	}
 }

@@ -7,9 +7,9 @@ import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
-import cmd4j.testing.Say;
-import cmd4j.testing.Tests;
-import cmd4j.testing.Tests.Variable;
+import cmd4j.testing.Does;
+import cmd4j.testing.Does.Variable;
+import cmd4j.testing.Says;
 
 /**
  *
@@ -26,7 +26,7 @@ public class CallbackCommandTest {
 		final Variable<String> called = Variable.create();
 		final String value = UUID.randomUUID().toString().substring(0, 6);
 
-		final ICommand command = Commands.observable(Tests.returns(value)).results(Tests.set(called));
+		final ICommand command = Commands.observable(Does.returns(value)).results(Does.set(called));
 
 		Commands.execute(command);
 		called.assertEquals(value);
@@ -38,7 +38,7 @@ public class CallbackCommandTest {
 		throws Exception {
 
 		final Variable<Boolean> called = Variable.create(false);
-		final ICommand command = Commands.observable(Commands.nop()).onSuccess(Tests.set(called, true));
+		final ICommand command = Commands.observable(Commands.nop()).onSuccess(Does.set(called, true));
 		Commands.execute(command);
 		called.assertEquals(true);
 	}
@@ -47,7 +47,7 @@ public class CallbackCommandTest {
 	@Test
 	public void onFailure() {
 		final Variable<Boolean> called = Variable.create(false);
-		final ICommand command = Commands.observable(Say.boom()).onFailure(Tests.set(called, true));
+		final ICommand command = Commands.observable(Says.boom()).onFailure(Does.set(called, true));
 		try {
 			Commands.execute(command);
 		}

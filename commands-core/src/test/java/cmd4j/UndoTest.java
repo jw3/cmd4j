@@ -2,8 +2,8 @@ package cmd4j;
 
 import org.testng.annotations.Test;
 
-import cmd4j.testing.Tests;
-import cmd4j.testing.Tests.Variable;
+import cmd4j.testing.Does;
+import cmd4j.testing.Does.Variable;
 
 /**
  *
@@ -17,9 +17,9 @@ public class UndoTest {
 	public void test()
 		throws Exception {
 
-		final Variable<Boolean> var = Tests.var(true);
+		final Variable<Boolean> var = Does.var(true);
 
-		final IChain chain = Chains.builder().add(Tests.undoableSet(var, false)).build();
+		final IChain chain = Chains.builder().add(Does.undoableSet(var, false)).build();
 		chain.invoke();
 		var.assertEquals(false);
 

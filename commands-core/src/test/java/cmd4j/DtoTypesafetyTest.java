@@ -1,16 +1,12 @@
 package cmd4j;
 
-import static cmd4j.testing.Tests.invoked;
-import static cmd4j.testing.Tests.is;
-import static cmd4j.testing.Tests.var;
+import static cmd4j.testing.Does.invoked;
+import static cmd4j.testing.Does.is;
+import static cmd4j.testing.Does.var;
 
 import org.testng.annotations.Test;
 
-import cmd4j.Chains;
-import cmd4j.Commands;
-import cmd4j.IChain;
-import cmd4j.ICommand;
-import cmd4j.testing.Tests.Variable;
+import cmd4j.testing.Does.Variable;
 
 /**
  * Ensure that a DTO does not end up being passed to a {@link ICommand} that will not accept it.

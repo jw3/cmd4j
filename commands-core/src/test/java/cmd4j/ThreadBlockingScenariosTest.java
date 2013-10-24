@@ -7,14 +7,12 @@ import java.util.concurrent.TimeoutException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import cmd4j.Chains;
-import cmd4j.IChain;
-import cmd4j.testing.AssertThread;
+import cmd4j.testing.Asserts;
+import cmd4j.testing.Does;
+import cmd4j.testing.Does.Variable;
 import cmd4j.testing.IService;
-import cmd4j.testing.Service;
-import cmd4j.testing.Service.Mode;
-import cmd4j.testing.Tests;
-import cmd4j.testing.Tests.Variable;
+import cmd4j.testing.Services;
+import cmd4j.testing.Services.Mode;
 
 /**
  * A test of thread blocking scenarios
@@ -30,7 +28,7 @@ import cmd4j.testing.Tests.Variable;
  * @author wassj
  *
  */
-public class TestThreadBlockingScenarios {
+public class ThreadBlockingScenariosTest {
 
 	// #1
 	@Test
@@ -39,8 +37,8 @@ public class TestThreadBlockingScenarios {
 
 		final Variable<Boolean> var = new Variable<Boolean>();
 		Chains.builder()//
-			.add(AssertThread.is(Service.t1))
-			.add(Tests.set(var, true))
+			.add(Asserts.is(Services.t1))
+			.add(Does.set(var, true))
 			.build()
 			.invoke();
 
@@ -55,10 +53,10 @@ public class TestThreadBlockingScenarios {
 
 		final Variable<Boolean> var = new Variable<Boolean>();
 		final IChain chain = Chains.builder()//
-			.add(AssertThread.is(Service.t1))
-			.add(Tests.set(var, true))
+			.add(Asserts.is(Services.t1))
+			.add(Does.set(var, true))
 			.build();
-		Chains.submit(chain, Service.t1.executor()).get();
+		Chains.submit(chain, Services.t1.executor()).get();
 
 		var.assertEquals(true);
 	}
@@ -75,8 +73,8 @@ public class TestThreadBlockingScenarios {
 				throws Exception {
 
 				Chains.builder()//
-					.add(AssertThread.is(Service.t1))
-					.add(Tests.set(var, true))
+					.add(Asserts.is(Services.t1))
+					.add(Does.set(var, true))
 					.build()
 					.invoke();
 
@@ -86,7 +84,7 @@ public class TestThreadBlockingScenarios {
 			}
 		};
 
-		Service.t1.executor().submit(runChain).get();
+		Services.t1.executor().submit(runChain).get();
 		var.assertEquals(true);
 	}
 
@@ -102,10 +100,10 @@ public class TestThreadBlockingScenarios {
 				throws Exception {
 
 				final IChain chain = Chains.builder()//
-					.add(AssertThread.is(Service.t1))
-					.add(Tests.set(var, true))
+					.add(Asserts.is(Services.t1))
+					.add(Does.set(var, true))
 					.build();
-				Chains.submit(chain, Service.t1.executor()).get();
+				Chains.submit(chain, Services.t1.executor()).get();
 
 				Assert.assertEquals(var.getValue(), Boolean.TRUE);
 
@@ -113,7 +111,7 @@ public class TestThreadBlockingScenarios {
 			}
 		};
 
-		Service.t2.executor().submit(runChain).get();
+		Services.t2.executor().submit(runChain).get();
 		var.assertEquals(true);
 	}
 
@@ -127,7 +125,7 @@ public class TestThreadBlockingScenarios {
 		throws Exception {
 
 		// use a throwaway service here so the exception doesnt blow up any other tests
-		final IService service = Service.create("blockExecutorThread_runOnSameExecutor_SingleThread", Mode.SINGLE);
+		final IService service = Services.create("blockExecutorThread_runOnSameExecutor_SingleThread", Mode.SINGLE);
 
 		final Variable<Boolean> var = new Variable<Boolean>();
 		final Callable<Void> runChain = new Callable<Void>() {
@@ -135,8 +133,8 @@ public class TestThreadBlockingScenarios {
 				throws Exception {
 
 				final IChain chain = Chains.builder()//
-					.add(AssertThread.is(service))
-					.add(Tests.set(var, true))
+					.add(Asserts.is(service))
+					.add(Does.set(var, true))
 					.build();
 				Chains.submit(chain, service.executor()).get();
 
@@ -162,16 +160,16 @@ public class TestThreadBlockingScenarios {
 				throws Exception {
 
 				final IChain chain = Chains.builder()//
-					.add(AssertThread.is(Service.t1))
-					.add(Tests.set(var, true))
+					.add(Asserts.is(Services.t1))
+					.add(Does.set(var, true))
 					.build();
-				Chains.submit(chain, Service.multi1.executor()).get();
+				Chains.submit(chain, Services.multi1.executor()).get();
 
 				return null;
 			}
 		};
 
-		Service.multi1.executor().submit(runChain).get();
+		Services.multi1.executor().submit(runChain).get();
 		var.assertEquals(true);
 	}
 }
