@@ -185,15 +185,14 @@ public interface ICommand {
 	/**
 	 *
 	 * @author wassj
+	 * @param <O>
 	 */
-	public interface IObservableCommand
-		extends ICommand {
-
+	public interface IObservable<O extends IObservable> {
 		/**
 		 * add {@link ICommand commands} that will be invoked prior to execution
 		 * @return the command; decorated as observable
 		 */
-		IObservableCommand before(final ICommand... commands);
+		O before(final ICommand... commands);
 
 
 		/**
@@ -201,7 +200,7 @@ public interface ICommand {
 		 * invocation will occurr regardless of success/failure of the chain
 		 * @return the command; decorated as observable
 		 */
-		IObservableCommand after(final ICommand... listeners);
+		O after(final ICommand... listeners);
 
 
 		/**
@@ -209,14 +208,14 @@ public interface ICommand {
 		 * if the command returned a result that value will be passed as the dto
 		 * @return the command; decorated as observable
 		 */
-		IObservableCommand results(final ICommand... commands);
+		O results(final ICommand... commands);
 
 
 		/**
 		 * add {@link ICommand commands} that will be invoked upon successful completions
 		 * @return the command; decorated as observable
 		 */
-		IObservableCommand onSuccess(final ICommand... commands);
+		O onSuccess(final ICommand... commands);
 
 
 		/**
@@ -224,6 +223,15 @@ public interface ICommand {
 		 * the cause of the failure will be available as the dto to any commands that will accept it
 		 * @return the command; decorated as observable
 		 */
-		IObservableCommand onFailure(final ICommand... commands);
+		O onFailure(final ICommand... commands);
+	}
+
+
+	/**
+	 *
+	 * @author wassj
+	 */
+	public interface IObservableCommand
+		extends IObservable<IObservableCommand>, ICommand {
 	}
 }

@@ -22,7 +22,7 @@ public class CallbackChainTest {
 		throws Exception {
 
 		final Variable<Boolean> v = var(false);
-		Chains.create(Commands.observable(Chains.empty()).onSuccess(toggle(v))).invoke();
+		Chains.observable(Chains.empty()).onSuccess(toggle(v)).invoke();
 		v.assertEquals(true);
 	}
 
@@ -30,7 +30,7 @@ public class CallbackChainTest {
 	@Test
 	public void testOnSuccessHandlerWithFailure() {
 		final Variable<Boolean> v = var(false);
-		final IChain chain = Chains.create(Commands.observable(Chains.create(Says.boom())).onSuccess(toggle(v)));
+		final IChain chain = Chains.observable(Chains.create(Says.boom())).onSuccess(toggle(v));
 		try {
 			chain.invoke();
 		}
@@ -46,7 +46,7 @@ public class CallbackChainTest {
 	@Test
 	public void testOnFailureHandler() {
 		final Variable<Boolean> v = var(false);
-		final IChain chain = Chains.create(Commands.observable(Chains.builder().add(Says.boom()).build()).onFailure(toggle(v)));
+		final IChain chain = Chains.observable(Chains.builder().add(Says.boom()).build()).onFailure(toggle(v));
 		try {
 			chain.invoke();
 		}
@@ -64,7 +64,7 @@ public class CallbackChainTest {
 		throws Exception {
 
 		final Variable<Boolean> v = var(false);
-		Chains.create(Commands.observable(Chains.empty()).onFailure(toggle(v))).invoke();
+		Chains.observable(Chains.empty()).onFailure(toggle(v)).invoke();
 		v.assertEquals(false);
 	}
 
@@ -78,7 +78,7 @@ public class CallbackChainTest {
 		throws Exception {
 
 		final Variable<Boolean> v = var(false);
-		Chains.create(Commands.observable(Chains.builder().add(is(v, true)).build()).before(toggle(v))).invoke();
+		Chains.observable(Chains.builder().add(is(v, true)).build()).before(toggle(v)).invoke();
 	}
 
 
@@ -91,7 +91,7 @@ public class CallbackChainTest {
 		throws Exception {
 
 		final Variable<Boolean> v = var(false);
-		Chains.create(Commands.observable(Chains.builder().add(is(v, false)).build()).after(toggle(v))).invoke();
+		Chains.observable(Chains.builder().add(is(v, false)).build()).after(toggle(v)).invoke();
 		v.assertEquals(true);
 	}
 
@@ -103,7 +103,7 @@ public class CallbackChainTest {
 	@Test
 	public void testAfterWithFailure() {
 		final Variable<Boolean> v = var(false);
-		final IChain chain = Chains.create(Commands.observable(Chains.builder().add(is(v, false)).add(Says.boom()).build()).after(toggle(v)));
+		final IChain chain = Chains.observable(Chains.builder().add(is(v, false)).add(Says.boom()).build()).after(toggle(v));
 		try {
 			chain.invoke();
 		}

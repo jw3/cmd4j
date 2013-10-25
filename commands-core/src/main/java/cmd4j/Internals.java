@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import cmd4j.Chains.ChainBuilder;
+import cmd4j.IChain.IObservableChain;
 import cmd4j.IChain.IReturningChain;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
@@ -85,8 +86,8 @@ enum Internals {
 		}
 
 
-		static IObservableCommand decorator(final ICommand chain) {
-			return chain instanceof IObservableCommand ? (IObservableCommand)chain : new ObservableCommandDecorator(chain);
+		static IObservableCommand decorator(final ICommand command) {
+			return command instanceof IObservableCommand ? (IObservableCommand)command : new ObservableCommandDecorator(command);
 		}
 
 
@@ -847,6 +848,126 @@ enum Internals {
 
 				final Linker linker = new UndoLinker(this.head(), dto);
 				Executors2.sameThreadExecutor().submit(linker).get();
+			}
+		}
+
+
+		static IObservableChain decorator(final IChain chain) {
+			return chain instanceof IObservableChain ? (IObservableChain)chain : new ObservableChainDecorator(chain);
+		}
+
+
+		/**
+		*
+		* @author wassj
+		*/
+		static class ObservableChainDecorator
+			implements IObservableChain, IChainDecorator {
+
+			private final List<ICommand> afterHandlers = new LinkedList<ICommand>();
+			private final List<ICommand> beforeHandlers = new LinkedList<ICommand>();
+			private final List<ICommand> resultsHandlers = new LinkedList<ICommand>();
+			private final List<ICommand> successHandlers = new LinkedList<ICommand>();
+			private final List<ICommand> failureHandlers = new LinkedList<ICommand>();
+
+			private final IChain chain;
+
+
+			public ObservableChainDecorator(final IChain chain) {
+				this.chain = chain;
+			}
+
+
+			public ILink head() {
+				return chain.head();
+			}
+
+
+			public IChain getDecorating() {
+				return chain;
+			}
+
+
+			public void invoke()
+				throws Exception {
+
+				this.invoke(null);
+			}
+
+
+			public IObservableChain before(final ICommand... commands) {
+				beforeHandlers.addAll(Arrays.asList(commands));
+				return this;
+			}
+
+
+			public IObservableChain after(final ICommand... commands) {
+				afterHandlers.addAll(Arrays.asList(commands));
+				return this;
+			}
+
+
+			public IObservableChain results(ICommand... commands) {
+				resultsHandlers.addAll(Arrays.asList(commands));
+				return this;
+			}
+
+
+			public IObservableChain onSuccess(final ICommand... commands) {
+				successHandlers.addAll(Arrays.asList(commands));
+				return this;
+			}
+
+
+			public IObservableChain onFailure(final ICommand... commands) {
+				failureHandlers.addAll(Arrays.asList(commands));
+				return this;
+			}
+
+
+			/**
+			 * i am only calling the result handlers when the command was a {@link IReturningCommand}
+			 * not convinced on the semantics of this at this point... perhaps the success handler should
+			 * be called; but then what do you do about dto vs returned?  calling the success handlers 2x,
+			 * once with each of those could be an answer.  nothing really stands out now as the best choice
+			 * though that could be because it is 0041 and there is no coffee left... 
+			 */
+			public void invoke(final Object dto)
+				throws Exception {
+
+				try {
+					executeHandlers(beforeHandlers, dto);
+					if (chain instanceof IReturningCommand<?>) {
+						final Object returned = Chains.create((IReturningCommand<?>)chain).invoke(dto);
+						executeHandlers(resultsHandlers, returned);
+					}
+					else {
+						chain.invoke(dto);
+					}
+					executeHandlers(successHandlers, dto);
+				}
+				catch (ExecutionException e) {
+					executeHandlers(failureHandlers, e.getCause());
+					throw e;
+				}
+				catch (InterruptedException e) {
+					executeHandlers(failureHandlers, e);
+					throw e;
+				}
+				finally {
+					executeHandlers(afterHandlers, dto);
+				}
+			}
+
+
+			private void executeHandlers(final List<ICommand> commands, final Object dto) {
+				try {
+					Chains.create(commands).invoke(dto);
+				}
+				catch (Throwable t) {
+					// REVISIT the show must go on
+					t.printStackTrace();
+				}
 			}
 		}
 	}

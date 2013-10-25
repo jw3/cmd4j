@@ -38,4 +38,13 @@ public interface IChain
 	public interface IReturningChain<R>
 		extends ICommand3<R>, ICommand4<R, Object> {
 	}
+
+
+	/**
+	 *
+	 * @author wassj
+	 */
+	public interface IObservableChain
+		extends IChain, IObservable<IObservableChain> {
+	}
 }

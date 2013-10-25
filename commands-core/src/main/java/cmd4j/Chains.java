@@ -5,6 +5,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import cmd4j.IChain.IObservableChain;
 import cmd4j.IChain.IReturningChain;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Internals.Chain.ChainCallable;
@@ -22,6 +23,11 @@ import cmd4j.Internals.Link.LinkBuilder;
  */
 public enum Chains {
 	/*singleton-enum*/;
+
+	public static IObservableChain observable(final IChain chain) {
+		return Internals.Chain.decorator(chain);
+	}
+
 
 	/**
 	 * 
