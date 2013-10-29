@@ -17,6 +17,7 @@ import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommand4;
+import cmd4j.ICommand.IDtoCommand;
 import cmd4j.ICommand.IObservableCommand;
 import cmd4j.Internals.Command.ICommandProxy;
 import cmd4j.Internals.Command.ITokenized;
@@ -562,7 +563,7 @@ enum Internals {
 		 */
 		static boolean dtoIsCastableForCommand(final ICommand command, final Object dto) {
 			if (dto != null) {
-				final Class<?> cmdType = command instanceof ITokenized<?> ? ((ITokenized<?>)command).dtoType() : typedAs(command);
+				final Class<?> cmdType = command instanceof ITokenized<?> ? ((ITokenized<?>)command).dtoType() : typedAs(command, IDtoCommand.class);
 				final Class<?> dtoType = dto.getClass();
 				return cmdType.isAssignableFrom(dtoType);
 			}
@@ -573,9 +574,9 @@ enum Internals {
 		/**
 		 * get the type parameter; if any
 		 */
-		static Class<?> typedAs(final Object object) {
+		static Class<?> typedAs(final Object object, final Class<?> genericClass) {
 			for (Type type : object.getClass().getGenericInterfaces()) {
-				if (type instanceof ParameterizedType) {
+				if (type instanceof ParameterizedType && genericClass.isInstance(type)) {
 					final Type[] args = ((ParameterizedType)type).getActualTypeArguments();
 					if (args.length > 0 && args[0] instanceof Class<?>) {
 						return (Class<?>)args[0];
