@@ -187,7 +187,7 @@ public interface ICommand {
 	 * @author wassj
 	 * @param <O>
 	 */
-	public interface IObservable<O extends IObservable> {
+	public interface IObservable<O extends IObservable<?>> {
 		/**
 		 * add {@link ICommand commands} that will be invoked prior to execution
 		 * @return the command; decorated as observable

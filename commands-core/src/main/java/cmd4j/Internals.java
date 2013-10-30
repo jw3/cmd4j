@@ -12,7 +12,6 @@ import java.util.concurrent.Future;
 
 import cmd4j.Chains.ChainBuilder;
 import cmd4j.IChain.IObservableChain;
-import cmd4j.IChain.IReturningChain;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
@@ -161,11 +160,11 @@ enum Internals {
 				try {
 					executeHandlers(beforeHandlers, dto);
 					if (command instanceof IReturningCommand<?>) {
-						final Object returned = Chains.create((IReturningCommand<?>)command).invoke(dto);
+						final Object returned = Chains.invoke(Chains.create((IReturningCommand<?>)command), dto);
 						executeHandlers(resultsHandlers, returned);
 					}
 					else {
-						Chains.create(command).invoke(dto);
+						Commands.invoke(command, dto);
 					}
 					executeHandlers(successHandlers, dto);
 				}
@@ -185,7 +184,7 @@ enum Internals {
 
 			private void executeHandlers(final List<ICommand> commands, final Object dto) {
 				try {
-					Chains.create(commands).invoke(dto);
+					Commands.invoke(commands, dto);
 				}
 				catch (Throwable t) {
 					// REVISIT the show must go on
@@ -483,7 +482,7 @@ enum Internals {
 		 * @return
 		 * @throws Exception
 		 */
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({"unchecked", "rawtypes"})
 		/// safely suppressed here: we do some extra checking to ensure the dto fits in the invocation
 		static Object invokeCommand(final ICommand command, final Object dto, final boolean ignoreDtoMismatch)
 			throws Exception {
@@ -519,7 +518,7 @@ enum Internals {
 		 * ICommandProxy instances that may return a wrapped up undoable command.  Typing this to
 		 * IUndoCommand would limit that or require some additional work on the proxy side to support undo
 		 */
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({"unchecked", "rawtypes"})
 		/// safely suppressed here: we do some extra checking to ensure the dto fits in the invocation
 		static Object invokeUndoCommand(final ICommand command, final Object dto, final boolean ignoreDtoMismatch)
 			throws Exception {
@@ -606,7 +605,7 @@ enum Internals {
 		 * @author wassj
 		 */
 		static class EmptyChain
-			implements IChain {
+			implements IChain<Void> {
 
 			private final ILink head = Links.empty();
 
@@ -616,48 +615,13 @@ enum Internals {
 			}
 
 
-			public void invoke() {
+			public Void invoke() {
+				return null;
 			}
 
 
-			public void invoke(final Object dto) {
-			}
-		}
-
-
-		/**
-		 * the default {@link IChain} implementation
-		 *
-		 * @author wassj
-		 */
-		static class DefaultChain
-			implements IChain {
-
-			private final ILink head;
-
-
-			public DefaultChain(final ILink head) {
-				this.head = head;
-			}
-
-
-			public ILink head() {
-				return this.head;
-			}
-
-
-			public void invoke()
-				throws Exception {
-
-				this.invoke(null);
-			}
-
-
-			public void invoke(final Object dto)
-				throws Exception {
-
-				final Linker linker = new Linker(this.head(), dto);
-				Executors2.sameThreadExecutor().submit(linker).get();
+			public Void invoke(final Object dto) {
+				return null;
 			}
 		}
 
@@ -667,14 +631,33 @@ enum Internals {
 		 *
 		 * @author wassj
 		 */
-		static class ReturningChain<R>
-			implements IReturningChain<R> {
+		static class DefaultChain<R>
+			implements IChain<R> {
 
-			private final IReturningCommand<R> command;
+			private final ILink link;
+			private final ICommand command;
+			private final IReturningCommand<R> returningCommand;
 
 
-			public ReturningChain(final IReturningCommand<R> command) {
+			public DefaultChain(final ILink link) {
+				this(link, null, null);
+			}
+
+
+			public DefaultChain(final ICommand command) {
+				this(null, command, null);
+			}
+
+
+			public DefaultChain(final IReturningCommand<R> returningCommand) {
+				this(null, null, returningCommand);
+			}
+
+
+			private DefaultChain(final ILink link, final ICommand command, final IReturningCommand<R> returningCommand) {
+				this.link = link;
 				this.command = command;
+				this.returningCommand = returningCommand;
 			}
 
 
@@ -688,10 +671,25 @@ enum Internals {
 			public R invoke(Object dto)
 				throws Exception {
 
-				@SuppressWarnings("unchecked")
-				// this should be safe, the class param guards it
-				final R returned = (R)Internals.Link.invokeCommand(command, dto, false);
-				return returned;
+				if (link != null) {
+					final Linker linker = new Linker(this.head(), dto);
+					return (R)Executors2.sameThreadExecutor().submit(linker).get();
+				}
+				if (returningCommand != null) {
+					@SuppressWarnings("unchecked")
+					//should be safe cast here
+					final R retval = (R)Internals.Link.invokeCommand(returningCommand, dto, false);
+					return retval;
+				}
+
+				Internals.Link.invokeCommand(command, dto, false);
+
+				return null;
+			}
+
+
+			public ILink head() {
+				return link;
 			}
 		}
 
@@ -699,16 +697,16 @@ enum Internals {
 		static class ChainCallable<D, R>
 			implements Callable<R> {
 
-			private final IChain chain;
+			private final IChain<R> chain;
 			private final D dto;
 
 
-			public ChainCallable(final IChain chain) {
+			public ChainCallable(final IChain<R> chain) {
 				this(chain, null);
 			}
 
 
-			public ChainCallable(final IChain chain, final D dto) {
+			public ChainCallable(final IChain<R> chain, final D dto) {
 				this.chain = chain;
 				this.dto = dto;
 			}
@@ -717,8 +715,7 @@ enum Internals {
 			public R call()
 				throws Exception {
 
-				chain.invoke(dto);
-				return null;
+				return Chains.invoke(chain, dto);
 			}
 		}
 
@@ -805,10 +802,10 @@ enum Internals {
 		 *
 		 * @author wassj
 		 */
-		interface IChainDecorator
-			extends IChain {
+		interface IChainDecorator<R>
+			extends IChain<R> {
 
-			IChain getDecorating();
+			IChain<R> getDecorating();
 		}
 
 
@@ -816,18 +813,18 @@ enum Internals {
 		 *
 		 * @author wassj
 		 */
-		static class UndoableChainDecorator
-			implements IChainDecorator {
+		static class UndoableChainDecorator<R>
+			implements IChainDecorator<R> {
 
-			private final IChain chain;
+			private final IChain<R> chain;
 
 
-			public UndoableChainDecorator(final IChain chain) {
+			public UndoableChainDecorator(final IChain<R> chain) {
 				this.chain = chain;
 			}
 
 
-			public IChain getDecorating() {
+			public IChain<R> getDecorating() {
 				return chain;
 			}
 
@@ -837,23 +834,23 @@ enum Internals {
 			}
 
 
-			public void invoke()
+			public R invoke()
 				throws Exception {
 
-				this.invoke(null);
+				return this.invoke(null);
 			}
 
 
-			public void invoke(final Object dto)
+			public R invoke(final Object dto)
 				throws Exception {
 
 				final Linker linker = new UndoLinker(this.head(), dto);
-				Executors2.sameThreadExecutor().submit(linker).get();
+				return (R)Executors2.sameThreadExecutor().submit(linker).get();
 			}
 		}
 
 
-		static IObservableChain decorator(final IChain chain) {
+		static IObservableChain decorator(final IChain<Void> chain) {
 			return chain instanceof IObservableChain ? (IObservableChain)chain : new ObservableChainDecorator(chain);
 		}
 
@@ -863,7 +860,7 @@ enum Internals {
 		* @author wassj
 		*/
 		static class ObservableChainDecorator
-			implements IObservableChain, IChainDecorator {
+			implements IObservableChain, IChainDecorator<Void> {
 
 			private final List<ICommand> afterHandlers = new LinkedList<ICommand>();
 			private final List<ICommand> beforeHandlers = new LinkedList<ICommand>();
@@ -871,10 +868,10 @@ enum Internals {
 			private final List<ICommand> successHandlers = new LinkedList<ICommand>();
 			private final List<ICommand> failureHandlers = new LinkedList<ICommand>();
 
-			private final IChain chain;
+			private final IChain<Void> chain;
 
 
-			public ObservableChainDecorator(final IChain chain) {
+			public ObservableChainDecorator(final IChain<Void> chain) {
 				this.chain = chain;
 			}
 
@@ -884,15 +881,15 @@ enum Internals {
 			}
 
 
-			public IChain getDecorating() {
+			public IChain<Void> getDecorating() {
 				return chain;
 			}
 
 
-			public void invoke()
+			public Void invoke()
 				throws Exception {
 
-				this.invoke(null);
+				return this.invoke(null);
 			}
 
 
@@ -933,18 +930,13 @@ enum Internals {
 			 * once with each of those could be an answer.  nothing really stands out now as the best choice
 			 * though that could be because it is 0041 and there is no coffee left... 
 			 */
-			public void invoke(final Object dto)
+			public Void invoke(final Object dto)
 				throws Exception {
 
 				try {
 					executeHandlers(beforeHandlers, dto);
-					if (chain instanceof IReturningCommand<?>) {
-						final Object returned = Chains.create((IReturningCommand<?>)chain).invoke(dto);
-						executeHandlers(resultsHandlers, returned);
-					}
-					else {
-						chain.invoke(dto);
-					}
+					final Object returned = Chains.invoke(chain, dto);
+					executeHandlers(resultsHandlers, returned);
 					executeHandlers(successHandlers, dto);
 				}
 				catch (ExecutionException e) {
@@ -958,12 +950,14 @@ enum Internals {
 				finally {
 					executeHandlers(afterHandlers, dto);
 				}
+
+				return null;
 			}
 
 
 			private void executeHandlers(final List<ICommand> commands, final Object dto) {
 				try {
-					Chains.create(commands).invoke(dto);
+					Commands.invoke(commands, dto);
 				}
 				catch (Throwable t) {
 					// REVISIT the show must go on

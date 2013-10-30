@@ -1,5 +1,6 @@
 package cmd4j;
 
+import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
@@ -8,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.IDtoCommand;
 import cmd4j.ICommand.IObservableCommand;
+import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Internals.Command.DtoTokenizerProxy;
 
 /**
@@ -18,14 +20,62 @@ import cmd4j.Internals.Command.DtoTokenizerProxy;
  */
 public enum Commands {
 	/*singleton-enum*/;
+
 	/**
 	 * execute the specified {@link ICommand command}
 	 * @throws Exception
 	 */
-	public static void execute(final ICommand command)
+	public static <R> R invoke(final IReturningCommand<R> command)
 		throws Exception {
 
-		Chains.builder().add(command).build().invoke();
+		return invoke(command, null);
+	}
+
+
+	/**
+	 * execute the specified {@link ICommand command}
+	 * @throws Exception
+	 */
+	public static <R> R invoke(final IReturningCommand<R> command, final Object dto)
+		throws Exception {
+
+		return Chains.invoke(Chains.create(command));
+	}
+
+
+	/**
+	 * execute the specified {@link ICommand command}
+	 * @throws Exception
+	 */
+	public static void invoke(final ICommand command)
+		throws Exception {
+
+		invoke(command, null);
+	}
+
+
+	/**
+	 * execute the specified {@link ICommand command}
+	 * @throws Exception
+	 */
+	public static void invoke(final ICommand command, final Object dto)
+		throws Exception {
+
+		Chains.builder().add(command).build().invoke(dto);
+	}
+
+
+	public static void invoke(final Collection<ICommand> commands)
+		throws Exception {
+
+		invoke(commands, null);
+	}
+
+
+	public static void invoke(final Collection<ICommand> commands, final Object dto)
+		throws Exception {
+
+		Chains.invoke(Chains.create(commands), dto);
 	}
 
 

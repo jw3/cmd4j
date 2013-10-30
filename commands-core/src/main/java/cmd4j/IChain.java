@@ -1,7 +1,7 @@
 package cmd4j;
 
-import cmd4j.ICommand.ICommand1;
-import cmd4j.ICommand.ICommand2;
+import cmd4j.ICommand.ICommand3;
+import cmd4j.ICommand.ICommand4;
 
 /**
  * A container of a set of {@link ILink links} that will execute sequentially. 
@@ -20,8 +20,8 @@ import cmd4j.ICommand.ICommand2;
  * @see ILink
  *
  */
-public interface IChain
-	extends ICommand1, ICommand2<Object> {
+public interface IChain<R>
+	extends ICommand3<R>, ICommand4<R, Object> {
 
 	/**
 	 * the first {@link ILink} that will be called when this chain executes.
@@ -31,20 +31,10 @@ public interface IChain
 
 
 	/**
-	 * at long last a chain that returns; now document it..
-	 * @author wassj
-	 * @param <R>
-	 */
-	public interface IReturningChain<R>
-		extends ICommand3<R>, ICommand4<R, Object> {
-	}
-
-
-	/**
 	 *
 	 * @author wassj
 	 */
 	public interface IObservableChain
-		extends IChain, IObservable<IObservableChain> {
+		extends IChain<Void>, IObservable<IObservableChain> {
 	}
 }

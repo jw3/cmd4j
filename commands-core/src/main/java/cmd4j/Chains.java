@@ -6,12 +6,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import cmd4j.IChain.IObservableChain;
-import cmd4j.IChain.IReturningChain;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Internals.Chain.ChainCallable;
 import cmd4j.Internals.Chain.DefaultChain;
 import cmd4j.Internals.Chain.EmptyChain;
-import cmd4j.Internals.Chain.ReturningChain;
 import cmd4j.Internals.Chain.UndoableChainDecorator;
 import cmd4j.Internals.Link.LinkBuilder;
 
@@ -24,7 +22,7 @@ import cmd4j.Internals.Link.LinkBuilder;
 public enum Chains {
 	/*singleton-enum*/;
 
-	public static IObservableChain observable(final IChain chain) {
+	public static IObservableChain observable(final IChain<Void> chain) {
 		return Internals.Chain.decorator(chain);
 	}
 
@@ -35,7 +33,7 @@ public enum Chains {
 	 * @param executor
 	 * @return
 	 */
-	public static Future<Void> submit(final IChain chain, final ExecutorService executor) {
+	public static Future<Void> submit(final IChain<Void> chain, final ExecutorService executor) {
 		return executor.submit(asCallable(chain));
 	}
 
@@ -46,7 +44,7 @@ public enum Chains {
 	 * @param executor
 	 * @return
 	 */
-	public static <D> Future<Void> submit(final IChain chain, final D dto, final ExecutorService executor) {
+	public static <D> Future<Void> submit(final IChain<Void> chain, final D dto, final ExecutorService executor) {
 		return executor.submit(asCallable(chain, dto));
 	}
 
@@ -56,7 +54,7 @@ public enum Chains {
 	 * @param chain
 	 * @return
 	 */
-	public static Callable<Void> asCallable(final IChain chain) {
+	public static Callable<Void> asCallable(final IChain<Void> chain) {
 		return new ChainCallable<Void, Void>(chain);
 	}
 
@@ -67,7 +65,7 @@ public enum Chains {
 	 * @param dto
 	 * @return
 	 */
-	public static <D> Callable<Void> asCallable(final IChain chain, final D dto) {
+	public static <D> Callable<Void> asCallable(final IChain<Void> chain, final D dto) {
 		return new ChainCallable<D, Void>(chain, dto);
 	}
 
@@ -83,23 +81,15 @@ public enum Chains {
 	/**
 	 * creates an empty {@link IChain chain} which can be used in any operation a normal chain would, but will not do anything
 	 */
-	public static IChain empty() {
+	public static IChain<Void> empty() {
 		return new EmptyChain();
-	}
-
-
-	/**
-	 * create a {@link IChain chain} from a {@link ILink link}
-	 */
-	public static IChain create(final ILink link) {
-		return new DefaultChain(link);
 	}
 
 
 	/**
 	 * create a {@link IChain chain} that contains the given {@link ICommand commands}
 	 */
-	public static IChain create(final Collection<ICommand> commands) {
+	public static IChain<Void> create(final Collection<ICommand> commands) {
 		return create(commands.toArray(new ICommand[0]));
 	}
 
@@ -107,7 +97,7 @@ public enum Chains {
 	/**
 	 * create a {@link IChain chain} that contains the given vararg {@link ICommand commands}
 	 */
-	public static IChain create(final ICommand... commands) {
+	public static IChain<Void> create(final ICommand... commands) {
 		final ChainBuilder builder = Chains.builder();
 		for (ICommand command : commands) {
 			builder.add(command);
@@ -116,8 +106,11 @@ public enum Chains {
 	}
 
 
-	public static <R> IReturningChain<R> create(final IReturningCommand<R> command) {
-		return new ReturningChain<R>(command);
+	/**
+	 * create a {@link IChain chain} that contains the given vararg {@link ICommand commands}
+	 */
+	public static <R> IChain<R> create(final IReturningCommand<R> command) {
+		return new DefaultChain<R>(command);
 	}
 
 
@@ -125,8 +118,38 @@ public enum Chains {
 	 * add undo support to a {@link IChain chain}
 	 * @return the chain, decorated
 	 */
-	public static IChain makeUndoable(final IChain chain) {
-		return new UndoableChainDecorator(chain);
+	public static IChain<Void> makeUndoable(final IChain<Void> chain) {
+		return new UndoableChainDecorator<Void>(chain);
+	}
+
+
+	/**
+	 * invoke a {@link IChain chain}, returning a value
+	 * @param chain
+	 * @throws Exception
+	 */
+	public static <R> R invoke(final IChain<R> chain)
+		throws Exception {
+
+		return invoke(chain, null);
+	}
+
+
+	/**
+	 * invoke a {@link IChain chain} with a dto, returning a value
+	 * @param chain
+	 * @param dto
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	public static <R> R invoke(final IChain<R> chain, final Object dto)
+		throws Exception {
+
+		/*if (chain.head() != null) {
+			final Linker linker = new Linker(chain.head(), dto);
+			return (R)Executors2.sameThreadExecutor().submit(linker).get();
+		}*/
+		return (R)Internals.Link.invokeCommand(chain, dto, false);
 	}
 
 
@@ -134,11 +157,11 @@ public enum Chains {
 	 * invoke the chain converting any exceptions to a runtime exception
 	 * @throws RuntimeException
 	 */
-	public static void invokeQuietly(final IChain chain)
+	public static void invokeQuietly(final IChain<Void> chain)
 		throws RuntimeException {
 
 		try {
-			chain.invoke();
+			invoke(chain);
 		}
 		catch (final Exception e) {
 			throw new RuntimeException(e);
@@ -150,15 +173,23 @@ public enum Chains {
 	 * invoke the chain converting any exceptions to a runtime exception
 	 * @throws RuntimeException
 	 */
-	public static void invokeQuietly(final IChain chain, final Object dto)
+	public static void invokeQuietly(final IChain<Void> chain, final Object dto)
 		throws RuntimeException {
 
 		try {
-			chain.invoke(dto);
+			invoke(chain, dto);
 		}
 		catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+
+	/**
+	 * create a {@link IChain chain} from a {@link ILink link}
+	 */
+	public static IChain<Void> create(final ILink link) {
+		return new DefaultChain<Void>(link);
 	}
 
 
@@ -251,7 +282,7 @@ public enum Chains {
 		 * construct an {@link IChain} object from the {@link ICommand}s that have been added to this builder
 		 * @return
 		 */
-		public IChain build() {
+		public IChain<Void> build() {
 			if (head != null) {
 				return Chains.create(head.build(visits));
 			}
