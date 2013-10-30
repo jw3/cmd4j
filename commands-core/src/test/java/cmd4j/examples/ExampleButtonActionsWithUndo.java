@@ -24,7 +24,7 @@ import cmd4j.ICommand.ICommand4;
  *
  */
 public class ExampleButtonActionsWithUndo {
-	private static final Stack<IChain> undoStack = new Stack<IChain>();
+	private static final Stack<IChain<Void>> undoStack = new Stack<IChain<Void>>();
 
 
 	/*
@@ -111,15 +111,15 @@ public class ExampleButtonActionsWithUndo {
 		}
 
 
-		public IChain getChain() {
+		public IChain<Void> getChain() {
 			return Chains.create(new ICommand1() {
 				public void invoke()
 					throws Exception {
 
 					final ICommand change = new UndoableChangeColor(color, target);
 
-					final IChain chain = Chains.builder().add(change).build();
-					chain.invoke(); // we can block here!
+					final IChain<Void> chain = Chains.builder().add(change).build();
+					Chains.invoke(chain); // we can block here!
 
 					undoStack.push(chain);
 				}
@@ -137,7 +137,7 @@ public class ExampleButtonActionsWithUndo {
 	private static final class UndoAction
 		extends ExampleChainAction {
 
-		public IChain getChain() {
+		public IChain<Void> getChain() {
 			return Chains.create((ICommand)new ICommand4<ICommand, Object>() {
 				public ICommand invoke(Object dto) {
 					if (!undoStack.isEmpty()) {

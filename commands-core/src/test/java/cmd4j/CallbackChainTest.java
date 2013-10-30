@@ -30,9 +30,9 @@ public class CallbackChainTest {
 	@Test
 	public void testOnSuccessHandlerWithFailure() {
 		final Variable<Boolean> v = var(false);
-		final IChain chain = Chains.observable(Chains.create(Says.boom())).onSuccess(toggle(v));
+		final IChain<Void> chain = Chains.observable(Chains.create(Says.boom())).onSuccess(toggle(v));
 		try {
-			chain.invoke();
+			Chains.invoke(chain);
 		}
 		catch (Exception e) {
 			// expected
@@ -46,9 +46,9 @@ public class CallbackChainTest {
 	@Test
 	public void testOnFailureHandler() {
 		final Variable<Boolean> v = var(false);
-		final IChain chain = Chains.observable(Chains.builder().add(Says.boom()).build()).onFailure(toggle(v));
+		final IChain<Void> chain = Chains.observable(Chains.builder().add(Says.boom()).build()).onFailure(toggle(v));
 		try {
-			chain.invoke();
+			Chains.invoke(chain);
 		}
 		catch (Exception e) {
 			// expected
@@ -103,9 +103,9 @@ public class CallbackChainTest {
 	@Test
 	public void testAfterWithFailure() {
 		final Variable<Boolean> v = var(false);
-		final IChain chain = Chains.observable(Chains.builder().add(is(v, false)).add(Says.boom()).build()).after(toggle(v));
+		final IChain<Void> chain = Chains.observable(Chains.builder().add(is(v, false)).add(Says.boom()).build()).after(toggle(v));
 		try {
-			chain.invoke();
+			Chains.invoke(chain);
 		}
 		catch (Exception e) {
 			// expected

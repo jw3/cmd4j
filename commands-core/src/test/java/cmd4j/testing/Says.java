@@ -13,7 +13,7 @@ import cmd4j.ICommand.ICommand2;
  *
  */
 abstract public class Says
-	implements ICommand2 {
+	implements ICommand2<Object> {
 
 	public interface ISayFactory {
 		String toString();

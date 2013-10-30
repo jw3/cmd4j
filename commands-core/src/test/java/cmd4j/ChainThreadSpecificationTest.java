@@ -99,7 +99,7 @@ public class ChainThreadSpecificationTest {
 	public void unspecifiedRunsOnChainThread2()
 		throws Exception {
 
-		final IChain chain = Chains.builder()//
+		final IChain<Void> chain = Chains.builder()//
 			.add(Asserts.is(Services.t1))
 
 			.add(Asserts.isEDT())
@@ -116,7 +116,7 @@ public class ChainThreadSpecificationTest {
 	public void specifyChainsThreadToForceAllUnspecifiedCommandsOntoIt1()
 		throws Exception {
 
-		final IChain chain = Chains.builder()
+		final IChain<Void> chain = Chains.builder()
 		//
 			.add(Asserts.isCurrent())
 
@@ -133,7 +133,7 @@ public class ChainThreadSpecificationTest {
 	public void specifyChainsThreadToForceAllUnspecifiedCommandsOntoIt2()
 		throws Exception {
 
-		final IChain chain = Chains.builder()
+		final IChain<Void> chain = Chains.builder()
 		//
 			.add(Asserts.isEDT())
 
@@ -150,7 +150,7 @@ public class ChainThreadSpecificationTest {
 	public void specifyChainsThreadToForceAllUnspecifiedCommandsOntoIt3()
 		throws Exception {
 
-		final IChain chain = Chains.builder()
+		final IChain<Void> chain = Chains.builder()
 		//
 			.add(Asserts.is(Services.edt))
 
@@ -167,7 +167,7 @@ public class ChainThreadSpecificationTest {
 	public void specifyChainsThreadEnsureAllSpecifiedsAreNotForcedOntoIt()
 		throws Exception {
 
-		final IChain chain = Chains.builder()
+		final IChain<Void> chain = Chains.builder()
 		//
 			.add(Asserts.isCurrent())
 

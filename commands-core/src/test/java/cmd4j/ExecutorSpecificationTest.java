@@ -88,7 +88,7 @@ public class ExecutorSpecificationTest {
 		throws Exception {
 
 		final ISayFactory say = Says.factory();
-		final IChain chain = Chains.builder().add(say.thread()).build();
+		final IChain<Void> chain = Chains.builder().add(say.thread()).build();
 		Chains.submit(chain, Services.t1.executor()).get();
 		Assert.assertEquals(say.toString(), name(Services.t1));
 	}
@@ -99,7 +99,7 @@ public class ExecutorSpecificationTest {
 		throws Exception {
 
 		final ISayFactory say = Says.factory();
-		final IChain chain = Chains.builder()//
+		final IChain<Void> chain = Chains.builder()//
 			.add(say.thread())
 			//.executor(provided by the chain)
 
@@ -117,8 +117,8 @@ public class ExecutorSpecificationTest {
 		throws Exception {
 
 		final ISayFactory say = Says.factory();
-		final IChain a = Chains.builder().add(say.thread()).build();
-		final IChain b = Chains.builder().add(say.thread()).build();
+		final IChain<Void> a = Chains.builder().add(say.thread()).build();
+		final IChain<Void> b = Chains.builder().add(say.thread()).build();
 		Chains.builder().add(a).add(b).build().invoke();
 
 		Assert.assertEquals(say.toString(), name(Services.current(), Services.current()));
@@ -130,9 +130,9 @@ public class ExecutorSpecificationTest {
 		throws Exception {
 
 		final ISayFactory say = Says.factory();
-		final IChain a = Chains.builder().add(say.thread()).build();
-		final IChain b = Chains.builder().add(say.thread()).build();
-		final IChain c = Chains.builder().add(a).add(b).build();
+		final IChain<Void> a = Chains.builder().add(say.thread()).build();
+		final IChain<Void> b = Chains.builder().add(say.thread()).build();
+		final IChain<Void> c = Chains.builder().add(a).add(b).build();
 
 		Chains.submit(c, Services.t1.executor()).get();
 
@@ -145,9 +145,9 @@ public class ExecutorSpecificationTest {
 		throws Exception {
 
 		final ISayFactory say = Says.factory();
-		final IChain a = Chains.builder().add(say.thread()).build();
-		final IChain b = Chains.builder().add(say.thread()).executor(Services.t2.executor()).build();
-		final IChain c = Chains.builder().add(a).add(b).build();
+		final IChain<Void> a = Chains.builder().add(say.thread()).build();
+		final IChain<Void> b = Chains.builder().add(say.thread()).executor(Services.t2.executor()).build();
+		final IChain<Void> c = Chains.builder().add(a).add(b).build();
 
 		Chains.submit(c, Services.t1.executor()).get();
 
@@ -160,8 +160,8 @@ public class ExecutorSpecificationTest {
 		throws Exception {
 
 		final ISayFactory say = Says.factory();
-		final IChain a = Chains.builder().add(say.thread()).build();
-		final IChain b = Chains.builder().add(say.thread()).build();
+		final IChain<Void> a = Chains.builder().add(say.thread()).build();
+		final IChain<Void> b = Chains.builder().add(say.thread()).build();
 		Chains.builder().add(a).executor(Services.t1.executor()).add(b).build().invoke();
 
 		Assert.assertEquals(say.toString(), name(Services.t1, Services.current()));

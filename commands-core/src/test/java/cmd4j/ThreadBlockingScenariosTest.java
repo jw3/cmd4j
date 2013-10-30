@@ -52,7 +52,7 @@ public class ThreadBlockingScenariosTest {
 		throws Exception {
 
 		final Variable<Boolean> var = new Variable<Boolean>();
-		final IChain chain = Chains.builder()//
+		final IChain<Void> chain = Chains.builder()//
 			.add(Asserts.is(Services.t1))
 			.add(Does.set(var, true))
 			.build();
@@ -99,7 +99,7 @@ public class ThreadBlockingScenariosTest {
 			public Void call()
 				throws Exception {
 
-				final IChain chain = Chains.builder()//
+				final IChain<Void> chain = Chains.builder()//
 					.add(Asserts.is(Services.t1))
 					.add(Does.set(var, true))
 					.build();
@@ -132,7 +132,7 @@ public class ThreadBlockingScenariosTest {
 			public Void call()
 				throws Exception {
 
-				final IChain chain = Chains.builder()//
+				final IChain<Void> chain = Chains.builder()//
 					.add(Asserts.is(service))
 					.add(Does.set(var, true))
 					.build();
@@ -159,7 +159,7 @@ public class ThreadBlockingScenariosTest {
 			public Void call()
 				throws Exception {
 
-				final IChain chain = Chains.builder()//
+				final IChain<Void> chain = Chains.builder()//
 					.add(Asserts.is(Services.t1))
 					.add(Does.set(var, true))
 					.build();

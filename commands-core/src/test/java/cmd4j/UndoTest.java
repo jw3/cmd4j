@@ -19,11 +19,11 @@ public class UndoTest {
 
 		final Variable<Boolean> var = Does.var(true);
 
-		final IChain chain = Chains.builder().add(Does.undoableSet(var, false)).build();
+		final IChain<Void> chain = Chains.builder().add(Does.undoableSet(var, false)).build();
 		chain.invoke();
 		var.assertEquals(false);
 
-		final IChain chain2 = Chains.makeUndoable(chain);
+		final IChain<Void> chain2 = Chains.makeUndoable(chain);
 		chain2.invoke();
 		var.assertEquals(true);
 

@@ -47,7 +47,7 @@ public class ExampleStateMachine {
 		}
 	};
 
-	private final ICommand print = new ICommand2() {
+	private final ICommand print = new ICommand2<Object>() {
 		public void invoke(Object dto) {
 			System.out.println("trimmed from " + seed + " to " + current + " in " + count + " loops");
 		}
@@ -57,6 +57,6 @@ public class ExampleStateMachine {
 	public void runThisStateMachine()
 		throws Exception {
 
-		Commands.execute(configure);
+		Commands.invoke(configure);
 	}
 }

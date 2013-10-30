@@ -7,9 +7,9 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import cmd4j.Chains;
+import cmd4j.Chains.ChainBuilder;
 import cmd4j.IChain;
 import cmd4j.ICommand;
-import cmd4j.Chains.ChainBuilder;
 
 /**
  * a simple event dispatcher that deals in {@link ICommand commands}
@@ -46,6 +46,8 @@ public enum Dispatcher {
 	/**
 	 * collect {@link ICommand commands} from all applicable listeners and build a {@link IChain chain} to run 
 	 */
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	// dtoIsCastableForCommand ensures the compatible type here
 	public static Dispatcher fire(final Object event)
 		throws Exception {
 
@@ -57,8 +59,6 @@ public enum Dispatcher {
 		final ChainBuilder builder = Chains.builder();
 		for (final IListener listener : listeners) {
 			if (dtoIsCastableForCommand(listener, event)) {
-				@SuppressWarnings("unchecked")
-				// dtoIsCastableForCommand ensures the compatible type here
 				final ICommand command = listener.handle(event);
 				if (command != null) {
 					builder.add(command);
@@ -76,7 +76,7 @@ public enum Dispatcher {
 	 * 
 	 */
 
-	static boolean dtoIsCastableForCommand(final IListener listener, final Object dto) {
+	static boolean dtoIsCastableForCommand(final IListener<?> listener, final Object dto) {
 		if (dto != null) {
 			final Class<?> cmdType = typedAs(listener);
 			final Class<?> dtoType = dto.getClass();
@@ -86,7 +86,7 @@ public enum Dispatcher {
 	}
 
 
-	static Class<?> typedAs(final IListener t) {
+	static Class<?> typedAs(final IListener<?> t) {
 		for (Type type : t.getClass().getGenericInterfaces()) {
 			if (type instanceof ParameterizedType) {
 				final Type paramType = ((ParameterizedType)type).getActualTypeArguments()[0];

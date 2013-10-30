@@ -117,8 +117,7 @@ public class DtoTypesafetyTest {
 		final Variable<Boolean> v2 = var(false);
 		final Variable<Boolean> v3 = var(false);
 
-		final IChain chain = Chains.builder().add(invoked(Number.class, v1)).add(invoked(Integer.class, v2)).add(invoked(v3)).visits(true).build();
-		chain.invoke("not a number");
+		Chains.builder().add(invoked(Number.class, v1)).add(invoked(Integer.class, v2)).add(invoked(v3)).visits(true).build().invoke("not a number");
 
 		v1.assertEquals(false);
 		v2.assertEquals(false);
@@ -137,8 +136,7 @@ public class DtoTypesafetyTest {
 		final Variable<Boolean> v2 = var(false);
 		final Variable<Boolean> v3 = var(false);
 
-		final IChain chain = Chains.builder().add(invoked(Integer.class, v1)).add(invoked(Number.class, v2)).add(invoked(v3)).visits(true).build();
-		chain.invoke(1.1);
+		Chains.builder().add(invoked(Integer.class, v1)).add(invoked(Number.class, v2)).add(invoked(v3)).visits(true).build().invoke(1.1);
 
 		v1.assertEquals(false);
 		v2.assertEquals(true);

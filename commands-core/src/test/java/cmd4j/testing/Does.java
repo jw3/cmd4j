@@ -20,7 +20,7 @@ public enum Does {
 	/*singleton-enum*/;
 
 	public static ICommand invoked(final Variable<Boolean> called) {
-		return new ICommand2() {
+		return new ICommand2<Object>() {
 			public void invoke(final Object dto) {
 				called.setValue(true);
 			}

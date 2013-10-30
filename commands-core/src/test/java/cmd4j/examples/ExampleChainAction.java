@@ -34,11 +34,11 @@ abstract public class ExampleChainAction
 	}
 
 
-	abstract public IChain getChain();
+	abstract public IChain<Void> getChain();
 
 
 	final public void actionPerformed(ActionEvent e) {
-		final IChain chain = this.getChain();
+		final IChain<Void> chain = this.getChain();
 		if (chain != null) {
 			Chains.invokeQuietly(chain);
 		}
