@@ -33,7 +33,7 @@ public enum Chains {
 	 * @param executor
 	 * @return
 	 */
-	public static Future<Void> submit(final IChain<Void> chain, final ExecutorService executor) {
+	public static <R> Future<R> submit(final IChain<R> chain, final ExecutorService executor) {
 		return executor.submit(asCallable(chain));
 	}
 
@@ -44,7 +44,7 @@ public enum Chains {
 	 * @param executor
 	 * @return
 	 */
-	public static <D> Future<Void> submit(final IChain<Void> chain, final D dto, final ExecutorService executor) {
+	public static <D, R> Future<R> submit(final IChain<R> chain, final D dto, final ExecutorService executor) {
 		return executor.submit(asCallable(chain, dto));
 	}
 
@@ -54,8 +54,8 @@ public enum Chains {
 	 * @param chain
 	 * @return
 	 */
-	public static Callable<Void> asCallable(final IChain<Void> chain) {
-		return new ChainCallable<Void, Void>(chain);
+	public static <R> Callable<R> asCallable(final IChain<R> chain) {
+		return new ChainCallable<Void, R>(chain);
 	}
 
 
@@ -65,8 +65,8 @@ public enum Chains {
 	 * @param dto
 	 * @return
 	 */
-	public static <D> Callable<Void> asCallable(final IChain<Void> chain, final D dto) {
-		return new ChainCallable<D, Void>(chain, dto);
+	public static <D, R> Callable<R> asCallable(final IChain<R> chain, final D dto) {
+		return new ChainCallable<D, R>(chain, dto);
 	}
 
 
