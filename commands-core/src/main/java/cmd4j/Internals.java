@@ -55,32 +55,32 @@ enum Internals {
 		 *
 		 * @author wassj
 		 */
-		interface ITokenized<T>
+		interface ITokenized<I>
 			extends ICommandProxy {
 
-			Class<T> dtoType();
+			Class<I> dtoType();
 		}
 
 
-		static class DtoTokenizerProxy<T>
-			implements ITokenized<T> {
+		static class DtoTokenizerProxy<I>
+			implements ITokenized<I> {
 
-			private final IDtoCommand<T> command;
-			private final Class<T> type;
+			private final IDtoCommand<I> command;
+			private final Class<I> type;
 
 
-			public DtoTokenizerProxy(final IDtoCommand<T> command, final Class<T> type) {
+			public DtoTokenizerProxy(final IDtoCommand<I> command, final Class<I> type) {
 				this.command = command;
 				this.type = type;
 			}
 
 
-			public Class<T> dtoType() {
+			public Class<I> dtoType() {
 				return type;
 			}
 
 
-			public IDtoCommand<T> command() {
+			public IDtoCommand<I> command() {
 				return command;
 			}
 		}

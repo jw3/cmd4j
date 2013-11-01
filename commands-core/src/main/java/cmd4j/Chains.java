@@ -33,7 +33,7 @@ public enum Chains {
 	 * @param executor
 	 * @return
 	 */
-	public static <R> Future<R> submit(final IChain<R> chain, final ExecutorService executor) {
+	public static <O> Future<O> submit(final IChain<O> chain, final ExecutorService executor) {
 		return executor.submit(asCallable(chain));
 	}
 
@@ -44,7 +44,7 @@ public enum Chains {
 	 * @param executor
 	 * @return
 	 */
-	public static <D, R> Future<R> submit(final IChain<R> chain, final D dto, final ExecutorService executor) {
+	public static <I, O> Future<O> submit(final IChain<O> chain, final I dto, final ExecutorService executor) {
 		return executor.submit(asCallable(chain, dto));
 	}
 
@@ -54,8 +54,8 @@ public enum Chains {
 	 * @param chain
 	 * @return
 	 */
-	public static <R> Callable<R> asCallable(final IChain<R> chain) {
-		return new ChainCallable<Void, R>(chain);
+	public static <O> Callable<O> asCallable(final IChain<O> chain) {
+		return new ChainCallable<Void, O>(chain);
 	}
 
 
@@ -65,8 +65,8 @@ public enum Chains {
 	 * @param dto
 	 * @return
 	 */
-	public static <D, R> Callable<R> asCallable(final IChain<R> chain, final D dto) {
-		return new ChainCallable<D, R>(chain, dto);
+	public static <I, O> Callable<O> asCallable(final IChain<O> chain, final I dto) {
+		return new ChainCallable<I, O>(chain, dto);
 	}
 
 
@@ -109,8 +109,8 @@ public enum Chains {
 	/**
 	 * create a {@link IChain chain} that contains the given vararg {@link ICommand commands}
 	 */
-	public static <R> IChain<R> create(final IReturningCommand<R> command) {
-		return new DefaultChain<R>(command);
+	public static <O> IChain<O> create(final IReturningCommand<O> command) {
+		return new DefaultChain<O>(command);
 	}
 
 
@@ -128,7 +128,7 @@ public enum Chains {
 	 * @param chain
 	 * @throws Exception
 	 */
-	public static <R> R invoke(final IChain<R> chain)
+	public static <O> O invoke(final IChain<O> chain)
 		throws Exception {
 
 		return invoke(chain, null);
@@ -142,14 +142,14 @@ public enum Chains {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public static <R> R invoke(final IChain<R> chain, final Object dto)
+	public static <O> O invoke(final IChain<O> chain, final Object dto)
 		throws Exception {
 
 		/*if (chain.head() != null) {
 			final Linker linker = new Linker(chain.head(), dto);
 			return (R)Executors2.sameThreadExecutor().submit(linker).get();
 		}*/
-		return (R)Internals.Link.invokeCommand(chain, dto, false);
+		return (O)Internals.Link.invokeCommand(chain, dto, false);
 	}
 
 

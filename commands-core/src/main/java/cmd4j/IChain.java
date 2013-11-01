@@ -20,8 +20,8 @@ import cmd4j.ICommand.ICommand4;
  * @see ILink
  *
  */
-public interface IChain<R>
-	extends ICommand3<R>, ICommand4<R, Object> {
+public interface IChain<O>
+	extends ICommand3<O>, ICommand4<Object, O> {
 
 	/**
 	 * the first {@link ILink} that will be called when this chain executes.

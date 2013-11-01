@@ -114,7 +114,7 @@ public class ExampleEventDispatcher {
 	 * demonstration that {@link ICommand3 command3s} work through the dispatcher
 	 */
 	static ICommand countDown(final Integer count) {
-		return new ICommand4<ICommand, Integer>() {
+		return new ICommand4<Integer, ICommand>() {
 			public ICommand invoke(Integer original) {
 				System.out.println(count + " (" + original + ")");
 

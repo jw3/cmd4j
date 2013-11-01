@@ -52,27 +52,27 @@ public interface ICommand {
 	 * @author wassj
 	 *
 	 */
-	public interface ICommand2<T>
-		extends ICommand, IDtoCommand<T> {
+	public interface ICommand2<I>
+		extends ICommand, IDtoCommand<I> {
 
 		/**
 		 * invoke this command
 		 * @param dto Data Transfer Object
 		 * @throws Exception
 		 */
-		void invoke(T dto)
+		void invoke(I dto)
 			throws Exception;
 
 
 		/**
 		 *
 		 * @author wassj
-		 * @param <T>
+		 * @param <I>
 		 */
-		public interface IUndo<T>
-			extends ICommand2<T>, IUndoCommand {
+		public interface IUndo<I>
+			extends ICommand2<I>, IUndoCommand {
 
-			void undo(T dto)
+			void undo(I dto)
 				throws Exception;
 		}
 	}
@@ -82,24 +82,24 @@ public interface ICommand {
 	 *
 	 * @see IReturningCommand 
 	 * @author wassj
-	 * @param <R>
+	 * @param <O>
 	 */
-	public interface ICommand3<R>
-		extends ICommand, IReturningCommand<R> {
+	public interface ICommand3<O>
+		extends ICommand, IReturningCommand<O> {
 
-		R invoke()
+		O invoke()
 			throws Exception;
 
 
 		/**
 		 *
 		 * @author wassj
-		 * @param <R>
+		 * @param <O>
 		 */
-		public interface IUndo<R>
-			extends ICommand3<R>, IUndoCommand {
+		public interface IUndo<O>
+			extends ICommand3<O>, IUndoCommand {
 
-			R undo()
+			O undo()
 				throws Exception;
 		}
 	}
@@ -109,11 +109,11 @@ public interface ICommand {
 	 *
 	 * @see IReturningCommand
 	 * @author wassj
-	 * @param <T>
-	 * @param <R>
+	 * @param <I>
+	 * @param <O>
 	 */
-	public interface ICommand4<R, T>
-		extends ICommand, IReturningCommand<R>, IDtoCommand<T> {
+	public interface ICommand4<I, O>
+		extends ICommand, IReturningCommand<O>, IDtoCommand<I> {
 
 		/**
 		 * invoke this command, returning value of type R
@@ -121,15 +121,15 @@ public interface ICommand {
 		 * @return the return value
 		 * @throws Exception
 		 */
-		R invoke(T dto)
+		O invoke(I dto)
 			throws Exception;
 
 
 		/**
 		 *
 		 * @author wassj
-		 * @param <R>
-		 * @param <T>
+		 * @param <O>
+		 * @param <I>
 		 */
 		public interface IUndo<R, T>
 			extends ICommand4<R, T>, IUndoCommand {
@@ -167,7 +167,7 @@ public interface ICommand {
 	 * @author wassj
 	 *
 	 */
-	public interface IReturningCommand<R>
+	public interface IReturningCommand<O>
 		extends ICommand {
 	}
 
@@ -175,9 +175,9 @@ public interface ICommand {
 	/**
 	 *
 	 * @author wassj
-	 * @param <T>
+	 * @param <I>
 	 */
-	public interface IDtoCommand<T>
+	public interface IDtoCommand<I>
 		extends ICommand {
 	}
 
@@ -187,12 +187,12 @@ public interface ICommand {
 	 * @author wassj
 	 * @param <O>
 	 */
-	public interface IObservable<O extends IObservable<?>> {
+	public interface IObservable<Ob extends IObservable<?>> {
 		/**
 		 * add {@link ICommand commands} that will be invoked prior to execution
 		 * @return the command; decorated as observable
 		 */
-		O before(final ICommand... commands);
+		Ob before(final ICommand... commands);
 
 
 		/**
@@ -200,7 +200,7 @@ public interface ICommand {
 		 * invocation will occurr regardless of success/failure of the chain
 		 * @return the command; decorated as observable
 		 */
-		O after(final ICommand... listeners);
+		Ob after(final ICommand... listeners);
 
 
 		/**
@@ -208,14 +208,14 @@ public interface ICommand {
 		 * if the command returned a result that value will be passed as the dto
 		 * @return the command; decorated as observable
 		 */
-		O results(final ICommand... commands);
+		Ob results(final ICommand... commands);
 
 
 		/**
 		 * add {@link ICommand commands} that will be invoked upon successful completions
 		 * @return the command; decorated as observable
 		 */
-		O onSuccess(final ICommand... commands);
+		Ob onSuccess(final ICommand... commands);
 
 
 		/**
@@ -223,7 +223,7 @@ public interface ICommand {
 		 * the cause of the failure will be available as the dto to any commands that will accept it
 		 * @return the command; decorated as observable
 		 */
-		O onFailure(final ICommand... commands);
+		Ob onFailure(final ICommand... commands);
 	}
 
 
