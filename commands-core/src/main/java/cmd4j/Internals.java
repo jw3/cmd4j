@@ -575,10 +575,14 @@ enum Internals {
 		 */
 		static Class<?> typedAs(final Object object, final Class<?> genericClass) {
 			for (Type type : object.getClass().getGenericInterfaces()) {
-				if (type instanceof ParameterizedType && genericClass.isInstance(type)) {
-					final Type[] args = ((ParameterizedType)type).getActualTypeArguments();
-					if (args.length > 0 && args[0] instanceof Class<?>) {
-						return (Class<?>)args[0];
+				if (type instanceof ParameterizedType && genericClass.isAssignableFrom((Class<?>)((ParameterizedType)type).getRawType())) {
+					final ParameterizedType parameterized = (ParameterizedType)type;
+					final Type raw = parameterized.getRawType();
+					if (raw instanceof Class<?> && genericClass.isAssignableFrom((Class<?>)raw)) {
+						final Type[] args = parameterized.getActualTypeArguments();
+						if (args.length > 0 && args[0] instanceof Class<?>) {
+							return (Class<?>)args[0];
+						}
 					}
 				}
 			}
