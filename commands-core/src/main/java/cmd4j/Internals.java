@@ -561,7 +561,7 @@ enum Internals {
 		 * @return
 		 */
 		static boolean dtoIsCastableForCommand(final ICommand command, final Object dto) {
-			if (dto != null) {
+			if (dto != null && !IChain.class.isInstance(command)) {
 				final Class<?> cmdType = command instanceof ITokenized<?> ? ((ITokenized<?>)command).dtoType() : typedAs(command, IDtoCommand.class);
 				final Class<?> dtoType = dto.getClass();
 				return cmdType.isAssignableFrom(dtoType);
@@ -575,9 +575,12 @@ enum Internals {
 		 */
 		static Class<?> typedAs(final Object object, final Class<?> genericClass) {
 			for (Type type : object.getClass().getGenericInterfaces()) {
-				if (type instanceof ParameterizedType && genericClass.isAssignableFrom((Class<?>)((ParameterizedType)type).getRawType())) {
+				if (type instanceof ParameterizedType) {
 					final ParameterizedType parameterized = (ParameterizedType)type;
 					final Type raw = parameterized.getRawType();
+					// REVISIT bug in the testing of the generic class
+					// test cmd4j.DtoTypesafetyTest.testDtoToEmptyChain()
+					// fixed by checking !IChain.class.isInstance(command) in cmd4j.Internals.Link.dtoIsCastableForCommand(ICommand, Object)
 					if (raw instanceof Class<?> && genericClass.isAssignableFrom((Class<?>)raw)) {
 						final Type[] args = parameterized.getActualTypeArguments();
 						if (args.length > 0 && args[0] instanceof Class<?>) {

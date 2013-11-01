@@ -18,6 +18,14 @@ import cmd4j.testing.Does.Variable;
 public class DtoTypesafetyTest {
 
 	@Test
+	public void testDtoToEmptyChain()
+		throws Exception {
+
+		Chains.create(Chains.empty()).invoke("dto");
+	}
+
+
+	@Test
 	public void testCorrectTypes()
 		throws Exception {
 
