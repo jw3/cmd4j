@@ -190,7 +190,7 @@ public enum Commands {
 	 * @param command
 	 * @return
 	 */
-	public static <T> ICommand tokenize(Class<T> type, IDtoCommand<T> command) {
+	public static <T> ICommand tokenize(final Class<T> type, final IDtoCommand<T> command) {
 		return new DtoTokenizerProxy<T>(command, type);
 	}
 }

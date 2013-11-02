@@ -30,6 +30,9 @@ import cmd4j.Internals.Command.ITokenized;
 enum Internals {
 	/*noinstance*/;
 
+	private static final boolean HACK_checkingDisabled = true;
+
+
 	/******************************************************************************
 	 * 
 	 * 
@@ -561,35 +564,61 @@ enum Internals {
 		 * @return
 		 */
 		static boolean dtoIsCastableForCommand(final ICommand command, final Object dto) {
-			if (dto != null && !IChain.class.isInstance(command)) {
-				final Class<?> cmdType = command instanceof ITokenized<?> ? ((ITokenized<?>)command).dtoType() : typedAs(command, IDtoCommand.class);
-				final Class<?> dtoType = dto.getClass();
-				return cmdType.isAssignableFrom(dtoType);
+			if (dto != null) {
+				final Class<?> cmdType = command instanceof ITokenized<?> ? ((ITokenized<?>)command).dtoType() : getTypeParameterAtIndex(command, IDtoCommand.class, 0);
+				if (cmdType != null) {
+					final Class<?> dtoType = dto.getClass();
+					return cmdType.isAssignableFrom(dtoType);
+				}
+				///System.out.println("chain is checked and cannot guarantee cast safety, use a tokenized command");
+				return HACK_checkingDisabled;
 			}
 			return true;
 		}
 
 
-		/**
-		 * get the type parameter; if any
-		 */
-		static Class<?> typedAs(final Object object, final Class<?> genericClass) {
-			for (Type type : object.getClass().getGenericInterfaces()) {
-				if (type instanceof ParameterizedType) {
-					final ParameterizedType parameterized = (ParameterizedType)type;
-					final Type raw = parameterized.getRawType();
-					// REVISIT bug in the testing of the generic class
-					// test cmd4j.DtoTypesafetyTest.testDtoToEmptyChain()
-					// fixed by checking !IChain.class.isInstance(command) in cmd4j.Internals.Link.dtoIsCastableForCommand(ICommand, Object)
-					if (raw instanceof Class<?> && genericClass.isAssignableFrom((Class<?>)raw)) {
-						final Type[] args = parameterized.getActualTypeArguments();
-						if (args.length > 0 && args[0] instanceof Class<?>) {
-							return (Class<?>)args[0];
-						}
+		public static Class<?> getTypeParameterAtIndex(final Object from, final Class<?> target, final int idx) {
+			final Type[] params = getTypeParametersOf(from.getClass(), target);
+			if (params != null && params.length > idx) {
+				final Type type = params[idx];
+				if (type instanceof Class<?>) {
+					return (Class<?>)type;
+				}
+			}
+			return null;
+		}
+
+
+		public static Type[] getTypeParametersOf(final Class<?> from, final Class<?> target) {
+			if (!from.isInterface()) {
+				final Type superclass = from.getGenericSuperclass();
+				if (superclass instanceof ParameterizedType) {
+					final ParameterizedType parameterized = (ParameterizedType)superclass;
+					if (parameterized.getRawType().equals(target)) {
+						return parameterized.getActualTypeArguments();
 					}
 				}
 			}
-			return Object.class;
+			for (final Type iface : from.getGenericInterfaces()) {
+				if (iface instanceof ParameterizedType) {
+					final ParameterizedType parameterized = (ParameterizedType)iface;
+					if (parameterized.getRawType().equals(target)) {
+						return parameterized.getActualTypeArguments();
+					}
+				}
+			}
+
+			for (final Class<?> iface : from.getInterfaces()) {
+				final Type[] params = getTypeParametersOf(target, iface);
+				if (params != null) {
+					return params;
+				}
+			}
+			final Class<?> superclass = from.getSuperclass();
+			if (superclass != null && !Object.class.equals(superclass)) {
+				return getTypeParametersOf(target, superclass);
+			}
+			return null;
 		}
 	}
 
