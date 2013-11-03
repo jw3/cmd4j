@@ -7,10 +7,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import cmd4j.ICommand.ICommand1;
-import cmd4j.ICommand.IDtoCommand;
 import cmd4j.ICommand.IObservableCommand;
 import cmd4j.ICommand.IReturningCommand;
-import cmd4j.Internals.Command.DtoTokenizerProxy;
 
 /**
  * Utility methods for {@link ICommand commands}
@@ -180,17 +178,5 @@ public enum Commands {
 				callable.call();
 			}
 		};
-	}
-
-
-	/**
-	 * tokenize the type parameter of the command
-	 * useful only when erasure is removing necessary type information
-	 * @param type
-	 * @param command
-	 * @return
-	 */
-	public static <T> ICommand tokenize(final Class<T> type, final IDtoCommand<T> command) {
-		return new DtoTokenizerProxy<T>(command, type);
 	}
 }

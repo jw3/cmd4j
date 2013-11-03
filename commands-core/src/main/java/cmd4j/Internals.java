@@ -1,7 +1,5 @@
 package cmd4j;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,10 +14,8 @@ import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommand4;
-import cmd4j.ICommand.IDtoCommand;
 import cmd4j.ICommand.IObservableCommand;
 import cmd4j.Internals.Command.ICommandProxy;
-import cmd4j.Internals.Command.ITokenized;
 
 /**
  *
@@ -29,9 +25,6 @@ import cmd4j.Internals.Command.ITokenized;
  */
 enum Internals {
 	/*noinstance*/;
-
-	private static final boolean HACK_checkingDisabled = true;
-
 
 	/******************************************************************************
 	 * 
@@ -49,43 +42,6 @@ enum Internals {
 			extends ICommand {
 
 			IDtoCommand<C> command();
-		}
-
-
-		/**
-		 * Provide the means of storing the acceptable dto type on a command, useful as a workaround to erasure.
-		 * Provide callback capability
-		 *
-		 * @author wassj
-		 */
-		interface ITokenized<I>
-			extends ICommandProxy {
-
-			Class<I> dtoType();
-		}
-
-
-		static class DtoTokenizerProxy<I>
-			implements ITokenized<I> {
-
-			private final IDtoCommand<I> command;
-			private final Class<I> type;
-
-
-			public DtoTokenizerProxy(final IDtoCommand<I> command, final Class<I> type) {
-				this.command = command;
-				this.type = type;
-			}
-
-
-			public Class<I> dtoType() {
-				return type;
-			}
-
-
-			public IDtoCommand<I> command() {
-				return command;
-			}
 		}
 
 
@@ -490,9 +446,7 @@ enum Internals {
 		static Object invokeCommand(final ICommand command, final Object dto, final boolean ignoreDtoMismatch)
 			throws Exception {
 
-			// REVISIT will have to check the proxy out prior to the castable call in some cases
-			final boolean castable = dtoIsCastableForCommand(command, dto);
-			if (castable) {
+			try {
 				if (command instanceof ICommand4<?, ?>) {
 					return ((ICommand4)command).invoke(dto);
 				}
@@ -509,8 +463,10 @@ enum Internals {
 					return ((ICommandProxy)command).command();
 				}
 			}
-			else if (!ignoreDtoMismatch) {
-				throw new IllegalArgumentException("dto does not fit");
+			catch (final ClassCastException e) {
+				if (!ignoreDtoMismatch) {
+					throw new IllegalArgumentException("dto does not fit");
+				}
 			}
 			return null;
 		}
@@ -526,9 +482,7 @@ enum Internals {
 		static Object invokeUndoCommand(final ICommand command, final Object dto, final boolean ignoreDtoMismatch)
 			throws Exception {
 
-			// REVISIT will have to check the proxy out prior to the castable call in some cases
-			final boolean castable = dtoIsCastableForCommand(command, dto);
-			if (castable) {
+			try {
 				if (command instanceof ICommand4.IUndo<?, ?>) {
 					return ((ICommand4.IUndo)command).undo(dto);
 				}
@@ -545,81 +499,19 @@ enum Internals {
 					return ((ICommandProxy)command).command();
 				}
 			}
-			else if (!ignoreDtoMismatch) {
-				throw new IllegalArgumentException("dto does not fit");
+			catch (final ClassCastException e) {
+				if (!ignoreDtoMismatch) {
+					throw new IllegalArgumentException("dto does not fit");
+				}
 			}
 			return null;
 		}
-
 
 		//
 		//
 		//
 		///---------------------------------------------------------------------------------------------------------------------
 
-		/**
-		 * check that the passed dto fits into the passed ICommand#invoke method.
-		 * @param command
-		 * @param dto
-		 * @return
-		 */
-		static boolean dtoIsCastableForCommand(final ICommand command, final Object dto) {
-			if (dto != null) {
-				final Class<?> cmdType = command instanceof ITokenized<?> ? ((ITokenized<?>)command).dtoType() : getTypeParameterAtIndex(command, IDtoCommand.class, 0);
-				if (cmdType != null) {
-					final Class<?> dtoType = dto.getClass();
-					return cmdType.isAssignableFrom(dtoType);
-				}
-				///System.out.println("chain is checked and cannot guarantee cast safety, use a tokenized command");
-				return HACK_checkingDisabled;
-			}
-			return true;
-		}
-
-
-		public static Class<?> getTypeParameterAtIndex(final Object from, final Class<?> target, final int idx) {
-			final Type[] params = getTypeParametersOf(from.getClass(), target);
-			if (params != null && params.length > idx) {
-				final Type type = params[idx];
-				if (type instanceof Class<?>) {
-					return (Class<?>)type;
-				}
-			}
-			return null;
-		}
-
-
-		public static Type[] getTypeParametersOf(final Class<?> from, final Class<?> target) {
-			if (!from.isInterface()) {
-				final Type superclass = from.getGenericSuperclass();
-				if (superclass instanceof ParameterizedType) {
-					final ParameterizedType parameterized = (ParameterizedType)superclass;
-					if (parameterized.getRawType().equals(target)) {
-						return parameterized.getActualTypeArguments();
-					}
-				}
-			}
-			for (final Type iface : from.getGenericInterfaces()) {
-				if (iface instanceof ParameterizedType) {
-					final ParameterizedType parameterized = (ParameterizedType)iface;
-					if (parameterized.getRawType().equals(target)) {
-						return parameterized.getActualTypeArguments();
-					}
-				}
-			}
-
-			for (final Class<?> iface : from.getInterfaces()) {
-				final Type[] params = getTypeParametersOf(target, iface);
-				if (params != null) {
-					return params;
-				}
-			}
-			final Class<?> superclass = from.getSuperclass();
-			if (superclass != null && !Object.class.equals(superclass)) {
-				return getTypeParametersOf(target, superclass);
-			}
-			return null;
-		}
 	}
 
 

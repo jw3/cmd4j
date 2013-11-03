@@ -1,11 +1,11 @@
 package cmd4j;
 
-import static cmd4j.testing.Does.invoked;
 import static cmd4j.testing.Does.is;
 import static cmd4j.testing.Does.var;
 
 import org.testng.annotations.Test;
 
+import cmd4j.ICommand.ICommand2;
 import cmd4j.testing.Does.Variable;
 
 /**
@@ -16,6 +16,51 @@ import cmd4j.testing.Does.Variable;
  *
  */
 public class DtoTypesafetyTest {
+
+	static ICommand invoked(final Variable<Boolean> called) {
+		return new ICommand2<Object>() {
+			public void invoke(final Object dto) {
+				called.setValue(true);
+			}
+		};
+	}
+
+
+	static ICommand invokedString(final Variable<Boolean> called) {
+		return new ICommand2<String>() {
+			public void invoke(final String dto) {
+				called.setValue(true);
+			}
+		};
+	}
+
+
+	static ICommand invokedNumber(final Variable<Boolean> called) {
+		return new ICommand2<Number>() {
+			public void invoke(final Number dto) {
+				called.setValue(true);
+			}
+		};
+	}
+
+
+	static ICommand invokedInteger(final Variable<Boolean> called) {
+		return new ICommand2<Integer>() {
+			public void invoke(final Integer dto) {
+				called.setValue(true);
+			}
+		};
+	}
+
+
+	static ICommand invokedDouble(final Variable<Boolean> called) {
+		return new ICommand2<Double>() {
+			public void invoke(final Double dto) {
+				called.setValue(true);
+			}
+		};
+	}
+
 
 	@Test
 	public void testDtoToEmptyChain()
@@ -31,39 +76,17 @@ public class DtoTypesafetyTest {
 
 		{
 			final Variable<Boolean> v = var(false);
-			Chains.builder().add(invoked(v)).build().invoke(new String());
+			Chains.builder().add(invokedString(v)).build().invoke(new String());
 			v.assertEquals(true);
 		}
 		{
 			final Variable<Boolean> v = var(false);
-			Chains.builder().add(invoked(v)).build().invoke(1.1);
+			Chains.builder().add(invokedDouble(v)).build().invoke(1.1);
 			v.assertEquals(true);
 		}
 		{
 			final Variable<Boolean> v = var(false);
-			Chains.builder().add(invoked(v)).build().invoke(1);
-			v.assertEquals(true);
-		}
-	}
-
-
-	@Test
-	public void testCorrectTypes2()
-		throws Exception {
-
-		{
-			final Variable<Boolean> v = var(false);
-			Chains.builder().add(invoked(v)).build().invoke("foo");
-			v.assertEquals(true);
-		}
-		{
-			final Variable<Boolean> v = var(false);
-			Chains.builder().add(invoked(Number.class, v)).build().invoke(1.1);
-			v.assertEquals(true);
-		}
-		{
-			final Variable<Boolean> v = var(false);
-			Chains.builder().add(invoked(Integer.class, v)).build().invoke(1);
+			Chains.builder().add(invokedInteger(v)).build().invoke(1);
 			v.assertEquals(true);
 		}
 	}
@@ -77,13 +100,13 @@ public class DtoTypesafetyTest {
 
 		final Variable<Boolean> v = var(false);
 		Chains.builder()//
-			.add(invoked(Number.class, v))
+			.add(invokedInteger(v))
 			.add(is(v, false))
 
-			.add(invoked(v))
+			.add(invokedString(v))
 			.add(is(v, true))
 
-			.add(invoked(String.class, v))
+			.add(invokedString(v))
 			.add(is(v, true))
 
 			.build()
@@ -100,17 +123,20 @@ public class DtoTypesafetyTest {
 		final Variable<Boolean> v1 = var(false);
 		final Variable<Boolean> v2 = var(false);
 		final Variable<Boolean> v3 = var(false);
+		final Variable<Boolean> v4 = var(false);
 
 		Chains.builder()//
-			.add(invoked(Integer.class, v1))
-			.add(invoked(v2))
-			.add(invoked(Number.class, v3))
+			.add(invokedInteger(v1))
+			.add(invokedString(v2))
+			.add(invokedNumber(v3))
+			.add(invoked(v4))
 			.build()
 			.invoke(1.1);
 
 		v1.assertEquals(false);
-		v2.assertEquals(true);
+		v2.assertEquals(false);
 		v3.assertEquals(true);
+		v4.assertEquals(true);
 	}
 
 
@@ -124,12 +150,14 @@ public class DtoTypesafetyTest {
 		final Variable<Boolean> v1 = var(false);
 		final Variable<Boolean> v2 = var(false);
 		final Variable<Boolean> v3 = var(false);
+		final Variable<Boolean> v4 = var(false);
 
-		Chains.builder().add(invoked(Number.class, v1)).add(invoked(Integer.class, v2)).add(invoked(v3)).visits(true).build().invoke("not a number");
+		Chains.builder().add(invokedNumber(v1)).add(invokedInteger(v2)).add(invokedString(v3)).add(invoked(v4)).visits(true).build().invoke("not a number");
 
 		v1.assertEquals(false);
 		v2.assertEquals(false);
 		v3.assertEquals(true);
+		v4.assertEquals(true);
 	}
 
 
@@ -143,11 +171,13 @@ public class DtoTypesafetyTest {
 		final Variable<Boolean> v1 = var(false);
 		final Variable<Boolean> v2 = var(false);
 		final Variable<Boolean> v3 = var(false);
+		final Variable<Boolean> v4 = var(false);
 
-		Chains.builder().add(invoked(Integer.class, v1)).add(invoked(Number.class, v2)).add(invoked(v3)).visits(true).build().invoke(1.1);
+		Chains.builder().add(invokedInteger(v1)).add(invokedNumber(v2)).add(invokedString(v3)).add(invoked(v4)).visits(true).build().invoke(1.1);
 
 		v1.assertEquals(false);
 		v2.assertEquals(true);
-		v3.assertEquals(true);
+		v3.assertEquals(false);
+		v4.assertEquals(true);
 	}
 }

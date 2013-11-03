@@ -3,7 +3,6 @@ package cmd4j.testing;
 import org.testng.Assert;
 
 import cmd4j.Chains;
-import cmd4j.Commands;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
@@ -25,15 +24,6 @@ public enum Does {
 				called.setValue(true);
 			}
 		};
-	}
-
-
-	public static <T> ICommand invoked(final Class<T> type, final Variable<Boolean> called) {
-		return Commands.tokenize(type, new ICommand2<T>() {
-			public void invoke(final T dto) {
-				called.setValue(true);
-			}
-		});
 	}
 
 
