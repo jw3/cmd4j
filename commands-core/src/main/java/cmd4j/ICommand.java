@@ -131,10 +131,10 @@ public interface ICommand {
 		 * @param <O>
 		 * @param <I>
 		 */
-		public interface IUndo<R, T>
-			extends ICommand4<R, T>, IUndoCommand {
+		public interface IUndo<I, O>
+			extends ICommand4<I, O>, IUndoCommand {
 
-			R undo(T dto)
+			O undo(I dto)
 				throws Exception;
 		}
 	}
