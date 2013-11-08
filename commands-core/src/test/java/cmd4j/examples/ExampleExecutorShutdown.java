@@ -4,7 +4,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import cmd4j.Chains;
-import cmd4j.Executors2;
+import cmd4j.Concurrent;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
@@ -23,7 +23,7 @@ public class ExampleExecutorShutdown {
 		final ExecutorService exec = Executors.newSingleThreadExecutor();
 		Chains.builder()//
 			.add(sayThread())
-			.executor(Executors2.sameThreadExecutor())
+			.executor(Concurrent.sameThreadExecutor())
 
 			.add(sayThread())
 			.executor(exec)

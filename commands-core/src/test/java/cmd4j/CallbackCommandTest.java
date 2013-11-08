@@ -1,9 +1,6 @@
 package cmd4j;
 
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-
-import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
@@ -26,7 +23,7 @@ public class CallbackCommandTest {
 		final Variable<String> called = Variable.create();
 		final String value = UUID.randomUUID().toString().substring(0, 6);
 
-		final ICommand command = Commands.observable(Does.returns(value)).results(Does.set(called));
+		final ICommand command = Observers.observable(Does.returns(value)).results(Does.set(called));
 
 		Commands.invoke(command);
 		called.assertEquals(value);
@@ -38,7 +35,7 @@ public class CallbackCommandTest {
 		throws Exception {
 
 		final Variable<Boolean> called = Variable.create(false);
-		final ICommand command = Commands.observable(Commands.nop()).onSuccess(Does.set(called, true));
+		final ICommand command = Observers.observable(Commands.nop()).onSuccess(Does.set(called, true));
 		Commands.invoke(command);
 		called.assertEquals(true);
 	}
@@ -47,12 +44,12 @@ public class CallbackCommandTest {
 	@Test
 	public void onFailure() {
 		final Variable<Boolean> called = Variable.create(false);
-		final ICommand command = Commands.observable(Says.boom()).onFailure(Does.set(called, true));
+		final ICommand command = Observers.observable(Says.boom()).onFailure(Does.set(called, true));
 		try {
 			Commands.invoke(command);
 		}
 		catch (Exception e) {
-			Assert.assertTrue(e instanceof ExecutionException);
+			// ignore
 		}
 
 		called.assertEquals(true);

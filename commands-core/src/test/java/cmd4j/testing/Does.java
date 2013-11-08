@@ -1,8 +1,13 @@
 package cmd4j.testing;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+
 import org.testng.Assert;
 
 import cmd4j.Chains;
+import cmd4j.Commands;
+import cmd4j.Concurrent;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
@@ -17,6 +22,18 @@ import cmd4j.ICommand.IReturningCommand;
  */
 public enum Does {
 	/*singleton-enum*/;
+
+	public static ICommand submits(final ICommand command, final ExecutorService executor) {
+		return new ICommand2<Object>() {
+			public void invoke(final Object dto)
+				throws Exception {
+
+				final Callable<Void> callable = Concurrent.asCallable(Commands.voidWrap(command), dto);
+				executor.submit(callable).get();
+			}
+		};
+	}
+
 
 	public static ICommand invoked(final Variable<Boolean> called) {
 		return new ICommand2<Object>() {

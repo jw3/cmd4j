@@ -1,12 +1,24 @@
 package cmd4j;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.swing.SwingUtilities;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cmd4j.Chains.ChainBuilder;
 import cmd4j.IChain.IObservableChain;
@@ -16,10 +28,13 @@ import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommand4;
 import cmd4j.ICommand.IObservableCommand;
 import cmd4j.ICommand.IReturningCommand;
+import cmd4j.Internals.Chain.IChainDecorator;
+import cmd4j.Internals.Chain.IDecorator;
 import cmd4j.Internals.Command.ICommandProxy;
+import cmd4j.Observers.IObservable;
 
 /**
- *
+ * Non-API Implementations; Not for public consumption
  *
  * @author wassj
  *
@@ -39,125 +54,70 @@ enum Internals {
 	enum Command {
 		/*noinstance*/;
 
-		interface ICommandProxy<C extends ICommand>
-			extends ICommand {
+		static class CommandCallable<R>
+			implements Callable<R> {
 
-			IDtoCommand<C> command();
-		}
-
-
-		static IObservableCommand<Void> decorator(final ICommand command) {
-			return command instanceof IObservableCommand<?> ? (IObservableCommand<Void>)command : new ObservableCommandDecorator<Void>(command);
-		}
+			private final IReturningCommand<R> command;
+			private final Object dto;
 
 
-		static <O> IObservableCommand<O> decorator(final IReturningCommand<O> command) {
-			return command instanceof IObservableCommand<?> ? (IObservableCommand<O>)command : new ObservableCommandDecorator<O>(command);
+			public CommandCallable(final IReturningCommand<R> command) {
+				this(command, null);
+			}
+
+
+			public CommandCallable(final IReturningCommand<R> command, final Object dto) {
+				this.command = command;
+				this.dto = dto;
+			}
+
+
+			public R call()
+				throws Exception {
+
+				return Commands.invoke(command, dto);
+			}
 		}
 
 
 		/**
+		 * wrap a command to ensure a Void return type
+		 * useful for:
+		 * 1. ensuring return type is ignored
+		 * 2. adding return type to a non returner
 		 *
 		 * @author wassj
 		 */
-		static class ObservableCommandDecorator<O>
-			implements IObservableCommand<O>, ICommand4<Object, O> {
-
-			private final List<ICommand> afterHandlers = new LinkedList<ICommand>();
-			private final List<ICommand> beforeHandlers = new LinkedList<ICommand>();
-			private final List<ICommand> resultsHandlers = new LinkedList<ICommand>();
-			private final List<ICommand> successHandlers = new LinkedList<ICommand>();
-			private final List<ICommand> failureHandlers = new LinkedList<ICommand>();
+		static class ReturnVoidWrapper
+			implements ICommand4<Object, Void> {
 
 			private final ICommand command;
 
 
-			public ObservableCommandDecorator(final ICommand command) {
+			public ReturnVoidWrapper(final ICommand command) {
 				this.command = command;
 			}
 
 
-			public ICommand command() {
-				return command;
-			}
-
-
-			public IObservableCommand<O> before(final ICommand... commands) {
-				beforeHandlers.addAll(Arrays.asList(commands));
-				return this;
-			}
-
-
-			public IObservableCommand<O> after(final ICommand... commands) {
-				afterHandlers.addAll(Arrays.asList(commands));
-				return this;
-			}
-
-
-			public IObservableCommand<O> results(ICommand... commands) {
-				resultsHandlers.addAll(Arrays.asList(commands));
-				return this;
-			}
-
-
-			public IObservableCommand<O> onSuccess(final ICommand... commands) {
-				successHandlers.addAll(Arrays.asList(commands));
-				return this;
-			}
-
-
-			public IObservableCommand<O> onFailure(final ICommand... commands) {
-				failureHandlers.addAll(Arrays.asList(commands));
-				return this;
-			}
-
-
-			/**
-			 * i am only calling the result handlers when the command was a {@link IReturningCommand}
-			 * not convinced on the semantics of this at this point... perhaps the success handler should
-			 * be called; but then what do you do about dto vs returned?  calling the success handlers 2x,
-			 * once with each of those could be an answer.  nothing really stands out now as the best choice
-			 * though that could be because it is 0041 and there is no coffee left... 
-			 */
-			public O invoke(final Object dto)
+			public Void invoke(final Object dto)
 				throws Exception {
 
-				try {
-					Object returned = null;
-					executeHandlers(beforeHandlers, dto);
-					if (command instanceof IReturningCommand<?>) {
-						returned = Chains.invoke(Chains.create((IReturningCommand<?>)command), dto);
-						executeHandlers(resultsHandlers, returned);
-					}
-					else {
-						Commands.invoke(command, dto);
-					}
-					executeHandlers(successHandlers, dto);
-					return (O)returned;
-				}
-				catch (ExecutionException e) {
-					executeHandlers(failureHandlers, e.getCause());
-					throw e;
-				}
-				catch (InterruptedException e) {
-					executeHandlers(failureHandlers, e);
-					throw e;
-				}
-				finally {
-					executeHandlers(afterHandlers, dto);
-				}
+				Link.invokeCommand(command, dto, true);
+				return null;
 			}
+		}
 
 
-			private void executeHandlers(final List<ICommand> commands, final Object dto) {
-				try {
-					Commands.invoke(commands, dto);
-				}
-				catch (Throwable t) {
-					// REVISIT the show must go on
-					t.printStackTrace();
-				}
-			}
+		/**
+		 * {@link ICommand command} that delegates to another
+		 *
+		 * @author wassj
+		 * @param <C>
+		 */
+		interface ICommandProxy<C extends ICommand>
+			extends ICommand {
+
+			IDtoCommand<C> command();
 		}
 	}
 
@@ -583,7 +543,7 @@ enum Internals {
 
 				if (link != null) {
 					final Linker linker = new Linker(this.head(), dto);
-					return (R)Executors2.sameThreadExecutor().submit(linker).get();
+					return (R)Concurrent.sameThreadExecutor().submit(linker).get();
 				}
 				if (returningCommand != null) {
 					@SuppressWarnings("unchecked")
@@ -711,9 +671,19 @@ enum Internals {
 		/**
 		 *
 		 * @author wassj
+		 * @param <T>
+		 */
+		interface IDecorator<T> {
+			T getDecorating();
+		}
+
+
+		/**
+		 *
+		 * @author wassj
 		 */
 		interface IChainDecorator<R>
-			extends IChain<R> {
+			extends IDecorator<IChain<R>>, IChain<R> {
 
 			IChain<R> getDecorating();
 		}
@@ -755,13 +725,55 @@ enum Internals {
 				throws Exception {
 
 				final Linker linker = new UndoLinker(this.head(), dto);
-				return (R)Executors2.sameThreadExecutor().submit(linker).get();
+				return (R)Concurrent.sameThreadExecutor().submit(linker).get();
 			}
+		}
+	}
+
+
+	/******************************************************************************
+	 * 
+	 * 
+	 * 
+	 * {@link IObservable} implementation details
+	 * 
+	 * 
+	 * 
+	 ******************************************************************************/
+	enum Observer {
+		/*noinstance*/;
+
+		/**
+		 * cast to or create an {@link IObservableCommand} from the passed {@link ICommand} instance
+		 * @param command
+		 * @return
+		 */
+		static <O> IObservableCommand<O> observerDecorator(final IReturningCommand<O> command) {
+			return command instanceof IObservableCommand<?> ? (IObservableCommand<O>)command : new ObservableCommandDecorator<O>(command);
 		}
 
 
-		static <O> IObservableChain<O> decorator(final IChain<O> chain) {
+		/**
+		 * cast to or create an {@link IObservableChain} from the passed {@link IChain} instance
+		 * @param chain
+		 * @return
+		 */
+		static <O> IObservableChain<O> observerDecorator(final IChain<O> chain) {
 			return chain instanceof IObservableChain<?> ? (IObservableChain<O>)chain : new ObservableChainDecorator<O>(chain);
+		}
+
+
+		/**
+		 *
+		 * @author wassj
+		 */
+		static class ObservableCommandDecorator<O>
+			extends AbstractObservable<O, IObservableCommand<O>, IReturningCommand<O>>
+			implements IObservableCommand<O>, ICommand4<Object, O> {
+
+			public ObservableCommandDecorator(final IReturningCommand<O> command) {
+				super(command);
+			}
 		}
 
 
@@ -770,7 +782,34 @@ enum Internals {
 		* @author wassj
 		*/
 		static class ObservableChainDecorator<O>
+			extends AbstractObservable<O, IObservableChain<O>, IChain<O>>
 			implements IObservableChain<O>, IChainDecorator<O> {
+
+			public ObservableChainDecorator(final IChain<O> chain) {
+				super(chain);
+			}
+
+
+			public ILink head() {
+				return this.getDecorating().head();
+			}
+		}
+
+
+		/**
+		 * abstract superclass of the {@link IObservable} implementations contains all the core logic;
+		 * the subclasses exist to provide a distinction between {@link IChain} and {@link ICommand} observables
+		 * 
+		 * @author wassj
+		 *
+		 * @param <O> the return type
+		 * @param <T> the IObservable type
+		 * @param <C> the ICommand type
+		 */
+		@SuppressWarnings("unchecked")
+		/// Explain: there are some crazy generic parms here, resulting from the IObservable interface being typed with a generic form of itself
+		static class AbstractObservable<O, T extends IObservable<?>, C extends IReturningCommand<O>>
+			implements IObservable<T>, IDecorator<C> {
 
 			private final List<ICommand> afterHandlers = new LinkedList<ICommand>();
 			private final List<ICommand> beforeHandlers = new LinkedList<ICommand>();
@@ -778,21 +817,16 @@ enum Internals {
 			private final List<ICommand> successHandlers = new LinkedList<ICommand>();
 			private final List<ICommand> failureHandlers = new LinkedList<ICommand>();
 
-			private final IChain<O> chain;
+			private final C command;
 
 
-			public ObservableChainDecorator(final IChain<O> chain) {
-				this.chain = chain;
+			public AbstractObservable(final C command) {
+				this.command = command;
 			}
 
 
-			public ILink head() {
-				return chain.head();
-			}
-
-
-			public IChain<O> getDecorating() {
-				return chain;
+			public C getDecorating() {
+				return command;
 			}
 
 
@@ -803,75 +837,312 @@ enum Internals {
 			}
 
 
-			public IObservableChain<O> before(final ICommand... commands) {
-				beforeHandlers.addAll(Arrays.asList(commands));
-				return this;
-			}
-
-
-			public IObservableChain<O> after(final ICommand... commands) {
-				afterHandlers.addAll(Arrays.asList(commands));
-				return this;
-			}
-
-
-			public IObservableChain<O> results(ICommand... commands) {
-				resultsHandlers.addAll(Arrays.asList(commands));
-				return this;
-			}
-
-
-			public IObservableChain<O> onSuccess(final ICommand... commands) {
-				successHandlers.addAll(Arrays.asList(commands));
-				return this;
-			}
-
-
-			public IObservableChain<O> onFailure(final ICommand... commands) {
-				failureHandlers.addAll(Arrays.asList(commands));
-				return this;
-			}
-
-
-			/**
-			 * i am only calling the result handlers when the command was a {@link IReturningCommand}
-			 * not convinced on the semantics of this at this point... perhaps the success handler should
-			 * be called; but then what do you do about dto vs returned?  calling the success handlers 2x,
-			 * once with each of those could be an answer.  nothing really stands out now as the best choice
-			 * though that could be because it is 0041 and there is no coffee left... 
-			 */
 			public O invoke(final Object dto)
 				throws Exception {
 
 				try {
-					executeHandlers(beforeHandlers, dto);
-					final Object returned = Chains.invoke(chain, dto);
-					executeHandlers(resultsHandlers, returned);
-					executeHandlers(successHandlers, dto);
+					final O returned;
+					executeHandlers(beforeHandlers(), dto);
+					returned = command instanceof IChain ? Chains.invoke((IChain<O>)command, dto) : Commands.invoke(command, dto);
+					executeHandlers(resultsHandlers(), returned);
+					executeHandlers(successHandlers(), dto);
+					return returned;
 				}
 				catch (ExecutionException e) {
-					executeHandlers(failureHandlers, e.getCause());
+					executeHandlers(failureHandlers(), e.getCause());
 					throw e;
 				}
-				catch (InterruptedException e) {
-					executeHandlers(failureHandlers, e);
+				catch (Exception e) {
+					executeHandlers(failureHandlers(), e);
 					throw e;
 				}
 				finally {
-					executeHandlers(afterHandlers, dto);
+					executeHandlers(afterHandlers(), dto);
 				}
-
-				return null;
 			}
 
 
-			private void executeHandlers(final List<ICommand> commands, final Object dto) {
+			public T before(final ICommand... commands) {
+				beforeHandlers.addAll(Arrays.asList(commands));
+				return (T)this;
+			}
+
+
+			public T after(final ICommand... commands) {
+				afterHandlers.addAll(Arrays.asList(commands));
+				return (T)this;
+			}
+
+
+			public T results(ICommand... commands) {
+				resultsHandlers.addAll(Arrays.asList(commands));
+				return (T)this;
+			}
+
+
+			public T onSuccess(final ICommand... commands) {
+				successHandlers.addAll(Arrays.asList(commands));
+				return (T)this;
+			}
+
+
+			public T onFailure(final ICommand... commands) {
+				failureHandlers.addAll(Arrays.asList(commands));
+				return (T)this;
+			}
+
+
+			List<ICommand> afterHandlers() {
+				return afterHandlers;
+			}
+
+
+			List<ICommand> beforeHandlers() {
+				return beforeHandlers;
+			}
+
+
+			List<ICommand> resultsHandlers() {
+				return resultsHandlers;
+			}
+
+
+			List<ICommand> successHandlers() {
+				return successHandlers;
+			}
+
+
+			List<ICommand> failureHandlers() {
+				return failureHandlers;
+			}
+
+
+			protected void executeHandlers(final List<ICommand> commands, final Object dto) {
 				try {
 					Commands.invoke(commands, dto);
 				}
-				catch (Throwable t) {
+				catch (final Throwable t) {
 					// REVISIT the show must go on
 					t.printStackTrace();
+				}
+			}
+		}
+	}
+
+
+	/******************************************************************************
+	 * 
+	 * 
+	 * 
+	 * {@link ExecutorService} related implementation details
+	 * 
+	 * 
+	 * 
+	 ******************************************************************************/
+	enum Executor {
+		/*noinstance*/;
+
+		/**
+		 * A basic implementation of an ExecutorService that runs things on the EDT
+		 * 
+		 * @author wassj
+		 */
+		static class EventDispatchExecutor
+			extends AbstractExecutorService {
+
+			private final Logger logger = LoggerFactory.getLogger(EventDispatchExecutor.class);
+			private volatile boolean shutdown = false;
+
+
+			public boolean isShutdown() {
+				return shutdown;
+			}
+
+
+			public void shutdown() {
+				shutdown = true;
+			}
+
+
+			public List<Runnable> shutdownNow() {
+				return Collections.emptyList();
+			}
+
+
+			public boolean isTerminated() {
+				return shutdown;
+			}
+
+
+			public boolean awaitTermination(long timeout, TimeUnit unit) {
+				return false;
+			}
+
+
+			public void execute(Runnable command) {
+				try {
+					if (SwingUtilities.isEventDispatchThread()) {
+						/*--------------------------------------------------------------------------------------------------------------------------
+						 * the safest thing to do here is to run the command and return.  on the surface it might not appear to be fair
+						 * to run the command without scheduling it with the EventQueue, but it is. the whole reason we got this time (right now) 
+						 * on the EDT was to run the command, it doesnt make sense to give up our position by scheduling it at the end of the queue.
+						 * besides like i mentioned it is not inherently safe to schedule from here.
+						 *--------------------------------------------------------------------------------------------------------------------------
+						 */
+						command.run();
+					}
+					else {
+						SwingUtilities.invokeAndWait(command);
+					}
+				}
+				catch (Throwable e) {
+					// we shouldnt get errors here as we handle them all within the chains
+					logger.warn("caught something in an ede", e);
+				}
+			}
+		}
+
+
+		/*
+		 * taken from Guava SameThreadExecutorService
+		 */
+		static class SameThreadExecutorService
+			extends AbstractExecutorService {
+
+			/**
+			 * Lock used whenever accessing the state variables
+			 * (runningTasks, shutdown, terminationCondition) of the executor
+			 */
+			private final Lock lock = new ReentrantLock();
+
+			/** Signaled after the executor is shutdown and running tasks are done */
+			private final Condition termination = lock.newCondition();
+
+			/*
+			 * Conceptually, these two variables describe the executor being in
+			 * one of three states:
+			 *   - Active: shutdown == false
+			 *   - Shutdown: runningTasks > 0 and shutdown == true
+			 *   - Terminated: runningTasks == 0 and shutdown == true
+			 */
+			private int runningTasks = 0;
+			private boolean shutdown = false;
+
+
+			@Override
+			public void execute(Runnable command) {
+				startTask();
+				try {
+					command.run();
+				}
+				finally {
+					endTask();
+				}
+			}
+
+
+			@Override
+			public boolean isShutdown() {
+				lock.lock();
+				try {
+					return shutdown;
+				}
+				finally {
+					lock.unlock();
+				}
+			}
+
+
+			@Override
+			public void shutdown() {
+				lock.lock();
+				try {
+					shutdown = true;
+				}
+				finally {
+					lock.unlock();
+				}
+			}
+
+
+			// See sameThreadExecutor javadoc for unusual behavior of this method.
+			@Override
+			public List<Runnable> shutdownNow() {
+				shutdown();
+				return Collections.emptyList();
+			}
+
+
+			@Override
+			public boolean isTerminated() {
+				lock.lock();
+				try {
+					return shutdown && runningTasks == 0;
+				}
+				finally {
+					lock.unlock();
+				}
+			}
+
+
+			@Override
+			public boolean awaitTermination(long timeout, TimeUnit unit)
+				throws InterruptedException {
+				long nanos = unit.toNanos(timeout);
+				lock.lock();
+				try {
+					for (;;) {
+						if (isTerminated()) {
+							return true;
+						}
+						else if (nanos <= 0) {
+							return false;
+						}
+						else {
+							nanos = termination.awaitNanos(nanos);
+						}
+					}
+				}
+				finally {
+					lock.unlock();
+				}
+			}
+
+
+			/**
+			 * Checks if the executor has been shut down and increments the running
+			 * task count.
+			 *
+			 * @throws RejectedExecutionException if the executor has been previously
+			 *         shutdown
+			 */
+			private void startTask() {
+				lock.lock();
+				try {
+					if (isShutdown()) {
+						throw new RejectedExecutionException("Executor already shutdown");
+					}
+					runningTasks++;
+				}
+				finally {
+					lock.unlock();
+				}
+			}
+
+
+			/**
+			 * Decrements the running task count.
+			 */
+			private void endTask() {
+				lock.lock();
+				try {
+					runningTasks--;
+					if (isTerminated()) {
+						termination.signalAll();
+					}
+				}
+				finally {
+					lock.unlock();
 				}
 			}
 		}

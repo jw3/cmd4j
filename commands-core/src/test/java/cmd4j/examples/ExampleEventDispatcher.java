@@ -6,7 +6,7 @@ import java.util.concurrent.Executors;
 import javax.swing.SwingUtilities;
 
 import cmd4j.Chains;
-import cmd4j.Executors2;
+import cmd4j.Concurrent;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
@@ -60,8 +60,8 @@ public class ExampleEventDispatcher {
 		Dispatcher.addListener(new IListener<String>() {
 			public ICommand handle(String t) {
 				// specify the edt executor (Event Dispatch Thread) for this listener
-				//return Chains.makeThreaded(Chains.create(isEdt()), Executors2.swingExecutor());
-				return Chains.builder().add(isEdt()).executor(Executors2.swingExecutor()).build();
+				//return Chains.makeThreaded(Chains.create(isEdt()), Concurrent.swingExecutor());
+				return Chains.builder().add(isEdt()).executor(Concurrent.swingExecutor()).build();
 			};
 		});
 		Dispatcher.fire("edt?");
@@ -75,10 +75,10 @@ public class ExampleEventDispatcher {
 				final ExecutorService exec = Executors.newSingleThreadExecutor();
 				return Chains.builder()//
 					.add(sayThread())
-					.executor(Executors2.sameThreadExecutor())
+					.executor(Concurrent.sameThreadExecutor())
 
 					.add(sayThread())
-					.executor(Executors2.swingExecutor())
+					.executor(Concurrent.swingExecutor())
 
 					.add(isEdt())
 					.dto("edt?")

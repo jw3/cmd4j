@@ -56,7 +56,7 @@ public class ThreadBlockingScenariosTest {
 			.add(Asserts.is(Services.t1))
 			.add(Does.set(var, true))
 			.build();
-		Chains.submit(chain, Services.t1.executor()).get();
+		Concurrent.submit(chain, Services.t1.executor()).get();
 
 		var.assertEquals(true);
 	}
@@ -103,7 +103,7 @@ public class ThreadBlockingScenariosTest {
 					.add(Asserts.is(Services.t1))
 					.add(Does.set(var, true))
 					.build();
-				Chains.submit(chain, Services.t1.executor()).get();
+				Concurrent.submit(chain, Services.t1.executor()).get();
 
 				Assert.assertEquals(var.getValue(), Boolean.TRUE);
 
@@ -136,7 +136,7 @@ public class ThreadBlockingScenariosTest {
 					.add(Asserts.is(service))
 					.add(Does.set(var, true))
 					.build();
-				Chains.submit(chain, service.executor()).get();
+				Concurrent.submit(chain, service.executor()).get();
 
 				return null;
 			}
@@ -163,7 +163,7 @@ public class ThreadBlockingScenariosTest {
 					.add(Asserts.is(Services.t1))
 					.add(Does.set(var, true))
 					.build();
-				Chains.submit(chain, Services.multi1.executor()).get();
+				Concurrent.submit(chain, Services.multi1.executor()).get();
 
 				return null;
 			}

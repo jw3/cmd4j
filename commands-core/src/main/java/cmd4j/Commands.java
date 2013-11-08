@@ -1,14 +1,10 @@
 package cmd4j;
 
 import java.util.Collection;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import cmd4j.ICommand.ICommand1;
-import cmd4j.ICommand.IObservableCommand;
 import cmd4j.ICommand.IReturningCommand;
+import cmd4j.Internals.Command.ReturnVoidWrapper;
 
 /**
  * Utility methods for {@link ICommand commands}
@@ -18,6 +14,27 @@ import cmd4j.ICommand.IReturningCommand;
  */
 public enum Commands {
 	/*singleton-enum*/;
+
+	/**
+	 * wrap up a command in a {@link IReturningCommand}, discarding the return behavior
+	 * @param command
+	 * @return
+	 */
+	public static IReturningCommand<Void> voidWrap(final ICommand command) {
+		return new ReturnVoidWrapper(command);
+	}
+
+
+	/**
+	 * execute the specified {@link ICommand command}
+	 * @throws Exception
+	 */
+	public static void invoke(final ICommand command)
+		throws Exception {
+
+		invoke(new ReturnVoidWrapper(command), null);
+	}
+
 
 	/**
 	 * execute the specified {@link ICommand command}
@@ -41,28 +58,6 @@ public enum Commands {
 	}
 
 
-	/**
-	 * execute the specified {@link ICommand command}
-	 * @throws Exception
-	 */
-	public static void invoke(final ICommand command)
-		throws Exception {
-
-		invoke(command, null);
-	}
-
-
-	/**
-	 * execute the specified {@link ICommand command}
-	 * @throws Exception
-	 */
-	public static void invoke(final ICommand command, final Object dto)
-		throws Exception {
-
-		Chains.builder().add(command).build().invoke(dto);
-	}
-
-
 	public static void invoke(final Collection<ICommand> commands)
 		throws Exception {
 
@@ -77,73 +72,6 @@ public enum Commands {
 	}
 
 
-	public static IObservableCommand<Void> observable(final ICommand command) {
-		return Internals.Command.decorator(command);
-	}
-
-
-	public static <O> IObservableCommand<O> observable(final IReturningCommand<O> command) {
-		return Internals.Command.decorator(command);
-	}
-
-
-	/**
-	 * {@link ICommand command} that will wait for a specified number of {@link TimeUnit#MILLISECONDS milliseconds}
-	 * @param timeout
-	 * @return
-	 */
-	public static ICommand waitFor(final long timeout) {
-		return waitFor(timeout, TimeUnit.MILLISECONDS);
-	}
-
-
-	/**
-	 * {@link ICommand command} that will wait for a specified number of specified {@link TimeUnit time unit}
-	 * @param timeout
-	 * @return
-	 */
-	public static ICommand waitFor(final long timeout, final TimeUnit unit) {
-		return new ICommand1() {
-			public void invoke()
-				throws Exception {
-
-				new CountDownLatch(1).await(timeout, unit);
-			}
-		};
-	}
-
-
-	/**
-	 * wait on the latch to open
-	 * @param latch
-	 * @return Command that is blocked until latch is released
-	 */
-	public static ICommand waitFor(final CountDownLatch latch) {
-		return new ICommand1() {
-			public void invoke()
-				throws Exception {
-
-				latch.await();
-			}
-		};
-	}
-
-
-	/**
-	 * count down the latch
-	 * @param latch
-	 * @return
-	 */
-	public static ICommand countDown(final CountDownLatch latch) {
-		return new ICommand1() {
-			public void invoke()
-				throws Exception {
-				latch.countDown();
-			}
-		};
-	}
-
-
 	/**
 	 * create an empty (no-operation) {@link ICommand command}
 	 * @return Command that does nothing
@@ -151,36 +79,6 @@ public enum Commands {
 	public static ICommand nop() {
 		return new ICommand1() {
 			public void invoke() {
-			}
-		};
-	}
-
-
-	/**
-	 * wrap a future in a command
-	 * @param future
-	 * @return
-	 */
-	public static ICommand future(final Future<?> future) {
-		return new ICommand1() {
-			public void invoke()
-				throws Exception {
-				future.get();
-			}
-		};
-	}
-
-
-	/**
-	 * wrap a callable in a command
-	 * @param future
-	 * @return
-	 */
-	public static ICommand callable(final Callable<?> callable) {
-		return new ICommand1() {
-			public void invoke()
-				throws Exception {
-				callable.call();
 			}
 		};
 	}

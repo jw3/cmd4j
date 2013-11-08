@@ -8,7 +8,7 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.swing.SwingUtilities;
 
-import cmd4j.Executors2;
+import cmd4j.Concurrent;
 
 /**
  * Manage a set of executors for tests; 
@@ -20,7 +20,7 @@ public enum Services implements IService {
 	t1(Mode.SINGLE),
 	t2(Mode.SINGLE),
 	multi1(Mode.MULTI),
-	edt(Executors2.swingExecutor()) {
+	edt(Concurrent.swingExecutor()) {
 		@Override
 		public boolean isOwnerOfCurrentThread() {
 			return SwingUtilities.isEventDispatchThread();
@@ -138,7 +138,7 @@ public enum Services implements IService {
 
 
 			public ExecutorService executor() {
-				return Executors2.sameThreadExecutor();
+				return Concurrent.sameThreadExecutor();
 			}
 		};
 	}

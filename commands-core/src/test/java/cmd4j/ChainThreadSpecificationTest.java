@@ -87,7 +87,7 @@ public class ChainThreadSpecificationTest {
 	public void unspecifiedRunsOnChainThread1()
 		throws Exception {
 
-		Chains.submit(Chains.builder().add(Asserts.is(Services.t1)).build(), Services.t1.executor());
+		Concurrent.submit(Chains.builder().add(Asserts.is(Services.t1)).build(), Services.t1.executor());
 	}
 
 
@@ -108,7 +108,7 @@ public class ChainThreadSpecificationTest {
 			.add(Asserts.is(Services.t1))
 
 			.build();
-		Chains.submit(chain, Services.t1.executor());
+		Concurrent.submit(chain, Services.t1.executor());
 	}
 
 
@@ -125,7 +125,7 @@ public class ChainThreadSpecificationTest {
 			.add(Asserts.isCurrent())
 
 			.build();
-		Chains.submit(chain, Executors2.sameThreadExecutor());
+		Concurrent.submit(chain, Concurrent.sameThreadExecutor());
 	}
 
 
@@ -142,7 +142,7 @@ public class ChainThreadSpecificationTest {
 			.add(Asserts.isEDT())
 
 			.build();
-		Chains.submit(chain, Services.edt.executor());
+		Concurrent.submit(chain, Services.edt.executor());
 	}
 
 
@@ -159,7 +159,7 @@ public class ChainThreadSpecificationTest {
 			.add(Asserts.is(Services.edt))
 
 			.build();
-		Chains.submit(chain, Services.edt.executor());
+		Concurrent.submit(chain, Services.edt.executor());
 	}
 
 
@@ -180,6 +180,6 @@ public class ChainThreadSpecificationTest {
 			.executor(Services.t1.executor())
 
 			.build();
-		Chains.submit(chain, Executors2.sameThreadExecutor());
+		Concurrent.submit(chain, Concurrent.sameThreadExecutor());
 	}
 }

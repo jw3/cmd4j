@@ -3,6 +3,8 @@ package cmd4j;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
+import cmd4j.ICommand.ICommand3;
+
 /**
  * The context in which a {@link ICommand command} executes.
  * 

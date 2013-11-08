@@ -1,13 +1,9 @@
 package cmd4j;
 
 import java.util.Collection;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
-import cmd4j.IChain.IObservableChain;
 import cmd4j.ICommand.IReturningCommand;
-import cmd4j.Internals.Chain.ChainCallable;
 import cmd4j.Internals.Chain.DefaultChain;
 import cmd4j.Internals.Chain.EmptyChain;
 import cmd4j.Internals.Chain.UndoableChainDecorator;
@@ -21,54 +17,6 @@ import cmd4j.Internals.Link.LinkBuilder;
  */
 public enum Chains {
 	/*singleton-enum*/;
-
-	public static <O> IObservableChain<O> observable(final IChain<O> chain) {
-		return Internals.Chain.decorator(chain);
-	}
-
-
-	/**
-	 * 
-	 * @param chain
-	 * @param executor
-	 * @return
-	 */
-	public static <O> Future<O> submit(final IChain<O> chain, final ExecutorService executor) {
-		return executor.submit(asCallable(chain));
-	}
-
-
-	/**
-	 * 
-	 * @param chain
-	 * @param executor
-	 * @return
-	 */
-	public static <I, O> Future<O> submit(final IChain<O> chain, final I dto, final ExecutorService executor) {
-		return executor.submit(asCallable(chain, dto));
-	}
-
-
-	/**
-	 * 
-	 * @param chain
-	 * @return
-	 */
-	public static <O> Callable<O> asCallable(final IChain<O> chain) {
-		return new ChainCallable<Void, O>(chain);
-	}
-
-
-	/**
-	 * 
-	 * @param chain
-	 * @param dto
-	 * @return
-	 */
-	public static <I, O> Callable<O> asCallable(final IChain<O> chain, final I dto) {
-		return new ChainCallable<I, O>(chain, dto);
-	}
-
 
 	/**
 	 * creates a new {@link ChainBuilder}

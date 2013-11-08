@@ -2,6 +2,7 @@ package cmd4j;
 
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommand4;
+import cmd4j.Observers.IObservable;
 
 /**
  * A container of a set of {@link ILink links} that will execute sequentially. 

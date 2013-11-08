@@ -6,6 +6,7 @@ import org.testng.annotations.Test;
 
 import cmd4j.testing.Asserts;
 import cmd4j.testing.Does.Variable;
+import cmd4j.testing.Services;
 
 /**
  *
@@ -22,10 +23,32 @@ public class WrapCallableTest {
 		final Variable<Integer> var = new Variable<Integer>(0);
 		Chains.builder() //
 			.add(Asserts.isEquals(var, 0))
-			.add(Commands.callable(new IncrementVariable(var)))
+			.add(Concurrent.callable(new IncrementVariable(var)))
 			.add(Asserts.isEquals(var, 1))
-			.add(Commands.callable(new IncrementVariable(var)))
+			.add(Concurrent.callable(new IncrementVariable(var)))
 			.add(Asserts.isEquals(var, 2))
+			.build()
+			.invoke();
+	}
+
+
+	@Test
+	public void wrapLongRunning()
+		throws Exception {
+
+		final Variable<Integer> var = new Variable<Integer>(0);
+		Chains.builder() //
+			.add(Asserts.isEquals(var, 0))
+
+			.add(Concurrent.future(Services.t1.executor().submit(new IncrementVariable(var, 100))))
+			.add(Asserts.isEquals(var, 1))
+
+			.add(Concurrent.future(Services.t2.executor().submit(new IncrementVariable(var, 200))))
+			.add(Asserts.isEquals(var, 2))
+
+			.add(Concurrent.future(Services.t2.executor().submit(new IncrementVariable(var, 300))))
+			.add(Asserts.isEquals(var, 3))
+
 			.build()
 			.invoke();
 	}
