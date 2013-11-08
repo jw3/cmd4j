@@ -77,7 +77,12 @@ public enum Commands {
 	}
 
 
-	public static IObservableCommand observable(final ICommand command) {
+	public static IObservableCommand<Void> observable(final ICommand command) {
+		return Internals.Command.decorator(command);
+	}
+
+
+	public static <O> IObservableCommand<O> observable(final IReturningCommand<O> command) {
 		return Internals.Command.decorator(command);
 	}
 

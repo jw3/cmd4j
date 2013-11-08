@@ -34,7 +34,7 @@ public interface IChain<O>
 	 *
 	 * @author wassj
 	 */
-	public interface IObservableChain
-		extends IChain<Void>, IObservable<IObservableChain> {
+	public interface IObservableChain<O>
+		extends IChain<O>, IObservable<IObservableChain<O>> {
 	}
 }

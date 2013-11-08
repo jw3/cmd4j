@@ -231,7 +231,7 @@ public interface ICommand {
 	 *
 	 * @author wassj
 	 */
-	public interface IObservableCommand
-		extends IObservable<IObservableCommand>, ICommand {
+	public interface IObservableCommand<O>
+		extends IObservable<IObservableCommand<O>>, IReturningCommand<O> {
 	}
 }

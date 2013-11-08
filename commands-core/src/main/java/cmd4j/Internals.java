@@ -15,6 +15,7 @@ import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommand4;
 import cmd4j.ICommand.IObservableCommand;
+import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Internals.Command.ICommandProxy;
 
 /**
@@ -45,8 +46,13 @@ enum Internals {
 		}
 
 
-		static IObservableCommand decorator(final ICommand command) {
-			return command instanceof IObservableCommand ? (IObservableCommand)command : new ObservableCommandDecorator(command);
+		static IObservableCommand<Void> decorator(final ICommand command) {
+			return command instanceof IObservableCommand<?> ? (IObservableCommand<Void>)command : new ObservableCommandDecorator<Void>(command);
+		}
+
+
+		static <O> IObservableCommand<O> decorator(final IReturningCommand<O> command) {
+			return command instanceof IObservableCommand<?> ? (IObservableCommand<O>)command : new ObservableCommandDecorator<O>(command);
 		}
 
 
@@ -54,8 +60,8 @@ enum Internals {
 		 *
 		 * @author wassj
 		 */
-		static class ObservableCommandDecorator
-			implements IObservableCommand, ICommand2<Object> {
+		static class ObservableCommandDecorator<O>
+			implements IObservableCommand<O>, ICommand4<Object, O> {
 
 			private final List<ICommand> afterHandlers = new LinkedList<ICommand>();
 			private final List<ICommand> beforeHandlers = new LinkedList<ICommand>();
@@ -76,31 +82,31 @@ enum Internals {
 			}
 
 
-			public IObservableCommand before(final ICommand... commands) {
+			public IObservableCommand<O> before(final ICommand... commands) {
 				beforeHandlers.addAll(Arrays.asList(commands));
 				return this;
 			}
 
 
-			public IObservableCommand after(final ICommand... commands) {
+			public IObservableCommand<O> after(final ICommand... commands) {
 				afterHandlers.addAll(Arrays.asList(commands));
 				return this;
 			}
 
 
-			public IObservableCommand results(ICommand... commands) {
+			public IObservableCommand<O> results(ICommand... commands) {
 				resultsHandlers.addAll(Arrays.asList(commands));
 				return this;
 			}
 
 
-			public IObservableCommand onSuccess(final ICommand... commands) {
+			public IObservableCommand<O> onSuccess(final ICommand... commands) {
 				successHandlers.addAll(Arrays.asList(commands));
 				return this;
 			}
 
 
-			public IObservableCommand onFailure(final ICommand... commands) {
+			public IObservableCommand<O> onFailure(final ICommand... commands) {
 				failureHandlers.addAll(Arrays.asList(commands));
 				return this;
 			}
@@ -113,19 +119,21 @@ enum Internals {
 			 * once with each of those could be an answer.  nothing really stands out now as the best choice
 			 * though that could be because it is 0041 and there is no coffee left... 
 			 */
-			public void invoke(final Object dto)
+			public O invoke(final Object dto)
 				throws Exception {
 
 				try {
+					Object returned = null;
 					executeHandlers(beforeHandlers, dto);
 					if (command instanceof IReturningCommand<?>) {
-						final Object returned = Chains.invoke(Chains.create((IReturningCommand<?>)command), dto);
+						returned = Chains.invoke(Chains.create((IReturningCommand<?>)command), dto);
 						executeHandlers(resultsHandlers, returned);
 					}
 					else {
 						Commands.invoke(command, dto);
 					}
 					executeHandlers(successHandlers, dto);
+					return (O)returned;
 				}
 				catch (ExecutionException e) {
 					executeHandlers(failureHandlers, e.getCause());
@@ -752,8 +760,8 @@ enum Internals {
 		}
 
 
-		static IObservableChain decorator(final IChain<Void> chain) {
-			return chain instanceof IObservableChain ? (IObservableChain)chain : new ObservableChainDecorator(chain);
+		static <O> IObservableChain<O> decorator(final IChain<O> chain) {
+			return chain instanceof IObservableChain<?> ? (IObservableChain<O>)chain : new ObservableChainDecorator<O>(chain);
 		}
 
 
@@ -761,8 +769,8 @@ enum Internals {
 		*
 		* @author wassj
 		*/
-		static class ObservableChainDecorator
-			implements IObservableChain, IChainDecorator<Void> {
+		static class ObservableChainDecorator<O>
+			implements IObservableChain<O>, IChainDecorator<O> {
 
 			private final List<ICommand> afterHandlers = new LinkedList<ICommand>();
 			private final List<ICommand> beforeHandlers = new LinkedList<ICommand>();
@@ -770,10 +778,10 @@ enum Internals {
 			private final List<ICommand> successHandlers = new LinkedList<ICommand>();
 			private final List<ICommand> failureHandlers = new LinkedList<ICommand>();
 
-			private final IChain<Void> chain;
+			private final IChain<O> chain;
 
 
-			public ObservableChainDecorator(final IChain<Void> chain) {
+			public ObservableChainDecorator(final IChain<O> chain) {
 				this.chain = chain;
 			}
 
@@ -783,43 +791,43 @@ enum Internals {
 			}
 
 
-			public IChain<Void> getDecorating() {
+			public IChain<O> getDecorating() {
 				return chain;
 			}
 
 
-			public Void invoke()
+			public O invoke()
 				throws Exception {
 
 				return this.invoke(null);
 			}
 
 
-			public IObservableChain before(final ICommand... commands) {
+			public IObservableChain<O> before(final ICommand... commands) {
 				beforeHandlers.addAll(Arrays.asList(commands));
 				return this;
 			}
 
 
-			public IObservableChain after(final ICommand... commands) {
+			public IObservableChain<O> after(final ICommand... commands) {
 				afterHandlers.addAll(Arrays.asList(commands));
 				return this;
 			}
 
 
-			public IObservableChain results(ICommand... commands) {
+			public IObservableChain<O> results(ICommand... commands) {
 				resultsHandlers.addAll(Arrays.asList(commands));
 				return this;
 			}
 
 
-			public IObservableChain onSuccess(final ICommand... commands) {
+			public IObservableChain<O> onSuccess(final ICommand... commands) {
 				successHandlers.addAll(Arrays.asList(commands));
 				return this;
 			}
 
 
-			public IObservableChain onFailure(final ICommand... commands) {
+			public IObservableChain<O> onFailure(final ICommand... commands) {
 				failureHandlers.addAll(Arrays.asList(commands));
 				return this;
 			}
@@ -832,7 +840,7 @@ enum Internals {
 			 * once with each of those could be an answer.  nothing really stands out now as the best choice
 			 * though that could be because it is 0041 and there is no coffee left... 
 			 */
-			public Void invoke(final Object dto)
+			public O invoke(final Object dto)
 				throws Exception {
 
 				try {

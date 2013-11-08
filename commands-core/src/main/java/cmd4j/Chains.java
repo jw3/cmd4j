@@ -22,7 +22,7 @@ import cmd4j.Internals.Link.LinkBuilder;
 public enum Chains {
 	/*singleton-enum*/;
 
-	public static IObservableChain observable(final IChain<Void> chain) {
+	public static <O> IObservableChain<O> observable(final IChain<O> chain) {
 		return Internals.Chain.decorator(chain);
 	}
 
