@@ -85,13 +85,10 @@ public class ExampleNonBlockingBlocking {
 		buffer.append(18);
 
 		String result = buffer.toString();
-		System.out.println(result);
-
 		for (int i = 0; i < 19; ++i) {
 			final String current = String.valueOf(i);
 			Assert.assertTrue(result.startsWith(current));
 			result = result.substring(current.length(), result.length());
-			System.out.println(i + " = " + current);
 		}
 	}
 }
