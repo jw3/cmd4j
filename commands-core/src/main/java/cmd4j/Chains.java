@@ -102,38 +102,6 @@ public enum Chains {
 
 
 	/**
-	 * invoke the chain converting any exceptions to a runtime exception
-	 * @throws RuntimeException
-	 */
-	public static void invokeQuietly(final IChain<Void> chain)
-		throws RuntimeException {
-
-		try {
-			invoke(chain);
-		}
-		catch (final Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-
-	/**
-	 * invoke the chain converting any exceptions to a runtime exception
-	 * @throws RuntimeException
-	 */
-	public static void invokeQuietly(final IChain<Void> chain, final Object dto)
-		throws RuntimeException {
-
-		try {
-			invoke(chain, dto);
-		}
-		catch (final Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-
-	/**
 	 * create a {@link IChain chain} from a {@link ILink link}
 	 */
 	public static IChain<Void> create(final ILink link) {

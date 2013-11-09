@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
-import cmd4j.Chains;
 import cmd4j.IChain;
 
 /**
@@ -40,7 +39,13 @@ abstract public class ExampleChainAction
 	final public void actionPerformed(ActionEvent e) {
 		final IChain<Void> chain = this.getChain();
 		if (chain != null) {
-			Chains.invokeQuietly(chain);
+			try {
+				chain.invoke();
+			}
+			catch (Exception ex) {
+				// NOTE Auto-generated catch block
+				ex.printStackTrace();
+			}
 		}
 	}
 
