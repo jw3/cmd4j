@@ -79,4 +79,20 @@ public class ObservableCommandsTest {
 		Chains.builder().add(chain2).build().invoke();
 		called.assertEquals(true);
 	}
+
+
+	@Test
+	public void bothCommandAndChain()
+		throws Exception {
+
+		final Variable<Boolean> called = Variable.create(false);
+		final Variable<Boolean> called2 = Variable.create(false);
+
+		final ICommand command = Observers.observable(Does.nothing()).onSuccess(Does.set(called, true));
+		final IChain<Void> chain = Observers.observable(Chains.create(command)).onSuccess(Does.set(called2, true));
+		chain.invoke();
+
+		called.assertEquals(true);
+		called2.assertEquals(true);
+	}
 }
