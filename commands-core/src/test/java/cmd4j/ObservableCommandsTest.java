@@ -23,7 +23,7 @@ public class ObservableCommandsTest {
 		final Variable<String> called = Variable.create();
 		final String value = UUID.randomUUID().toString().substring(0, 6);
 
-		final ICommand command = Observers.observableReturning(Does.returns(value)).results(Does.set(called));
+		final ICommand command = Observers.observable(Does.returns(value)).results(Does.set(called));
 
 		Chains.create(command).invoke();
 		called.assertEquals(value);
@@ -35,7 +35,7 @@ public class ObservableCommandsTest {
 		throws Exception {
 
 		final Variable<Boolean> called = Variable.create(false);
-		final ICommand command = Observers.observableReturning(Does.nothing()).onSuccess(Does.set(called, true));
+		final ICommand command = Observers.observable(Does.nothing()).onSuccess(Does.set(called, true));
 		Chains.create(command).invoke();
 		called.assertEquals(true);
 	}
@@ -44,7 +44,7 @@ public class ObservableCommandsTest {
 	@Test
 	public void onFailure() {
 		final Variable<Boolean> called = Variable.create(false);
-		final ICommand command = Observers.observableReturning(Says.boom()).onFailure(Does.set(called, true));
+		final ICommand command = Observers.observable(Says.boom()).onFailure(Does.set(called, true));
 		try {
 			Chains.create(command).invoke();
 		}
@@ -52,6 +52,31 @@ public class ObservableCommandsTest {
 			// ignore
 		}
 
+		called.assertEquals(true);
+	}
+
+
+	@Test
+	public void nesting1x()
+		throws Exception {
+
+		final Variable<Boolean> called = Variable.create(false);
+		final ICommand command = Observers.observable(Does.nothing()).onSuccess(Does.set(called, true));
+		final IChain<Void> chain = Chains.create(command);
+		Chains.builder().add(chain).build().invoke();
+		called.assertEquals(true);
+	}
+
+
+	@Test
+	public void nesting2x()
+		throws Exception {
+
+		final Variable<Boolean> called = Variable.create(false);
+		final ICommand command = Observers.observable(Does.nothing()).onSuccess(Does.set(called, true));
+		final IChain<Void> chain = Chains.create(command);
+		final IChain<Void> chain2 = Chains.builder().add(chain).build();
+		Chains.builder().add(chain2).build().invoke();
 		called.assertEquals(true);
 	}
 }

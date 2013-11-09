@@ -14,13 +14,14 @@ import cmd4j.ICommand.IStateCommand;
  */
 public enum Observers {
 	/*noinstance*/;
+
 	/**
-	 * decorate a {@link ICommand command} with observable capability
-	 * @param command
+	 * decorate a {@link IChain chain} with observable capability
+	 * @param chain
 	 * @return
 	 */
-	public static IObservableStateCommand observable(final IStateCommand command) {
-		return Internals.Observer.observerDecorator(command);
+	public static <O> IObservableChain<O> observable(final IChain<O> chain) {
+		return Internals.Observer.observerDecorator(chain);
 	}
 
 
@@ -29,28 +30,18 @@ public enum Observers {
 	 * @param command
 	 * @return
 	 */
-	public static <O> IObservableCommand<O> observableReturning(final IReturningCommand<O> command) {
+	public static <O> IObservableCommand<O> observable(final IReturningCommand<O> command) {
 		return Internals.Observer.observerDecorator(command);
 	}
 
 
 	/**
-	 * decorate a {@link IChain chain} with observable capability
-	 * @param chain
+	 * decorate a {@link ICommand command} with observable capability
+	 * @param command
 	 * @return
 	 */
-	public static IObservableChain<Void> observable(final IChain<Void> chain) {
-		return Internals.Observer.observerDecorator(chain);
-	}
-
-
-	/**
-	 * decorate a {@link IChain chain} with observable capability
-	 * @param chain
-	 * @return
-	 */
-	public static <O> IObservableChain<O> observableReturning(final IChain<O> chain) {
-		return Internals.Observer.observerDecorator(chain);
+	public static IObservableStateCommand observable(final IStateCommand command) {
+		return Internals.Observer.observerDecorator(command);
 	}
 
 
