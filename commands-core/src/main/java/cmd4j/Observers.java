@@ -68,7 +68,7 @@ public enum Observers {
 
 		/**
 		 * add {@link ICommand commands} that will be invoked upon successful completions
-		 * if the command returned a result that value will be passed as the dto
+		 * if the command returned a result that value will be passed as the input
 		 * @return the command; decorated as observable
 		 */
 		T results(final ICommand... commands);
@@ -83,7 +83,7 @@ public enum Observers {
 
 		/**
 		 * add {@link ICommand commands} that will be invoked upon failed invocation of the command
-		 * the cause of the failure will be available as the dto to any commands that will accept it
+		 * the cause of the failure will be available as the input to any commands that will accept it
 		 * @return the command; decorated as observable
 		 */
 		T onFailure(final ICommand... commands);

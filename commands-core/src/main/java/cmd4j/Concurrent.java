@@ -35,13 +35,13 @@ public enum Concurrent {
 
 
 	/**
-	 * submit a {@link IChain} with dto to the {@link ExecutorService} returning the resulting {@link Future}
+	 * submit a {@link IChain} with input to the {@link ExecutorService} returning the resulting {@link Future}
 	 * @param chain
 	 * @param executor
 	 * @return
 	 */
-	public static <O> Future<O> submit(final IChain<O> chain, final Object dto, final ExecutorService executor) {
-		return executor.submit(asCallable(chain, dto));
+	public static <O> Future<O> submit(final IChain<O> chain, final Object input, final ExecutorService executor) {
+		return executor.submit(asCallable(chain, input));
 	}
 
 
@@ -144,13 +144,13 @@ public enum Concurrent {
 
 
 	/**
-	 * wrap a {@link IChain} and dto up in a {@link Callable}
+	 * wrap a {@link IChain} and input up in a {@link Callable}
 	 * @param chain
-	 * @param dto
+	 * @param input
 	 * @return
 	 */
-	public static <O> Callable<O> asCallable(final IChain<O> chain, final Object dto) {
-		return new ChainCallable<O>(chain, dto);
+	public static <O> Callable<O> asCallable(final IChain<O> chain, final Object input) {
+		return new ChainCallable<O>(chain, input);
 	}
 
 
@@ -165,12 +165,12 @@ public enum Concurrent {
 
 
 	/**
-	 * wrap a {@link IReturningCommand} and dto up in a {@link Callable}
+	 * wrap a {@link IReturningCommand} and input up in a {@link Callable}
 	 * @param command
 	 * @return
 	 */
-	public static <O> Callable<O> asCallable(final IReturningCommand<O> command, final Object dto) {
-		return new CommandCallable<O>(command, dto);
+	public static <O> Callable<O> asCallable(final IReturningCommand<O> command, final Object input) {
+		return new CommandCallable<O>(command, input);
 	}
 
 

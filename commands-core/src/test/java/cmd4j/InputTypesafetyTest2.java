@@ -3,7 +3,7 @@ package cmd4j;
 import java.io.InputStream;
 
 import cmd4j.ICommand.ICommand4;
-import cmd4j.ICommand.IDtoCommand;
+import cmd4j.ICommand.IInputCommand;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.testing.Does.Variable;
 
@@ -14,11 +14,11 @@ import cmd4j.testing.Does.Variable;
 *
 */
 
-public class DtoTypesafetyTest2 {
+public class InputTypesafetyTest2 {
 
 	/*
 	* test commands are designed to represent a situation where a top level command
-	* defines a return type, and there is a constant dto type that all instances get
+	* defines a return type, and there is a constant input type that all instances get
 	* 
 	* super<o> returns o, but is unusable otherwise (not a icommandX impl)
 	* sub<o> is a super<o> and has a constant return type (icommand4) of Integer
@@ -31,7 +31,7 @@ public class DtoTypesafetyTest2 {
 
 
 	public interface ISub<O>
-		extends ISuper<O>, IDtoCommand<String>, ICommand4<String, O> {
+		extends ISuper<O>, IInputCommand<String>, ICommand4<String, O> {
 	}
 
 
@@ -42,7 +42,7 @@ public class DtoTypesafetyTest2 {
 
 	public static ISub<InputStream> inputStreamReturningSub(final Variable<Boolean> ran) {
 		return new ISub<InputStream>() {
-			public InputStream invoke(final String dto) {
+			public InputStream invoke(final String input) {
 				if (ran != null) {
 					ran.setValue(true);
 				}
@@ -52,7 +52,7 @@ public class DtoTypesafetyTest2 {
 	}
 
 
-	/* there is potential for error depending on the type of dto, whether it
+	/* there is potential for error depending on the type of input, whether it
 	* a- matches any wrong generic type on the command, 
 	* b- matches the correct index of generic type on the command
 	* c- matches no generic type on the command
@@ -60,57 +60,57 @@ public class DtoTypesafetyTest2 {
 	* test all three situations here
 	*/
 
-	// dto does not fit expect an exception
+	// input does not fit expect an exception
 	//@Test(expectedExceptions = ExecutionException.class, dataProvider = "failure")
-	public void failure_setVisitImplicit(final Object dto)
+	public void failure_setVisitImplicit(final Object input)
 		throws Exception {
 
-		Chains.builder().add(inputStreamReturningSub()).build().invoke(dto);
+		Chains.builder().add(inputStreamReturningSub()).build().invoke(input);
 	}
 
 
 	//@Test(dataProvider = "success")
-	public void success_setVisitImplicit(final Object dto)
+	public void success_setVisitImplicit(final Object input)
 		throws Exception {
 
 		final Variable<Boolean> ran = Variable.create();
-		Chains.builder().add(inputStreamReturningSub(ran)).build().invoke(dto);
+		Chains.builder().add(inputStreamReturningSub(ran)).build().invoke(input);
 		ran.assertEquals(true);
 	}
 
 
 	//@Test(expectedExceptions = ExecutionException.class, dataProvider = "failure")
-	public void failure_setVisitExplicit(final Object dto)
+	public void failure_setVisitExplicit(final Object input)
 		throws Exception {
 
-		Chains.builder().add(inputStreamReturningSub()).visits(true).build().invoke(dto);
+		Chains.builder().add(inputStreamReturningSub()).visits(true).build().invoke(input);
 	}
 
 
 	//@Test(dataProvider = "success")
-	public void success_setVisitExplicit(final Object dto)
+	public void success_setVisitExplicit(final Object input)
 		throws Exception {
 
 		final Variable<Boolean> ran = Variable.create();
-		Chains.builder().add(inputStreamReturningSub(ran)).visits(true).build().invoke(dto);
+		Chains.builder().add(inputStreamReturningSub(ran)).visits(true).build().invoke(input);
 		ran.assertEquals(true);
 	}
 
 
 	//@Test(expectedExceptions = ExecutionException.class, dataProvider = "failure")
-	public void failure_setNotVisitExplicit(final Object dto)
+	public void failure_setNotVisitExplicit(final Object input)
 		throws Exception {
 
-		Chains.builder().add(inputStreamReturningSub()).visits(false).build().invoke(dto);
+		Chains.builder().add(inputStreamReturningSub()).visits(false).build().invoke(input);
 	}
 
 
 	//@Test(dataProvider = "success")
-	public void success_setNotVisitExplicit(final Object dto)
+	public void success_setNotVisitExplicit(final Object input)
 		throws Exception {
 
 		final Variable<Boolean> ran = Variable.create();
-		Chains.builder().add(inputStreamReturningSub(ran)).visits(false).build().invoke(dto);
+		Chains.builder().add(inputStreamReturningSub(ran)).visits(false).build().invoke(input);
 		ran.assertEquals(true);
 	}
 }

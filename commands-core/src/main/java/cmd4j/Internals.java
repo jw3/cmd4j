@@ -63,7 +63,7 @@ enum Internals {
 			implements Callable<R> {
 
 			private final IReturningCommand<R> command;
-			private final Object dto;
+			private final Object input;
 
 
 			public CommandCallable(final IReturningCommand<R> command) {
@@ -71,16 +71,16 @@ enum Internals {
 			}
 
 
-			public CommandCallable(final IReturningCommand<R> command, final Object dto) {
+			public CommandCallable(final IReturningCommand<R> command, final Object input) {
 				this.command = command;
-				this.dto = dto;
+				this.input = input;
 			}
 
 
 			public R call()
 				throws Exception {
 
-				return Chains.create(command).invoke(dto);
+				return Chains.create(command).invoke(input);
 			}
 		}
 
@@ -104,10 +104,10 @@ enum Internals {
 			}
 
 
-			public Void invoke(final Object dto)
+			public Void invoke(final Object input)
 				throws Exception {
 
-				Link.invokeCommand(command, dto, true);
+				Link.invokeCommand(command, input, true);
 				return null;
 			}
 		}
@@ -122,7 +122,7 @@ enum Internals {
 		interface ICommandProxy<C extends ICommand>
 			extends ICommand {
 
-			IDtoCommand<C> command();
+			IInputCommand<C> command();
 		}
 	}
 
@@ -167,9 +167,9 @@ enum Internals {
 			private final ICommand command;
 			private final ILink next;
 
-			private Object dto;
+			private Object input;
 			private ExecutorService executor;
-			private boolean ignoreDtoMismatch;
+			private boolean ignoreInputMismatch;
 
 
 			public DefaultLink(final ICommand command, final ILink next) {
@@ -178,13 +178,13 @@ enum Internals {
 			}
 
 
-			public Object dto() {
-				return dto;
+			public Object input() {
+				return input;
 			}
 
 
-			public DefaultLink dto(final Object dto) {
-				this.dto = dto;
+			public DefaultLink input(final Object input) {
+				this.input = input;
 				return this;
 			}
 
@@ -210,8 +210,8 @@ enum Internals {
 			}
 
 
-			public DefaultLink ignoreDtoMismatch(final boolean ignoreDtoMismatch) {
-				this.ignoreDtoMismatch = ignoreDtoMismatch;
+			public DefaultLink ignoreInputMismatch(final boolean ignoreInputMismatch) {
+				this.ignoreInputMismatch = ignoreInputMismatch;
 				return this;
 			}
 
@@ -226,8 +226,8 @@ enum Internals {
 				ICommand command = cmd();
 				while (command != null) {
 					// REVISIT not sure what the following is doing?
-					final Object dto = dto() != null ? dto() : this.dto;
-					final Object returned = invokeCommand(command, dto, ignoreDtoMismatch);
+					final Object input = input() != null ? input() : this.input;
+					final Object returned = invokeCommand(command, input, ignoreInputMismatch);
 					command = command instanceof IStateCommand && returned instanceof ICommand ? (ICommand)returned : null;
 				}
 				return next();
@@ -252,7 +252,7 @@ enum Internals {
 			private LinkBuilder next;
 
 			private ExecutorService executor;
-			private Object dto;
+			private Object input;
 
 
 			/**
@@ -287,19 +287,19 @@ enum Internals {
 			}
 
 
-			LinkBuilder dto(final Object dto) {
-				this.dto = dto;
+			LinkBuilder input(final Object input) {
+				this.input = input;
 				return this;
 			}
 
 
 			ILink build() {
-				return new DefaultLink(command, next != null ? next.build() : null).executor(executor).dto(dto);
+				return new DefaultLink(command, next != null ? next.build() : null).executor(executor).input(input);
 			}
 
 
 			ILink build(boolean visits) {
-				return new DefaultLink(command, next != null ? next.build(visits) : null).executor(executor).dto(dto).ignoreDtoMismatch(visits);
+				return new DefaultLink(command, next != null ? next.build(visits) : null).executor(executor).input(input).ignoreInputMismatch(visits);
 			}
 		}
 
@@ -318,12 +318,12 @@ enum Internals {
 			}
 
 
-			public Object dto() {
+			public Object input() {
 				return null;
 			}
 
 
-			public ILink dto(Object dto) {
+			public ILink input(Object input) {
 				return this;
 			}
 
@@ -347,7 +347,7 @@ enum Internals {
 		}
 
 
-		// REVISIT should this support dto mismatch ignores?
+		// REVISIT should this support input mismatch ignores?
 		static class LinkUndoDecorator
 			implements ILink {
 
@@ -364,13 +364,13 @@ enum Internals {
 			}
 
 
-			public Object dto() {
-				return link.dto();
+			public Object input() {
+				return link.input();
 			}
 
 
-			public ILink dto(Object dto) {
-				return link.dto(dto);
+			public ILink input(Object input) {
+				return link.input(input);
 			}
 
 
@@ -395,8 +395,8 @@ enum Internals {
 				ICommand command = cmd();
 				while (command != null) {
 					// REVISIT not sure what the following is doing? 
-					final Object dto = dto() != null ? dto() : this.dto();
-					final Object returned = invokeCommand(command, dto, false, true);
+					final Object input = input() != null ? input() : this.input();
+					final Object returned = invokeCommand(command, input, false, true);
 					command = command instanceof IStateCommand && returned instanceof ICommand ? (ICommand)returned : null;
 				}
 				return next();
@@ -421,20 +421,20 @@ enum Internals {
 		/**
 		 * util for executing and handling any return value from a given {@link ICommand}
 		 * @param command
-		 * @param dto
+		 * @param input
 		 * @return
 		 * @throws Exception
 		 */
-		static Object invokeCommand(final ICommand command, final Object dto, final boolean ignoreDtoMismatch)
+		static Object invokeCommand(final ICommand command, final Object input, final boolean ignoreInputMismatch)
 			throws Exception {
 
-			return invokeCommand(command, dto, ignoreDtoMismatch, false);
+			return invokeCommand(command, input, ignoreInputMismatch, false);
 		}
 
 
 		@SuppressWarnings({"unchecked", "rawtypes"})
-		/// safely suppressed here: we do some extra checking to ensure the dto fits in the invocation
-		static Object invokeCommand(final ICommand command, final Object dto, final boolean ignoreDtoMismatch, final boolean undo)
+		/// safely suppressed here: we do some extra checking to ensure the input fits in the invocation
+		static Object invokeCommand(final ICommand command, final Object input, final boolean ignoreInputMismatch, final boolean undo)
 			throws Exception {
 
 			try {
@@ -446,13 +446,13 @@ enum Internals {
 						return ((ICommand5)command).invoke();
 					}
 					else if (command instanceof ICommand6<?>) {
-						return ((ICommand6)command).invoke(dto);
+						return ((ICommand6)command).invoke(input);
 					}
 					else if (command instanceof ICommand4<?, ?>) {
-						return ((ICommand4)command).invoke(dto);
+						return ((ICommand4)command).invoke(input);
 					}
 					else if (command instanceof ICommand2<?>) {
-						((ICommand2)command).invoke(dto);
+						((ICommand2)command).invoke(input);
 					}
 					else if (command instanceof ICommand3<?>) {
 						return ((ICommand3)command).invoke();
@@ -463,10 +463,10 @@ enum Internals {
 				}
 				else {
 					if (command instanceof ICommand4.IUndo<?, ?>) {
-						return ((ICommand4.IUndo)command).undo(dto);
+						return ((ICommand4.IUndo)command).undo(input);
 					}
 					else if (command instanceof ICommand2.IUndo<?>) {
-						((ICommand2.IUndo)command).undo(dto);
+						((ICommand2.IUndo)command).undo(input);
 					}
 					else if (command instanceof ICommand3.IUndo<?>) {
 						return ((ICommand3.IUndo)command).undo();
@@ -477,8 +477,8 @@ enum Internals {
 				}
 			}
 			catch (final ClassCastException e) {
-				if (!ignoreDtoMismatch) {
-					throw new IllegalArgumentException("dto does not fit");
+				if (!ignoreInputMismatch) {
+					throw new IllegalArgumentException("input does not fit");
 				}
 			}
 			return null;
@@ -519,7 +519,7 @@ enum Internals {
 			}
 
 
-			public Void invoke(final Object dto) {
+			public Void invoke(final Object input) {
 				return null;
 			}
 		}
@@ -567,22 +567,22 @@ enum Internals {
 			}
 
 
-			public R invoke(Object dto)
+			public R invoke(Object input)
 				throws Exception {
 
 				if (link != null) {
-					final Linker linker = new Linker(this.head(), dto);
+					final Linker linker = new Linker(this.head(), input);
 					Concurrent.sameThreadExecutor().submit(linker).get();
 					return null;
 				}
 				if (returningCommand != null) {
 					@SuppressWarnings("unchecked")
 					//should be safe cast here
-					final R retval = (R)Internals.Link.invokeCommand(returningCommand, dto, false);
+					final R retval = (R)Internals.Link.invokeCommand(returningCommand, input, false);
 					return retval;
 				}
 
-				Internals.Link.invokeCommand(command, dto, false);
+				Internals.Link.invokeCommand(command, input, false);
 
 				return null;
 			}
@@ -598,7 +598,7 @@ enum Internals {
 			implements Callable<O> {
 
 			private final IChain<O> chain;
-			private final Object dto;
+			private final Object input;
 
 
 			public ChainCallable(final IChain<O> chain) {
@@ -606,16 +606,16 @@ enum Internals {
 			}
 
 
-			public ChainCallable(final IChain<O> chain, final Object dto) {
+			public ChainCallable(final IChain<O> chain, final Object input) {
 				this.chain = chain;
-				this.dto = dto;
+				this.input = input;
 			}
 
 
 			public O call()
 				throws Exception {
 
-				return chain.invoke(dto);
+				return chain.invoke(input);
 			}
 		}
 
@@ -632,12 +632,12 @@ enum Internals {
 			implements Callable<Void> {
 
 			private final ILink head;
-			private final Object dto;
+			private final Object input;
 
 
-			public Linker(final ILink head, final Object dto) {
+			public Linker(final ILink head, final Object input) {
 				this.head = head;
-				this.dto = dto;
+				this.input = input;
 			}
 
 
@@ -660,8 +660,8 @@ enum Internals {
 			protected ILink callImpl(final ILink link)
 				throws Exception {
 
-				if (dto != null && link.dto() == null) {
-					link.dto(dto);
+				if (input != null && link.input() == null) {
+					link.input(input);
 				}
 				final ExecutorService executor = link.executor();
 				if (executor != null) {
@@ -680,8 +680,8 @@ enum Internals {
 		static class UndoLinker
 			extends Linker {
 
-			public UndoLinker(final ILink head, final Object dto) {
-				super(head, dto);
+			public UndoLinker(final ILink head, final Object input) {
+				super(head, input);
 			}
 
 
@@ -751,10 +751,10 @@ enum Internals {
 			}
 
 
-			public R invoke(final Object dto)
+			public R invoke(final Object input)
 				throws Exception {
 
-				final Linker linker = new UndoLinker(this.head(), dto);
+				final Linker linker = new UndoLinker(this.head(), input);
 				Concurrent.sameThreadExecutor().submit(linker).get();
 				return null;
 			}
@@ -815,25 +815,25 @@ enum Internals {
 			}
 
 
-			protected ICommand invokeImpl(final Object dto)
+			protected ICommand invokeImpl(final Object input)
 				throws Exception {
 
-				final Object returned = Link.invokeCommand(executing, dto, true);
+				final Object returned = Link.invokeCommand(executing, input, true);
 				return /*command instanceof IStateCommand &&*/returned instanceof ICommand ? (ICommand)returned : null;
 			}
 
 
 			@Override
-			public ICommand invoke(final Object dto)
+			public ICommand invoke(final Object input)
 				throws Exception {
 
 				executing = this.getDecorating();
 				while (executing != null) {
 					try {
-						executeHandlers(beforeHandlers(), dto);
-						executing = invokeImpl(dto);
+						executeHandlers(beforeHandlers(), input);
+						executing = invokeImpl(input);
 						///executeHandlers(resultsHandlers(), returned);
-						executeHandlers(successHandlers(), dto);
+						executeHandlers(successHandlers(), input);
 					}
 					catch (ExecutionException e) {
 						executeHandlers(failureHandlers(), e.getCause());
@@ -844,7 +844,7 @@ enum Internals {
 						throw e;
 					}
 					finally {
-						executeHandlers(afterHandlers(), dto);
+						executeHandlers(afterHandlers(), input);
 					}
 				}
 				return null;
@@ -865,10 +865,10 @@ enum Internals {
 			}
 
 
-			protected O invokeImpl(final Object dto)
+			protected O invokeImpl(final Object input)
 				throws Exception {
 
-				return Chains.create(this.getDecorating()).invoke(dto);
+				return Chains.create(this.getDecorating()).invoke(input);
 			}
 		}
 
@@ -891,10 +891,10 @@ enum Internals {
 			}
 
 
-			protected O invokeImpl(final Object dto)
+			protected O invokeImpl(final Object input)
 				throws Exception {
 
-				return this.getDecorating().invoke(dto);
+				return this.getDecorating().invoke(input);
 			}
 		}
 
@@ -933,7 +933,7 @@ enum Internals {
 			}
 
 
-			abstract protected O invokeImpl(final Object dto)
+			abstract protected O invokeImpl(final Object input)
 				throws Exception;
 
 
@@ -944,15 +944,15 @@ enum Internals {
 			}
 
 
-			public O invoke(final Object dto)
+			public O invoke(final Object input)
 				throws Exception {
 
 				try {
 					final O returned;
-					executeHandlers(beforeHandlers(), dto);
-					returned = invokeImpl(dto);
+					executeHandlers(beforeHandlers(), input);
+					returned = invokeImpl(input);
 					executeHandlers(resultsHandlers(), returned);
-					executeHandlers(successHandlers(), dto);
+					executeHandlers(successHandlers(), input);
 					return returned;
 				}
 				catch (ExecutionException e) {
@@ -964,7 +964,7 @@ enum Internals {
 					throw e;
 				}
 				finally {
-					executeHandlers(afterHandlers(), dto);
+					executeHandlers(afterHandlers(), input);
 				}
 			}
 
@@ -1024,9 +1024,9 @@ enum Internals {
 			}
 
 
-			protected void executeHandlers(final List<ICommand> commands, final Object dto) {
+			protected void executeHandlers(final List<ICommand> commands, final Object input) {
 				try {
-					Chains.create(commands).invoke(dto);
+					Chains.create(commands).invoke(input);
 				}
 				catch (final Throwable t) {
 					// REVISIT the show must go on

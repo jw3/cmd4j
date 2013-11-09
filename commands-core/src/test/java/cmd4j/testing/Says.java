@@ -19,10 +19,10 @@ abstract public class Says
 		String toString();
 
 
-		Says dto();
+		Says input();
 
 
-		Says threadDto();
+		Says threadInput();
 
 
 		Says thread();
@@ -37,17 +37,17 @@ abstract public class Says
 	}
 
 
-	public static Says dto(final Writer... into) {
+	public static Says input(final Writer... into) {
 		return new Says() {
-			public void invoke(final Object dto)
+			public void invoke(final Object input)
 				throws Exception {
 
 				if (into.length == 0) {
-					System.out.println(String.valueOf(dto));
+					System.out.println(String.valueOf(input));
 				}
 				else {
 					for (Writer out : into) {
-						out.write(String.valueOf(dto));
+						out.write(String.valueOf(input));
 					}
 				}
 			}
@@ -55,16 +55,16 @@ abstract public class Says
 	}
 
 
-	public static Says threadDto(final Writer... into) {
+	public static Says threadInput(final Writer... into) {
 		return new Says() {
-			public void invoke(final Object dto)
+			public void invoke(final Object input)
 				throws IOException {
 
 				final StringBuilder buffer = new StringBuilder();
 				buffer.append(Thread.currentThread().getName());
 
-				if (dto != null) {
-					buffer.append("\t").append(String.valueOf(dto));
+				if (input != null) {
+					buffer.append("\t").append(String.valueOf(input));
 				}
 				if (into.length == 0) {
 					System.out.println(buffer.toString());
@@ -81,7 +81,7 @@ abstract public class Says
 
 	public static Says thread(final Writer... into) {
 		return new Says() {
-			public void invoke(final Object dto)
+			public void invoke(final Object input)
 				throws IOException {
 
 				final StringBuilder buffer = new StringBuilder();
@@ -102,15 +102,15 @@ abstract public class Says
 
 	public static Says what(final Object toSay, final Object... into) {
 		return new Says() {
-			public void invoke(final Object dto)
+			public void invoke(final Object input)
 				throws IOException {
 
 				if (into.length == 0) {
 					final StringBuilder buffer = new StringBuilder();
 					buffer.append("[ ").append(Thread.currentThread().getName()).append(" ]").append("\t");
 					buffer.append(toSay).append(" ");
-					if (dto != null) {
-						buffer.append(String.valueOf(dto));
+					if (input != null) {
+						buffer.append(String.valueOf(input));
 					}
 
 					System.out.println(buffer.toString());
@@ -146,7 +146,7 @@ abstract public class Says
 		}
 
 
-		public Says threadDto() {
+		public Says threadInput() {
 			return Says.thread(writer);
 		}
 
@@ -156,8 +156,8 @@ abstract public class Says
 		}
 
 
-		public Says dto() {
-			return Says.dto(writer);
+		public Says input() {
+			return Says.input(writer);
 		}
 
 

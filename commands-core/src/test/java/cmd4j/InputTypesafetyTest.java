@@ -9,17 +9,17 @@ import cmd4j.ICommand.ICommand2;
 import cmd4j.testing.Does.Variable;
 
 /**
- * Ensure that a DTO does not end up being passed to a {@link ICommand} that will not accept it.
+ * Ensure that a Input does not end up being passed to a {@link ICommand} that will not accept it.
  * This also gives a workout to the {@link Commands#tokenizeType(Class, ICommand) type tokenization}
  *
  * @author wassj
  *
  */
-public class DtoTypesafetyTest {
+public class InputTypesafetyTest {
 
 	static ICommand invoked(final Variable<Boolean> called) {
 		return new ICommand2<Object>() {
-			public void invoke(final Object dto) {
+			public void invoke(final Object input) {
 				called.setValue(true);
 			}
 		};
@@ -28,7 +28,7 @@ public class DtoTypesafetyTest {
 
 	static ICommand invokedString(final Variable<Boolean> called) {
 		return new ICommand2<String>() {
-			public void invoke(final String dto) {
+			public void invoke(final String input) {
 				called.setValue(true);
 			}
 		};
@@ -37,7 +37,7 @@ public class DtoTypesafetyTest {
 
 	static ICommand invokedNumber(final Variable<Boolean> called) {
 		return new ICommand2<Number>() {
-			public void invoke(final Number dto) {
+			public void invoke(final Number input) {
 				called.setValue(true);
 			}
 		};
@@ -46,7 +46,7 @@ public class DtoTypesafetyTest {
 
 	static ICommand invokedInteger(final Variable<Boolean> called) {
 		return new ICommand2<Integer>() {
-			public void invoke(final Integer dto) {
+			public void invoke(final Integer input) {
 				called.setValue(true);
 			}
 		};
@@ -55,7 +55,7 @@ public class DtoTypesafetyTest {
 
 	static ICommand invokedDouble(final Variable<Boolean> called) {
 		return new ICommand2<Double>() {
-			public void invoke(final Double dto) {
+			public void invoke(final Double input) {
 				called.setValue(true);
 			}
 		};
@@ -63,10 +63,10 @@ public class DtoTypesafetyTest {
 
 
 	@Test
-	public void testDtoToEmptyChain()
+	public void testInputToEmptyChain()
 		throws Exception {
 
-		Chains.create(Chains.create()).invoke("dto");
+		Chains.create(Chains.create()).invoke("input");
 	}
 
 

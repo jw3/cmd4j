@@ -81,13 +81,13 @@ public class ExampleEventDispatcher {
 					.executor(Concurrent.swingExecutor())
 
 					.add(isEdt())
-					.dto("edt?")
+					.input("edt?")
 					.executor(exec)
 
 					.add(sayThread())
 
 					.add(isEdt())
-					.dto("edt?")
+					.input("edt?")
 
 					.add(shutdown(exec))
 
@@ -103,8 +103,8 @@ public class ExampleEventDispatcher {
 	 */
 	static <T> ICommand print(final String message) {
 		return new ICommand2<T>() {
-			public void invoke(T dto) {
-				System.out.println(message + " : " + String.valueOf(dto));
+			public void invoke(T input) {
+				System.out.println(message + " : " + String.valueOf(input));
 			}
 		};
 	}

@@ -32,9 +32,9 @@ public class ExampleNonBlockingBlocking {
 		buffer.append(0);
 
 		// create a chain that has a couple commands and runs on the EDT
-		final IChain<Void> chain1 = Chains.builder().add(Says.threadDto()).add(Says.what(4, buffer)).add(Says.what("chain 1 done")).add(Says.what(5, buffer)).build();
-		final IChain<Void> chain2 = Chains.builder().add(Says.threadDto()).add(Says.what(7, buffer)).add(Says.what("chain 2 done")).add(Says.what(8, buffer)).build();
-		final IChain<Void> chain3 = Chains.builder().add(Says.threadDto()).add(Says.what(14, buffer)).add(Says.what("chain 3 done")).add(Says.what(15, buffer)).build();
+		final IChain<Void> chain1 = Chains.builder().add(Says.threadInput()).add(Says.what(4, buffer)).add(Says.what("chain 1 done")).add(Says.what(5, buffer)).build();
+		final IChain<Void> chain2 = Chains.builder().add(Says.threadInput()).add(Says.what(7, buffer)).add(Says.what("chain 2 done")).add(Says.what(8, buffer)).build();
+		final IChain<Void> chain3 = Chains.builder().add(Says.threadInput()).add(Says.what(14, buffer)).add(Says.what("chain 3 done")).add(Says.what(15, buffer)).build();
 
 		buffer.append(1);
 

@@ -113,7 +113,7 @@ public class ConcurrentExecutorSpecificationTest2 {
 
 
 	@Test
-	public void specifyChainsThreadToForceAllUnspecifiedCommandsOntoIt1()
+	public void specifyChainsThreaInputForceAllUnspecifiedCommandsOntoIt1()
 		throws Exception {
 
 		final IChain<Void> chain = Chains.builder()
@@ -130,7 +130,7 @@ public class ConcurrentExecutorSpecificationTest2 {
 
 
 	@Test
-	public void specifyChainsThreadToForceAllUnspecifiedCommandsOntoIt2()
+	public void specifyChainsThreaInputForceAllUnspecifiedCommandsOntoIt2()
 		throws Exception {
 
 		final IChain<Void> chain = Chains.builder()
@@ -147,7 +147,7 @@ public class ConcurrentExecutorSpecificationTest2 {
 
 
 	@Test
-	public void specifyChainsThreadToForceAllUnspecifiedCommandsOntoIt3()
+	public void specifyChainsThreaInputForceAllUnspecifiedCommandsOntoIt3()
 		throws Exception {
 
 		final IChain<Void> chain = Chains.builder()

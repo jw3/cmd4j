@@ -47,7 +47,7 @@ public enum Dispatcher {
 	 * collect {@link ICommand commands} from all applicable listeners and build a {@link IChain chain} to run 
 	 */
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	// dtoIsCastableForCommand ensures the compatible type here
+	// inputIsCastableForCommand ensures the compatible type here
 	public static Dispatcher fire(final Object event)
 		throws Exception {
 
@@ -58,7 +58,7 @@ public enum Dispatcher {
 
 		final ChainBuilder builder = Chains.builder();
 		for (final IListener listener : listeners) {
-			if (dtoIsCastableForCommand(listener, event)) {
+			if (inputIsCastableForCommand(listener, event)) {
 				final ICommand command = listener.handle(event);
 				if (command != null) {
 					builder.add(command);
@@ -76,11 +76,11 @@ public enum Dispatcher {
 	 * 
 	 */
 
-	static boolean dtoIsCastableForCommand(final IListener<?> listener, final Object dto) {
-		if (dto != null) {
+	static boolean inputIsCastableForCommand(final IListener<?> listener, final Object input) {
+		if (input != null) {
 			final Class<?> cmdType = typedAs(listener);
-			final Class<?> dtoType = dto.getClass();
-			return cmdType.isAssignableFrom(dtoType);
+			final Class<?> inputType = input.getClass();
+			return cmdType.isAssignableFrom(inputType);
 		}
 		return true;
 	}

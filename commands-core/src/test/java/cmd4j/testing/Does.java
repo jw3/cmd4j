@@ -32,7 +32,7 @@ public enum Does {
 
 	public static Says boom() {
 		return new Says() {
-			public void invoke(final Object dto)
+			public void invoke(final Object input)
 				throws Exception {
 
 				throw new Exception("boom");
@@ -43,10 +43,10 @@ public enum Does {
 
 	public static ICommand submits(final IReturningCommand<Void> command, final ExecutorService executor) {
 		return new ICommand2<Object>() {
-			public void invoke(final Object dto)
+			public void invoke(final Object input)
 				throws Exception {
 
-				final Callable<Void> callable = Concurrent.asCallable(command, dto);
+				final Callable<Void> callable = Concurrent.asCallable(command, input);
 				executor.submit(callable).get();
 			}
 		};
@@ -55,7 +55,7 @@ public enum Does {
 
 	public static ICommand invoked(final Variable<Boolean> called) {
 		return new ICommand2<Object>() {
-			public void invoke(final Object dto) {
+			public void invoke(final Object input) {
 				called.setValue(true);
 			}
 		};
@@ -77,15 +77,15 @@ public enum Does {
 
 
 	/**
-	 * test the dto against the passed value
+	 * test the input against the passed value
 	 */
 	public static <T> ICommand is(final T value) {
 		final Variable<Boolean> invoked = var(false);
 		return Chains.builder()//
 			.add(new ICommand2<T>() {
-				public void invoke(final T dto) {
+				public void invoke(final T input) {
 					invoked.setValue(true);
-					Assert.assertEquals(value, dto);
+					Assert.assertEquals(value, input);
 				}
 			})
 			.add(is(invoked, true))

@@ -139,7 +139,7 @@ public class ExampleButtonActionsWithUndo {
 
 		public IChain<Void> getChain() {
 			return Chains.create((ICommand)new ICommand4<Object, ICommand>() {
-				public ICommand invoke(Object dto) {
+				public ICommand invoke(Object input) {
 					if (!undoStack.isEmpty()) {
 						return Chains.undoable(undoStack.pop());
 					}

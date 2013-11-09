@@ -18,7 +18,7 @@ import cmd4j.Observers.IObservable;
 public interface ICommand {
 
 	/**
-	 * The simplest form of a {@link ICommand command} with no return value or input dto.
+	 * The simplest form of a {@link ICommand command} with no return value or input input.
 	 *
 	 * @author wassj
 	 *
@@ -48,23 +48,23 @@ public interface ICommand {
 
 
 	/**
-	 * A {@link ICommand command} implementation that supports having a Data Transfer Object (dto) passed in at execution time.
-	 * The containing {@link ILink link} is responsible for providing the dto to the command at the time it is invoked.
+	 * A {@link ICommand command} implementation that supports having a Data Transfer Object (input) passed in at execution time.
+	 * The containing {@link ILink link} is responsible for providing the input to the command at the time it is invoked.
 	 * 
-	 * The dto may or may not be null, there is no guarantee provided in that regard.
+	 * The input may or may not be null, there is no guarantee provided in that regard.
 	 * 
 	 * @author wassj
 	 *
 	 */
 	public interface ICommand2<I>
-		extends ICommand, IDtoCommand<I>, IReturningCommand<Void> {
+		extends ICommand, IInputCommand<I>, IReturningCommand<Void> {
 
 		/**
 		 * invoke this command
-		 * @param dto Data Transfer Object
+		 * @param input Data Transfer Object
 		 * @throws Exception
 		 */
-		void invoke(I dto)
+		void invoke(I input)
 			throws Exception;
 
 
@@ -76,7 +76,7 @@ public interface ICommand {
 		public interface IUndo<I>
 			extends ICommand2<I>, IUndoCommand {
 
-			void undo(I dto)
+			void undo(I input)
 				throws Exception;
 		}
 	}
@@ -117,15 +117,15 @@ public interface ICommand {
 	 * @param <O>
 	 */
 	public interface ICommand4<I, O>
-		extends ICommand, IReturningCommand<O>, IDtoCommand<I> {
+		extends ICommand, IReturningCommand<O>, IInputCommand<I> {
 
 		/**
 		 * invoke this command, returning value of type R
-		 * @param dto Data Transfer Object
+		 * @param input Data Transfer Object
 		 * @return the return value
 		 * @throws Exception
 		 */
-		O invoke(I dto)
+		O invoke(I input)
 			throws Exception;
 
 
@@ -138,7 +138,7 @@ public interface ICommand {
 		public interface IUndo<I, O>
 			extends ICommand4<I, O>, IUndoCommand {
 
-			O undo(I dto)
+			O undo(I input)
 				throws Exception;
 		}
 	}
@@ -169,15 +169,15 @@ public interface ICommand {
 	 * @param <I>
 	 */
 	public interface ICommand6<I>
-		extends ICommand, IStateCommand, IDtoCommand<I> {
+		extends ICommand, IStateCommand, IInputCommand<I> {
 
 		/**
 		 * 
-		 * @param dto
+		 * @param input
 		 * @return
 		 * @throws Exception
 		 */
-		ICommand invoke(I dto)
+		ICommand invoke(I input)
 			throws Exception;
 	}
 
@@ -230,7 +230,7 @@ public interface ICommand {
 	 * @author wassj
 	 * @param <I>
 	 */
-	public interface IDtoCommand<I>
+	public interface IInputCommand<I>
 		extends ICommand {
 	}
 

@@ -136,15 +136,15 @@ public enum Chains {
 
 
 		/**
-		 * set an individual overriding dto for the tail link
-		 * @param dto
+		 * set an individual overriding input for the tail link
+		 * @param input
 		 * @return
 		 */
-		public ChainBuilder dto(final Object dto) {
+		public ChainBuilder input(final Object input) {
 			if (tail == null) {
 				throw new NullPointerException("chain builder was not initialized, tail is null");
 			}
-			tail.dto(dto);
+			tail.input(input);
 			return this;
 		}
 
@@ -170,7 +170,7 @@ public enum Chains {
 	 * 
 	 * @author wassj
 	 * 
-	 * @dto A Link can provide an overriding dto that will be passed to commands executing withing the context of this Link.
+	 * @input A Link can provide an overriding input that will be passed to commands executing withing the context of this Link.
 	 * @concurrency A Link does not exhibit any concurrency behavior by default, but can be decorated to do so. 
 	 * 
 	 * @see Links
@@ -187,13 +187,13 @@ public enum Chains {
 
 		/**
 		 * Data Transfer Object that is passed to {@link ICommand commands} within this link.
-		 * This acts as an override to the {@link IChain chain} level dto.
+		 * This acts as an override to the {@link IChain chain} level input.
 		 * @return Object the Data Transfer Object
 		 */
-		Object dto();
+		Object input();
 
 
-		ILink dto(Object dto);
+		ILink input(Object input);
 
 
 		/**
