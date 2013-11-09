@@ -21,7 +21,7 @@ public enum Observers {
 	 * @return
 	 */
 	public static <O> IObservableChain<O> observable(final IChain<O> chain) {
-		return Internals.Observer.observerDecorator(chain);
+		return Internals.Observer.decorator(chain);
 	}
 
 
@@ -31,7 +31,7 @@ public enum Observers {
 	 * @return
 	 */
 	public static <O> IObservableCommand<O> observable(final IReturningCommand<O> command) {
-		return Internals.Observer.observerDecorator(command);
+		return Internals.Observer.decorator(command);
 	}
 
 
@@ -41,7 +41,7 @@ public enum Observers {
 	 * @return
 	 */
 	public static IObservableStateCommand observable(final IStateCommand command) {
-		return Internals.Observer.observerDecorator(command);
+		return Internals.Observer.decorator(command);
 	}
 
 

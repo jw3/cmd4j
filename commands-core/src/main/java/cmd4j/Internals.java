@@ -530,12 +530,12 @@ enum Internals {
 		 *
 		 * @author wassj
 		 */
-		static class DefaultChain<R>
-			implements IChain<R> {
+		static class DefaultChain<O>
+			implements IChain<O> {
 
 			private final ILink link;
 			private final ICommand command;
-			private final IReturningCommand<R> returningCommand;
+			private final IReturningCommand<O> returningCommand;
 
 
 			public DefaultChain(final ILink link) {
@@ -548,26 +548,26 @@ enum Internals {
 			}
 
 
-			public DefaultChain(final IReturningCommand<R> returningCommand) {
+			public DefaultChain(final IReturningCommand<O> returningCommand) {
 				this(null, null, returningCommand);
 			}
 
 
-			private DefaultChain(final ILink link, final ICommand command, final IReturningCommand<R> returningCommand) {
+			private DefaultChain(final ILink link, final ICommand command, final IReturningCommand<O> returningCommand) {
 				this.link = link;
 				this.command = command;
 				this.returningCommand = returningCommand;
 			}
 
 
-			public R invoke()
+			public O invoke()
 				throws Exception {
 
 				return this.invoke(null);
 			}
 
 
-			public R invoke(Object input)
+			public O invoke(Object input)
 				throws Exception {
 
 				if (link != null) {
@@ -578,7 +578,7 @@ enum Internals {
 				if (returningCommand != null) {
 					@SuppressWarnings("unchecked")
 					//should be safe cast here
-					final R retval = (R)Internals.Link.invokeCommand(returningCommand, input, false);
+					final O retval = (O)Internals.Link.invokeCommand(returningCommand, input, false);
 					return retval;
 				}
 
@@ -704,7 +704,7 @@ enum Internals {
 		 * @param <T>
 		 */
 		interface IDecorator<T> {
-			T getDecorating();
+			T decorating();
 		}
 
 
@@ -712,10 +712,8 @@ enum Internals {
 		 *
 		 * @author wassj
 		 */
-		interface IChainDecorator<R>
-			extends IDecorator<IChain<R>>, IChain<R> {
-
-			IChain<R> getDecorating();
+		interface IChainDecorator<O>
+			extends IDecorator<IChain<O>>, IChain<O> {
 		}
 
 
@@ -723,18 +721,18 @@ enum Internals {
 		 *
 		 * @author wassj
 		 */
-		static class UndoableChainDecorator<R>
-			implements IChainDecorator<R> {
+		static class UndoableChainDecorator<O>
+			implements IChainDecorator<O> {
 
-			private final IChain<R> chain;
+			private final IChain<O> chain;
 
 
-			public UndoableChainDecorator(final IChain<R> chain) {
+			public UndoableChainDecorator(final IChain<O> chain) {
 				this.chain = chain;
 			}
 
 
-			public IChain<R> getDecorating() {
+			public IChain<O> decorating() {
 				return chain;
 			}
 
@@ -744,14 +742,14 @@ enum Internals {
 			}
 
 
-			public R invoke()
+			public O invoke()
 				throws Exception {
 
 				return this.invoke(null);
 			}
 
 
-			public R invoke(final Object input)
+			public O invoke(final Object input)
 				throws Exception {
 
 				final Linker linker = new UndoLinker(this.head(), input);
@@ -775,26 +773,31 @@ enum Internals {
 		/*noinstance*/;
 
 		/**
+		 * cast to or create an {@link IObservableChain} from the passed {@link IChain} instance
+		 * @param chain
+		 * @return
+		 */
+		static <O> IObservableChain<O> decorator(final IChain<O> chain) {
+			return chain instanceof IObservableChain<?> ? (IObservableChain<O>)chain : new ObservableChainDecorator<O>(chain);
+		}
+
+
+		/**
 		 * cast to or create an {@link IObservableCommand} from the passed {@link ICommand} instance
 		 * @param command
 		 * @return
 		 */
-		static <O> IObservableCommand<O> observerDecorator(final IReturningCommand<O> command) {
+		static <O> IObservableCommand<O> decorator(final IReturningCommand<O> command) {
 			return command instanceof IObservableCommand<?> ? (IObservableCommand<O>)command : new ObservableCommandDecorator<O>(command);
 		}
 
 
 		/**
-		 * cast to or create an {@link IObservableChain} from the passed {@link IChain} instance
+		 * cast to or create an {@link IObservableStateCommand} from the passed {@link IStateCommand} instance
 		 * @param chain
 		 * @return
 		 */
-		static <O> IObservableChain<O> observerDecorator(final IChain<O> chain) {
-			return chain instanceof IObservableChain<?> ? (IObservableChain<O>)chain : new ObservableChainDecorator<O>(chain);
-		}
-
-
-		static IObservableStateCommand observerDecorator(final IStateCommand command) {
+		static IObservableStateCommand decorator(final IStateCommand command) {
 			return command instanceof IObservableStateCommand ? (IObservableStateCommand)command : new StateCommandDecorator(command);
 		}
 
@@ -827,24 +830,24 @@ enum Internals {
 			public ICommand invoke(final Object input)
 				throws Exception {
 
-				executing = this.getDecorating();
+				executing = this.decorating();
 				while (executing != null) {
 					try {
-						executeHandlers(beforeHandlers(), input);
+						executeHandlers(beforeHandlers, input);
 						executing = invokeImpl(input);
-						///executeHandlers(resultsHandlers(), returned);
-						executeHandlers(successHandlers(), input);
+						/// executeHandlers(resultsHandlers(), returned);
+						executeHandlers(successHandlers, input);
 					}
-					catch (ExecutionException e) {
-						executeHandlers(failureHandlers(), e.getCause());
+					catch (final ExecutionException e) {
+						executeHandlers(failureHandlers, e.getCause());
 						throw e;
 					}
-					catch (Exception e) {
-						executeHandlers(failureHandlers(), e);
+					catch (final Exception e) {
+						executeHandlers(failureHandlers, e);
 						throw e;
 					}
 					finally {
-						executeHandlers(afterHandlers(), input);
+						executeHandlers(afterHandlers, input);
 					}
 				}
 				return null;
@@ -868,7 +871,7 @@ enum Internals {
 			protected O invokeImpl(final Object input)
 				throws Exception {
 
-				return Chains.create(this.getDecorating()).invoke(input);
+				return Chains.create(this.decorating()).invoke(input);
 			}
 		}
 
@@ -887,14 +890,14 @@ enum Internals {
 
 
 			public ILink head() {
-				return this.getDecorating().head();
+				return this.decorating().head();
 			}
 
 
 			protected O invokeImpl(final Object input)
 				throws Exception {
 
-				return this.getDecorating().invoke(input);
+				return this.decorating().invoke(input);
 			}
 		}
 
@@ -905,20 +908,20 @@ enum Internals {
 		 * 
 		 * @author wassj
 		 *
-		 * @param <O> the return type
+		 * @param <O> the output type
 		 * @param <T> the IObservable type
 		 * @param <C> the ICommand type
 		 */
 		@SuppressWarnings("unchecked")
-		/// Explain: there are some crazy generic parms here, resulting from the IObservable interface being typed with a generic form of itself
+		/// EXPLAIN there are some wild generic parms here resulting from the IObservable interface being typed with a generic form of itself
 		abstract static class AbstractObservable<O, T extends IObservable<?>, C extends ICommand>
 			implements IObservable<T>, IDecorator<C> {
 
-			private final List<ICommand> afterHandlers = new LinkedList<ICommand>();
-			private final List<ICommand> beforeHandlers = new LinkedList<ICommand>();
-			private final List<ICommand> resultsHandlers = new LinkedList<ICommand>();
-			private final List<ICommand> successHandlers = new LinkedList<ICommand>();
-			private final List<ICommand> failureHandlers = new LinkedList<ICommand>();
+			protected final List<ICommand> afterHandlers = new LinkedList<ICommand>();
+			protected final List<ICommand> beforeHandlers = new LinkedList<ICommand>();
+			protected final List<ICommand> resultsHandlers = new LinkedList<ICommand>();
+			protected final List<ICommand> successHandlers = new LinkedList<ICommand>();
+			protected final List<ICommand> failureHandlers = new LinkedList<ICommand>();
 
 			private final C command;
 
@@ -928,7 +931,7 @@ enum Internals {
 			}
 
 
-			public C getDecorating() {
+			public C decorating() {
 				return command;
 			}
 
@@ -949,22 +952,22 @@ enum Internals {
 
 				try {
 					final O returned;
-					executeHandlers(beforeHandlers(), input);
+					executeHandlers(beforeHandlers, input);
 					returned = invokeImpl(input);
-					executeHandlers(resultsHandlers(), returned);
-					executeHandlers(successHandlers(), input);
+					executeHandlers(resultsHandlers, returned);
+					executeHandlers(successHandlers, input);
 					return returned;
 				}
-				catch (ExecutionException e) {
-					executeHandlers(failureHandlers(), e.getCause());
+				catch (final ExecutionException e) {
+					executeHandlers(failureHandlers, e.getCause());
 					throw e;
 				}
-				catch (Exception e) {
-					executeHandlers(failureHandlers(), e);
+				catch (final Exception e) {
+					executeHandlers(failureHandlers, e);
 					throw e;
 				}
 				finally {
-					executeHandlers(afterHandlers(), input);
+					executeHandlers(afterHandlers, input);
 				}
 			}
 
@@ -981,7 +984,7 @@ enum Internals {
 			}
 
 
-			public T results(ICommand... commands) {
+			public T results(final ICommand... commands) {
 				resultsHandlers.addAll(Arrays.asList(commands));
 				return (T)this;
 			}
@@ -996,31 +999,6 @@ enum Internals {
 			public T onFailure(final ICommand... commands) {
 				failureHandlers.addAll(Arrays.asList(commands));
 				return (T)this;
-			}
-
-
-			List<ICommand> afterHandlers() {
-				return afterHandlers;
-			}
-
-
-			List<ICommand> beforeHandlers() {
-				return beforeHandlers;
-			}
-
-
-			List<ICommand> resultsHandlers() {
-				return resultsHandlers;
-			}
-
-
-			List<ICommand> successHandlers() {
-				return successHandlers;
-			}
-
-
-			List<ICommand> failureHandlers() {
-				return failureHandlers;
 			}
 
 
