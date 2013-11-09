@@ -66,8 +66,8 @@ public enum Chains {
 	 * add undo support to a {@link IChain chain}
 	 * @return the chain, decorated
 	 */
-	public static IChain<Void> makeUndoable(final IChain<Void> chain) {
-		return new UndoableChainDecorator<Void>(chain);
+	public static <O> IChain<O> makeUndoable(final IChain<O> chain) {
+		return new UndoableChainDecorator<O>(chain);
 	}
 
 
