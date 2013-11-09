@@ -11,7 +11,7 @@ import cmd4j.testing.Services;
  * @author wassj
  *
  */
-public class SimpleBuildingTest {
+public class BuilderTest {
 
 	@Test
 	public void firstTest()

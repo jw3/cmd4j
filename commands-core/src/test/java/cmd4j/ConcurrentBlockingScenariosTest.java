@@ -28,7 +28,7 @@ import cmd4j.testing.Services.Mode;
  * @author wassj
  *
  */
-public class ThreadBlockingScenariosTest {
+public class ConcurrentBlockingScenariosTest {
 
 	// #1
 	@Test

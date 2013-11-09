@@ -15,7 +15,7 @@ import cmd4j.testing.Says;
  * @author wassj
  *
  */
-public class CallbackChainTest {
+public class ObservableChainsTest {
 
 	@Test
 	public void testOnSuccessHandler()

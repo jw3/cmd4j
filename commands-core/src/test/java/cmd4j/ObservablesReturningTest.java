@@ -16,7 +16,7 @@ import cmd4j.testing.Services;
  * @author wassj
  *
  */
-public class ReturningObservablesTest {
+public class ObservablesReturningTest {
 
 	@Test
 	public void testCommand()

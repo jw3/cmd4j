@@ -16,7 +16,7 @@ import cmd4j.testing.Services;
  * @author wassj
  *
  */
-public class SubmitToGetReturnValueTest {
+public class ConcurrentReturnValuesTest {
 
 	@Test
 	public void test()

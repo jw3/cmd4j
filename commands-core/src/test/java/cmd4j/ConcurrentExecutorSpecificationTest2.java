@@ -11,7 +11,7 @@ import cmd4j.testing.Services;
  * @author wassj
  *
  */
-public class ChainThreadSpecificationTest {
+public class ConcurrentExecutorSpecificationTest2 {
 
 	/**
 	 * test running a single command on the EDT

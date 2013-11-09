@@ -14,7 +14,7 @@ import cmd4j.testing.Says;
  * @author wassj
  *
  */
-public class CallbackCommandTest {
+public class ObservableCommandsTest {
 
 	@Test
 	public void onResults()

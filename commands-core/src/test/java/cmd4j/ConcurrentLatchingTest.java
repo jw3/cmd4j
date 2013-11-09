@@ -16,7 +16,7 @@ import cmd4j.testing.Services;
  * @author wassj
  *
  */
-public class LatchedCommandTest {
+public class ConcurrentLatchingTest {
 
 	@Test
 	public void firstTest()

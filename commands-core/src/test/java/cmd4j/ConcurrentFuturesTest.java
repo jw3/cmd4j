@@ -14,7 +14,7 @@ import cmd4j.testing.Services;
  * @author wassj
  *
  */
-public class WrapFutureTest {
+public class ConcurrentFuturesTest {
 
 	// timing is off on this, will have to thing through the approach for testing wrapped futures
 	@Test

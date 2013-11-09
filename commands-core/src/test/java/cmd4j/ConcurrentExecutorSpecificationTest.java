@@ -16,7 +16,7 @@ import cmd4j.testing.Services;
  * @author wassj
  *
  */
-public class ExecutorSpecificationTest {
+public class ConcurrentExecutorSpecificationTest {
 
 	@Test
 	public void test()

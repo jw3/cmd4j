@@ -14,7 +14,7 @@ import cmd4j.testing.Services;
  * @author wassj
  *
  */
-public class WrapCallableTest {
+public class ConcurrentCallablesTest {
 
 	@Test
 	public void wrapCallable()
