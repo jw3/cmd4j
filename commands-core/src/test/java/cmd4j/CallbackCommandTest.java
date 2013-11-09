@@ -35,7 +35,7 @@ public class CallbackCommandTest {
 		throws Exception {
 
 		final Variable<Boolean> called = Variable.create(false);
-		final ICommand command = Observers.observableReturning(Commands.nop()).onSuccess(Does.set(called, true));
+		final ICommand command = Observers.observableReturning(Does.nothing()).onSuccess(Does.set(called, true));
 		Chains.create(command).invoke();
 		called.assertEquals(true);
 	}

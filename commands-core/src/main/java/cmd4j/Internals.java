@@ -138,6 +138,21 @@ enum Internals {
 	enum Link {
 		/*noinstance*/;
 
+		static ILink empty() {
+			return new EmptyLink();
+		}
+
+
+		static ILink create(final ICommand command) {
+			return new LinkBuilder(command).build();
+		}
+
+
+		static ILink undo(final ILink link) {
+			return new LinkUndoDecorator(link);
+		}
+
+
 		/**
 		 * Provides the context in which a {@link ICommand command} executes.  
 		 * Can combine together with other {@link ILink links} to form a chain.
@@ -313,7 +328,10 @@ enum Internals {
 
 
 			public ICommand cmd() {
-				return Commands.nop();
+				return new ICommand1() {
+					public void invoke() {
+					}
+				};
 			}
 
 
@@ -487,7 +505,7 @@ enum Internals {
 		static class EmptyChain
 			implements IChain<Void> {
 
-			private final ILink head = Links.empty();
+			private final ILink head = Link.empty();
 
 
 			public ILink head() {
@@ -671,7 +689,7 @@ enum Internals {
 
 				ILink next = head();
 				while (next != null) {
-					next = Links.undo(next);
+					next = Link.undo(next);
 					next = callImpl(next);
 				}
 				return null;
@@ -1062,12 +1080,12 @@ enum Internals {
 			}
 
 
-			public boolean awaitTermination(long timeout, TimeUnit unit) {
+			public boolean awaitTermination(final long timeout, final TimeUnit unit) {
 				return false;
 			}
 
 
-			public void execute(Runnable command) {
+			public void execute(final Runnable command) {
 				try {
 					if (SwingUtilities.isEventDispatchThread()) {
 						/*--------------------------------------------------------------------------------------------------------------------------

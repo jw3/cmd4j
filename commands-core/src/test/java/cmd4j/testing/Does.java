@@ -22,6 +22,14 @@ import cmd4j.ICommand.IReturningCommand;
 public enum Does {
 	/*singleton-enum*/;
 
+	public static ICommand1 nothing() {
+		return new ICommand1() {
+			public void invoke() {
+			}
+		};
+	}
+
+
 	public static ICommand submits(final IReturningCommand<Void> command, final ExecutorService executor) {
 		return new ICommand2<Object>() {
 			public void invoke(final Object dto)
