@@ -79,7 +79,7 @@ enum Internals {
 			public R call()
 				throws Exception {
 
-				return Chains.returning(command).invoke(dto);
+				return Chains.create(command).invoke(dto);
 			}
 		}
 
@@ -867,7 +867,7 @@ enum Internals {
 			protected O invokeImpl(final Object dto)
 				throws Exception {
 
-				return Chains.returning(this.getDecorating()).invoke(dto);
+				return Chains.create(this.getDecorating()).invoke(dto);
 			}
 		}
 
