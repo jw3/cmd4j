@@ -442,11 +442,11 @@ enum Internals {
 					return ((ICommandProxy)command).command();
 				}
 				else if (!undo) {
-					if (command instanceof ICommand5) {
-						return ((ICommand5)command).invoke();
-					}
-					else if (command instanceof ICommand6<?>) {
+					if (command instanceof ICommand6<?>) {
 						return ((ICommand6)command).invoke(input);
+					}
+					else if (command instanceof ICommand5) {
+						return ((ICommand5)command).invoke();
 					}
 					else if (command instanceof ICommand4<?, ?>) {
 						return ((ICommand4)command).invoke(input);
