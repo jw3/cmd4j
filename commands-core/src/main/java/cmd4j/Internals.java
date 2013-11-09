@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cmd4j.Chains.ChainBuilder;
+import cmd4j.Chains.ILink;
 import cmd4j.IChain.IObservableChain;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;

@@ -1,5 +1,6 @@
 package cmd4j;
 
+import cmd4j.Chains.ILink;
 import cmd4j.Observers.IObservable;
 
 /**
