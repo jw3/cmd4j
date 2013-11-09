@@ -23,7 +23,7 @@ public class UndoTest {
 		chain.invoke();
 		var.assertEquals(false);
 
-		final IChain<Void> chain2 = Chains.makeUndoable(chain);
+		final IChain<Void> chain2 = Chains.undoable(chain);
 		chain2.invoke();
 		var.assertEquals(true);
 

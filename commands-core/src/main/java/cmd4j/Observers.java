@@ -50,12 +50,12 @@ public enum Observers {
 	 * @author wassj
 	 * @param <O>
 	 */
-	public interface IObservable<Ob extends IObservable<?>> {
+	public interface IObservable<T extends IObservable<?>> {
 		/**
 		 * add {@link ICommand commands} that will be invoked prior to execution
 		 * @return the command; decorated as observable
 		 */
-		Ob before(final ICommand... commands);
+		T before(final ICommand... commands);
 
 
 		/**
@@ -63,7 +63,7 @@ public enum Observers {
 		 * invocation will occurr regardless of success/failure of the chain
 		 * @return the command; decorated as observable
 		 */
-		Ob after(final ICommand... listeners);
+		T after(final ICommand... listeners);
 
 
 		/**
@@ -71,14 +71,14 @@ public enum Observers {
 		 * if the command returned a result that value will be passed as the dto
 		 * @return the command; decorated as observable
 		 */
-		Ob results(final ICommand... commands);
+		T results(final ICommand... commands);
 
 
 		/**
 		 * add {@link ICommand commands} that will be invoked upon successful completions
 		 * @return the command; decorated as observable
 		 */
-		Ob onSuccess(final ICommand... commands);
+		T onSuccess(final ICommand... commands);
 
 
 		/**
@@ -86,7 +86,7 @@ public enum Observers {
 		 * the cause of the failure will be available as the dto to any commands that will accept it
 		 * @return the command; decorated as observable
 		 */
-		Ob onFailure(final ICommand... commands);
+		T onFailure(final ICommand... commands);
 	}
 
 }

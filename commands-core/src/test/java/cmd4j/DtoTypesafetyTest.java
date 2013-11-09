@@ -66,7 +66,7 @@ public class DtoTypesafetyTest {
 	public void testDtoToEmptyChain()
 		throws Exception {
 
-		Chains.create(Chains.empty()).invoke("dto");
+		Chains.create(Chains.create()).invoke("dto");
 	}
 
 

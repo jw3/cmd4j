@@ -7,6 +7,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import cmd4j.ICommand.ICommand1;
+import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Internals.Chain.ChainCallable;
 import cmd4j.Internals.Command.CommandCallable;
@@ -23,37 +24,7 @@ public enum Concurrent {
 	/*noinstance*/;
 
 	/**
-	 * wrap a future in a command
-	 * @param future
-	 * @return
-	 */
-	public static ICommand future(final Future<?> future) {
-		return new ICommand1() {
-			public void invoke()
-				throws Exception {
-				future.get();
-			}
-		};
-	}
-
-
-	/**
-	 * wrap a callable in a command
-	 * @param future
-	 * @return
-	 */
-	public static ICommand callable(final Callable<?> callable) {
-		return new ICommand1() {
-			public void invoke()
-				throws Exception {
-				callable.call();
-			}
-		};
-	}
-
-
-	/**
-	 * 
+	 * submit a {@link IChain} to the {@link ExecutorService} returning the resulting {@link Future}
 	 * @param chain
 	 * @param executor
 	 * @return
@@ -64,12 +35,12 @@ public enum Concurrent {
 
 
 	/**
-	 * 
+	 * submit a {@link IChain} with dto to the {@link ExecutorService} returning the resulting {@link Future}
 	 * @param chain
 	 * @param executor
 	 * @return
 	 */
-	public static <I, O> Future<O> submit(final IChain<O> chain, final I dto, final ExecutorService executor) {
+	public static <O> Future<O> submit(final IChain<O> chain, final Object dto, final ExecutorService executor) {
 		return executor.submit(asCallable(chain, dto));
 	}
 
@@ -101,7 +72,7 @@ public enum Concurrent {
 
 
 	/**
-	 * wait on the latch to open
+	 * wait on the {@link CountDownLatch} to open
 	 * @param latch
 	 * @return Command that is blocked until latch is released
 	 */
@@ -117,14 +88,13 @@ public enum Concurrent {
 
 
 	/**
-	 * count down the latch
+	 * count down the {@link CountDownLatch}
 	 * @param latch
 	 * @return
 	 */
 	public static ICommand countDown(final CountDownLatch latch) {
 		return new ICommand1() {
-			public void invoke()
-				throws Exception {
+			public void invoke() {
 				latch.countDown();
 			}
 		};
@@ -132,29 +102,61 @@ public enum Concurrent {
 
 
 	/**
-	 * 
+	 * wrap a {@link Future} up in a {@link IReturningCommand}
+	 * @param future
+	 * @return
+	 */
+	public static <O> IReturningCommand<O> asCommand(final Future<O> future) {
+		return new ICommand3<O>() {
+			public O invoke()
+				throws Exception {
+
+				return future.get();
+			}
+		};
+	}
+
+
+	/**
+	 * wrap a {@link Callable} up in a {@link IReturningCommand}
+	 * @param future
+	 * @return
+	 */
+	public static <O> IReturningCommand<O> asCommand(final Callable<O> callable) {
+		return new ICommand3<O>() {
+			public O invoke()
+				throws Exception {
+
+				return callable.call();
+			}
+		};
+	}
+
+
+	/**
+	 * wrap a chain up in a {@link Callable}
 	 * @param chain
 	 * @return
 	 */
 	public static <O> Callable<O> asCallable(final IChain<O> chain) {
-		return new ChainCallable<Void, O>(chain);
+		return new ChainCallable<O>(chain);
 	}
 
 
 	/**
-	 * 
+	 * wrap a {@link IChain} and dto up in a {@link Callable}
 	 * @param chain
 	 * @param dto
 	 * @return
 	 */
-	public static <I, O> Callable<O> asCallable(final IChain<O> chain, final I dto) {
-		return new ChainCallable<I, O>(chain, dto);
+	public static <O> Callable<O> asCallable(final IChain<O> chain, final Object dto) {
+		return new ChainCallable<O>(chain, dto);
 	}
 
 
 	/**
-	 * 
-	 * @param chain
+	 * wrap a {@link IReturningCommand} up in a {@link Callable}
+	 * @param command
 	 * @return
 	 */
 	public static <O> Callable<O> asCallable(final IReturningCommand<O> command) {
@@ -163,9 +165,8 @@ public enum Concurrent {
 
 
 	/**
-	 * 
-	 * @param chain
-	 * @param dto
+	 * wrap a {@link IReturningCommand} and dto up in a {@link Callable}
+	 * @param command
 	 * @return
 	 */
 	public static <O> Callable<O> asCallable(final IReturningCommand<O> command, final Object dto) {
@@ -173,16 +174,29 @@ public enum Concurrent {
 	}
 
 
+	/**
+	 * returns a new instance of an {@link ExecutorService} that submits tasks to the Swing Event Dispatch Thread
+	 * @return
+	 */
 	public static ExecutorService swingExecutor() {
 		return new EventDispatchExecutor();
 	}
 
 
+	/**
+	 * returns a new instance of an {@link ExecutorService} that submits tasks to the same {@link Thread} the submission was made from
+	 * @return
+	 */
 	public static ExecutorService sameThreadExecutor() {
 		return new SameThreadExecutorService();
 	}
 
 
+	/**
+	 * returns a {@link ICommand} that schedules the passed {@link ExecutorService} for shutdown
+	 * @param executor
+	 * @return
+	 */
 	public static ICommand shutdown(final ExecutorService executor) {
 		return new ICommand1() {
 			public void invoke() {

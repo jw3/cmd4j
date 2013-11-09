@@ -6,9 +6,10 @@ import cmd4j.Observers.IObservable;
  * A block of execution as detailed in the <a href="http://en.wikipedia.org/wiki/Command_pattern">Command Pattern</a>.
  * 
  * Multiple {@link ICommand commands} can be linked together using {@link ILink links} to form {@link IChain chains}.
- * Chains are then executed resulting in the contained commands being executed in an order defined by the implementation.
+ * Chains are then executed, resulting in the contained commands being executed in an order defined by the chain implementation.
  *
- * This is the base command interface that is only used for tagging.  An {@link ICommand} implementation alone will be skipped during normal execution.
+ * {@link ICommand} is the base command interface that is only used for tagging.  To be executed a command must implement one of
+ * the extending types of command such as ICommand1..6
  *
  * @author wassj
  *

@@ -28,14 +28,6 @@ public enum Chains {
 
 
 	/**
-	 * creates an empty {@link IChain chain} which can be used in any operation a normal chain would, but will not do anything
-	 */
-	public static IChain<Void> empty() {
-		return new EmptyChain();
-	}
-
-
-	/**
 	 * create a {@link IChain chain} that contains the given vararg {@link ICommand commands}
 	 */
 	public static IChain<Void> create(final ICommand... commands) {
@@ -48,7 +40,7 @@ public enum Chains {
 	 */
 	public static IChain<Void> create(final Collection<ICommand> commands) {
 		final ChainBuilder builder = Chains.builder();
-		for (ICommand command : commands) {
+		for (final ICommand command : commands) {
 			builder.add(command);
 		}
 		return builder.build();
@@ -75,34 +67,8 @@ public enum Chains {
 	 * add undo support to a {@link IChain chain}
 	 * @return the chain, decorated
 	 */
-	public static <O> IChain<O> makeUndoable(final IChain<O> chain) {
+	public static <O> IChain<O> undoable(final IChain<O> chain) {
 		return new UndoableChainDecorator<O>(chain);
-	}
-
-
-	/**
-	 * invoke a {@link IChain chain}, returning a value
-	 * @param chain
-	 * @throws Exception
-	 */
-	public static <O> O invokeWithReturn(final IChain<O> chain)
-		throws Exception {
-
-		return invokeWithReturn(chain, null);
-	}
-
-
-	/**
-	 * invoke a {@link IChain chain} with a dto, returning a value
-	 * @param chain
-	 * @param dto
-	 * @throws Exception
-	 */
-	@SuppressWarnings("unchecked")
-	public static <O> O invokeWithReturn(final IChain<O> chain, final Object dto)
-		throws Exception {
-
-		return (O)Internals.Link.invokeCommand(chain, dto, false);
 	}
 
 
@@ -197,7 +163,7 @@ public enum Chains {
 			if (head != null) {
 				return new DefaultChain<Void>(head.build(visits));
 			}
-			return Chains.empty();
+			return new EmptyChain();
 		}
 	}
 }

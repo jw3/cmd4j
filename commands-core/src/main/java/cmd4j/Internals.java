@@ -593,28 +593,28 @@ enum Internals {
 		}
 
 
-		static class ChainCallable<D, R>
-			implements Callable<R> {
+		static class ChainCallable<O>
+			implements Callable<O> {
 
-			private final IChain<R> chain;
-			private final D dto;
+			private final IChain<O> chain;
+			private final Object dto;
 
 
-			public ChainCallable(final IChain<R> chain) {
+			public ChainCallable(final IChain<O> chain) {
 				this(chain, null);
 			}
 
 
-			public ChainCallable(final IChain<R> chain, final D dto) {
+			public ChainCallable(final IChain<O> chain, final Object dto) {
 				this.chain = chain;
 				this.dto = dto;
 			}
 
 
-			public R call()
+			public O call()
 				throws Exception {
 
-				return Chains.invokeWithReturn(chain, dto);
+				return chain.invoke(dto);
 			}
 		}
 
@@ -893,7 +893,7 @@ enum Internals {
 			protected O invokeImpl(final Object dto)
 				throws Exception {
 
-				return Chains.invokeWithReturn(this.getDecorating(), dto);
+				return this.getDecorating().invoke(dto);
 			}
 		}
 

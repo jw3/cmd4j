@@ -22,7 +22,7 @@ public class ObservableChainsTest {
 		throws Exception {
 
 		final Variable<Boolean> v = var(false);
-		Observers.observable(Chains.empty()).onSuccess(toggle(v)).invoke();
+		Observers.observable(Chains.create()).onSuccess(toggle(v)).invoke();
 		v.assertEquals(true);
 	}
 
@@ -64,7 +64,7 @@ public class ObservableChainsTest {
 		throws Exception {
 
 		final Variable<Boolean> v = var(false);
-		Observers.observable(Chains.empty()).onFailure(toggle(v)).invoke();
+		Observers.observable(Chains.create()).onFailure(toggle(v)).invoke();
 		v.assertEquals(false);
 	}
 

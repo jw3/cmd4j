@@ -23,9 +23,9 @@ public class ConcurrentCallablesTest {
 		final Variable<Integer> var = new Variable<Integer>(0);
 		Chains.builder() //
 			.add(Asserts.isEquals(var, 0))
-			.add(Concurrent.callable(new IncrementVariable(var)))
+			.add(Concurrent.asCommand(new IncrementVariable(var)))
 			.add(Asserts.isEquals(var, 1))
-			.add(Concurrent.callable(new IncrementVariable(var)))
+			.add(Concurrent.asCommand(new IncrementVariable(var)))
 			.add(Asserts.isEquals(var, 2))
 			.build()
 			.invoke();
@@ -40,13 +40,13 @@ public class ConcurrentCallablesTest {
 		Chains.builder() //
 			.add(Asserts.isEquals(var, 0))
 
-			.add(Concurrent.future(Services.t1.executor().submit(new IncrementVariable(var, 100))))
+			.add(Concurrent.asCommand(Services.t1.executor().submit(new IncrementVariable(var, 100))))
 			.add(Asserts.isEquals(var, 1))
 
-			.add(Concurrent.future(Services.t2.executor().submit(new IncrementVariable(var, 200))))
+			.add(Concurrent.asCommand(Services.t2.executor().submit(new IncrementVariable(var, 200))))
 			.add(Asserts.isEquals(var, 2))
 
-			.add(Concurrent.future(Services.t2.executor().submit(new IncrementVariable(var, 300))))
+			.add(Concurrent.asCommand(Services.t2.executor().submit(new IncrementVariable(var, 300))))
 			.add(Asserts.isEquals(var, 3))
 
 			.build()
