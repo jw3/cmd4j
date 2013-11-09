@@ -26,8 +26,12 @@ import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommand4;
+import cmd4j.ICommand.ICommand5;
+import cmd4j.ICommand.ICommand6;
 import cmd4j.ICommand.IObservableCommand;
+import cmd4j.ICommand.IObservableStateCommand;
 import cmd4j.ICommand.IReturningCommand;
+import cmd4j.ICommand.IStateCommand;
 import cmd4j.Internals.Chain.IChainDecorator;
 import cmd4j.Internals.Chain.IDecorator;
 import cmd4j.Internals.Command.ICommandProxy;
@@ -75,7 +79,7 @@ enum Internals {
 			public R call()
 				throws Exception {
 
-				return Chains.create(command).invoke(dto);
+				return Chains.returning(command).invoke(dto);
 			}
 		}
 
@@ -208,7 +212,7 @@ enum Internals {
 					// REVISIT not sure what the following is doing?
 					final Object dto = dto() != null ? dto() : this.dto;
 					final Object returned = invokeCommand(command, dto, ignoreDtoMismatch);
-					command = returned instanceof ICommand ? (ICommand)returned : null;
+					command = command instanceof IStateCommand && returned instanceof ICommand ? (ICommand)returned : null;
 				}
 				return next();
 				//		}
@@ -374,7 +378,7 @@ enum Internals {
 					// REVISIT not sure what the following is doing? 
 					final Object dto = dto() != null ? dto() : this.dto();
 					final Object returned = invokeCommand(command, dto, false, true);
-					command = returned instanceof ICommand ? (ICommand)returned : null;
+					command = command instanceof IStateCommand && returned instanceof ICommand ? (ICommand)returned : null;
 				}
 				return next();
 				//		}
@@ -419,7 +423,13 @@ enum Internals {
 					return ((ICommandProxy)command).command();
 				}
 				else if (!undo) {
-					if (command instanceof ICommand4<?, ?>) {
+					if (command instanceof ICommand5) {
+						return ((ICommand5)command).invoke();
+					}
+					else if (command instanceof ICommand6<?>) {
+						return ((ICommand6)command).invoke(dto);
+					}
+					else if (command instanceof ICommand4<?, ?>) {
 						return ((ICommand4)command).invoke(dto);
 					}
 					else if (command instanceof ICommand2<?>) {
@@ -765,6 +775,64 @@ enum Internals {
 		}
 
 
+		static IObservableStateCommand observerDecorator(final IStateCommand command) {
+			return command instanceof IObservableStateCommand ? (IObservableStateCommand)command : new StateCommandDecorator(command);
+		}
+
+
+		/**
+		 *
+		 * @author wassj
+		 */
+		static class StateCommandDecorator
+			extends AbstractObservable<ICommand, IObservableStateCommand, IStateCommand>
+			implements IObservableStateCommand, IStateCommand, ICommand6<Object> {
+
+			private ICommand executing;
+
+
+			public StateCommandDecorator(final IStateCommand command) {
+				super(command);
+			}
+
+
+			protected ICommand invokeImpl(final Object dto)
+				throws Exception {
+
+				final Object returned = Link.invokeCommand(executing, dto, true);
+				return /*command instanceof IStateCommand &&*/returned instanceof ICommand ? (ICommand)returned : null;
+			}
+
+
+			@Override
+			public ICommand invoke(final Object dto)
+				throws Exception {
+
+				executing = this.getDecorating();
+				while (executing != null) {
+					try {
+						executeHandlers(beforeHandlers(), dto);
+						executing = invokeImpl(dto);
+						///executeHandlers(resultsHandlers(), returned);
+						executeHandlers(successHandlers(), dto);
+					}
+					catch (ExecutionException e) {
+						executeHandlers(failureHandlers(), e.getCause());
+						throw e;
+					}
+					catch (Exception e) {
+						executeHandlers(failureHandlers(), e);
+						throw e;
+					}
+					finally {
+						executeHandlers(afterHandlers(), dto);
+					}
+				}
+				return null;
+			}
+		}
+
+
 		/**
 		 *
 		 * @author wassj
@@ -775,6 +843,13 @@ enum Internals {
 
 			public ObservableCommandDecorator(final IReturningCommand<O> command) {
 				super(command);
+			}
+
+
+			protected O invokeImpl(final Object dto)
+				throws Exception {
+
+				return Chains.returning(this.getDecorating()).invoke(dto);
 			}
 		}
 
@@ -795,6 +870,13 @@ enum Internals {
 			public ILink head() {
 				return this.getDecorating().head();
 			}
+
+
+			protected O invokeImpl(final Object dto)
+				throws Exception {
+
+				return Chains.invokeWithReturn(this.getDecorating(), dto);
+			}
 		}
 
 
@@ -810,7 +892,7 @@ enum Internals {
 		 */
 		@SuppressWarnings("unchecked")
 		/// Explain: there are some crazy generic parms here, resulting from the IObservable interface being typed with a generic form of itself
-		static class AbstractObservable<O, T extends IObservable<?>, C extends IReturningCommand<O>>
+		abstract static class AbstractObservable<O, T extends IObservable<?>, C extends ICommand>
 			implements IObservable<T>, IDecorator<C> {
 
 			private final List<ICommand> afterHandlers = new LinkedList<ICommand>();
@@ -832,6 +914,10 @@ enum Internals {
 			}
 
 
+			abstract protected O invokeImpl(final Object dto)
+				throws Exception;
+
+
 			public O invoke()
 				throws Exception {
 
@@ -845,7 +931,7 @@ enum Internals {
 				try {
 					final O returned;
 					executeHandlers(beforeHandlers(), dto);
-					returned = command instanceof IChain ? Chains.invokeWithReturn((IChain<O>)command, dto) : Chains.create(command).invoke(dto);
+					returned = invokeImpl(dto);
 					executeHandlers(resultsHandlers(), returned);
 					executeHandlers(successHandlers(), dto);
 					return returned;

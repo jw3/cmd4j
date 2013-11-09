@@ -2,7 +2,10 @@ package cmd4j;
 
 import org.testng.annotations.Test;
 
-import cmd4j.ICommand.ICommand3;
+import cmd4j.ICommand.ICommand5;
+import cmd4j.ICommand.IObservableStateCommand;
+import cmd4j.ICommand.IStateCommand;
+import cmd4j.testing.Does;
 import cmd4j.testing.Does.Variable;
 
 /**
@@ -36,17 +39,22 @@ public class StateMachineTest {
 
 
 	@Test
-	public void commands_invoke()
+	public void observable()
 		throws Exception {
 
 		final Variable<Integer> var = Variable.create(0);
-		Chains.create(repeat(expected, var)).invoke();
+		final Variable<Integer> otherVar = Variable.create(0);
+
+		final IObservableStateCommand cmd = Observers.observable(repeat(expected, var)).after(Does.add(otherVar, 1));
+		Chains.create(cmd).invoke();
+
 		var.assertEquals(expected);
+		otherVar.assertEquals(expected);
 	}
 
 
-	private static ICommand repeat(final int times, final Variable<Integer> var) {
-		return new ICommand3<ICommand>() {
+	private static IStateCommand repeat(final int times, final Variable<Integer> var) {
+		return new ICommand5() {
 			public ICommand invoke() {
 				var.setValue(var.getValue() + 1);
 				return var.getValue() < times ? this : null;

@@ -22,7 +22,7 @@ public interface ICommand {
 	 *
 	 */
 	public interface ICommand1
-		extends ICommand {
+		extends ICommand, IReturningCommand<Void> {
 
 		/**
 		 * invoke this command
@@ -55,7 +55,7 @@ public interface ICommand {
 	 *
 	 */
 	public interface ICommand2<I>
-		extends ICommand, IDtoCommand<I> {
+		extends ICommand, IDtoCommand<I>, IReturningCommand<Void> {
 
 		/**
 		 * invoke this command
@@ -143,6 +143,44 @@ public interface ICommand {
 
 
 	/**
+	 *
+	 * @see IReturningCommand 
+	 * @author wassj
+	 */
+	public interface ICommand5
+		extends ICommand, IStateCommand {
+
+		/**
+		 * 
+		 * @return
+		 * @throws Exception
+		 */
+		ICommand invoke()
+			throws Exception;
+	}
+
+
+	/**
+	 *
+	 * @see IReturningCommand
+	 * @author wassj
+	 * @param <I>
+	 */
+	public interface ICommand6<I>
+		extends ICommand, IStateCommand, IDtoCommand<I> {
+
+		/**
+		 * 
+		 * @param dto
+		 * @return
+		 * @throws Exception
+		 */
+		ICommand invoke(I dto)
+			throws Exception;
+	}
+
+
+	/**
 	 * Marks a {@link ICommand command} as being able to be undone.  It is entirely up to the Command implementation
 	 * to provide the capability to reverse the Command, this interface simply provides the calling
 	 * capability to run that reversing logic in the Command framework.
@@ -158,13 +196,24 @@ public interface ICommand {
 
 
 	/**
-	 * A {@link ICommand command} implementation that supports returning a value.  If that value happens to be another command instance, it will
-	 * be run immediately upon this commands successful completion.
+	 * {@link ICommand} implementation that supports returning a command to be run immediately upon this commands successful completion.
 	 * 
-	 * The returned command could also be a {@link IReturningCommand} and return another {@link IReturningCommand}, so on and so on until a non {@link ICommand}
-	 * value (or null) is returned.
+	 * The returned command could be a {@link IStateCommand} and return another {@link IStateCommand}, so on and so on until null is returned.
 	 * 
 	 * The containing {@link ILink link} is not finished until all commands execute. This provides a very simple to implement state machine behavior.
+	 * 
+	 * Note that though this command returns, it is not part of the {@link IReturningCommand} hierarchy as that interface returns literal values while
+	 * this interface returns functional states for immediate execution.
+	 * 
+	 * @author wassj
+	 */
+	public interface IStateCommand
+		extends ICommand {
+	}
+
+
+	/**
+	 * A {@link ICommand command} implementation that supports returning a value
 	 *
 	 * @author wassj
 	 *
@@ -190,5 +239,14 @@ public interface ICommand {
 	 */
 	public interface IObservableCommand<O>
 		extends IObservable<IObservableCommand<O>>, IReturningCommand<O> {
+	}
+
+
+	/**
+	 *
+	 * @author wassj
+	 */
+	public interface IObservableStateCommand
+		extends IObservable<IObservableStateCommand>, IStateCommand {
 	}
 }

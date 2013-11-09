@@ -6,7 +6,6 @@ import java.util.concurrent.ExecutorService;
 import org.testng.Assert;
 
 import cmd4j.Chains;
-import cmd4j.Commands;
 import cmd4j.Concurrent;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
@@ -23,12 +22,12 @@ import cmd4j.ICommand.IReturningCommand;
 public enum Does {
 	/*singleton-enum*/;
 
-	public static ICommand submits(final ICommand command, final ExecutorService executor) {
+	public static ICommand submits(final IReturningCommand<Void> command, final ExecutorService executor) {
 		return new ICommand2<Object>() {
 			public void invoke(final Object dto)
 				throws Exception {
 
-				final Callable<Void> callable = Concurrent.asCallable(Commands.voidWrap(command), dto);
+				final Callable<Void> callable = Concurrent.asCallable(command, dto);
 				executor.submit(callable).get();
 			}
 		};
@@ -82,6 +81,19 @@ public enum Does {
 					throw new NullPointerException("variable was not initialized");
 				}
 				v.setValue(!v.getValue());
+			}
+		};
+	}
+
+
+	public static ICommand add(final Variable<Integer> v, final int amount) {
+		return new ICommand1() {
+			public void invoke() {
+				if (v.getValue() == null) {
+					throw new NullPointerException("variable was not initialized");
+				}
+				v.setValue(v.getValue() + amount);
+				System.out.println(v.getValue());
 			}
 		};
 	}

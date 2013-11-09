@@ -24,7 +24,7 @@ public class ReturningObservablesTest {
 
 		final String expected = UUID.randomUUID().toString().substring(0, 7);
 		final Variable<Boolean> ran = Variable.create(false);
-		final String result = Chains.create(Observers.observable(Does.returns(expected)).after(Does.set(ran, true))).invoke();
+		final String result = Chains.returning(Observers.observableReturning(Does.returns(expected)).after(Does.set(ran, true))).invoke();
 
 		ran.assertEquals(true);
 		Assert.assertEquals(result, expected);
@@ -37,7 +37,7 @@ public class ReturningObservablesTest {
 
 		final String expected = UUID.randomUUID().toString().substring(0, 7);
 		final Variable<Boolean> ran = Variable.create(false);
-		final String result = Observers.observable(Chains.create(Does.returns(expected))).after(Does.set(ran, true)).invoke();
+		final String result = Observers.observableReturning(Chains.returning(Does.returns(expected))).after(Does.set(ran, true)).invoke();
 
 		ran.assertEquals(true);
 		Assert.assertEquals(result, expected);
@@ -50,7 +50,7 @@ public class ReturningObservablesTest {
 
 		final String expected = UUID.randomUUID().toString().substring(0, 7);
 		final Variable<Boolean> ran = Variable.create(false);
-		final IChain<String> chain = Observers.observable(Chains.create(Does.returns(expected))).after(Does.set(ran, true));
+		final IChain<String> chain = Observers.observableReturning(Chains.returning(Does.returns(expected))).after(Does.set(ran, true));
 		final String result = Concurrent.submit(chain, Services.t1.executor()).get();
 
 		ran.assertEquals(true);
@@ -64,7 +64,7 @@ public class ReturningObservablesTest {
 
 		final String expected = UUID.randomUUID().toString().substring(0, 7);
 		final Variable<Boolean> ran = Variable.create(false);
-		final IChain<String> chain = Observers.observable(Chains.create(Does.returns(expected))).after(Does.set(ran, true));
+		final IChain<String> chain = Observers.observableReturning(Chains.returning(Does.returns(expected))).after(Does.set(ran, true));
 		final Callable<String> callable = Concurrent.asCallable(chain);
 		final String result = Services.t1.executor().submit(callable).get();
 
