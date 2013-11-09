@@ -119,7 +119,7 @@ public class ExampleButtonActionsWithUndo {
 					final ICommand change = new UndoableChangeColor(color, target);
 
 					final IChain<Void> chain = Chains.builder().add(change).build();
-					Chains.invoke(chain); // we can block here!
+					chain.invoke(); // we can block here!
 
 					undoStack.push(chain);
 				}

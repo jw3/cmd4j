@@ -1,6 +1,6 @@
 package cmd4j.examples;
 
-import cmd4j.Commands;
+import cmd4j.Chains;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
@@ -54,6 +54,6 @@ public class ExampleStateMachine {
 	public void runThisStateMachine()
 		throws Exception {
 
-		Commands.invoke(configure);
+		Chains.create(configure).invoke();
 	}
 }

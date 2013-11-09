@@ -40,7 +40,7 @@ public class StateMachineTest {
 		throws Exception {
 
 		final Variable<Integer> var = Variable.create(0);
-		Commands.invoke(repeat(expected, var));
+		Chains.create(repeat(expected, var)).invoke();
 		var.assertEquals(expected);
 	}
 

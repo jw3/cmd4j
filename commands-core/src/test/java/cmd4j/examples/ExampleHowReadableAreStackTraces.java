@@ -19,7 +19,7 @@ public class ExampleHowReadableAreStackTraces {
 		throws Exception {
 
 		final ChainBuilder builder = Chains.builder();
-		Chains.invoke(this.recurse(builder, 0, 10));
+		this.recurse(builder, 0, 10).invoke();
 	}
 
 

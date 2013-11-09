@@ -75,7 +75,7 @@ enum Internals {
 			public R call()
 				throws Exception {
 
-				return Commands.invoke(command, dto);
+				return Chains.create(command).invoke(dto);
 			}
 		}
 
@@ -543,7 +543,8 @@ enum Internals {
 
 				if (link != null) {
 					final Linker linker = new Linker(this.head(), dto);
-					return (R)Concurrent.sameThreadExecutor().submit(linker).get();
+					Concurrent.sameThreadExecutor().submit(linker).get();
+					return null;
 				}
 				if (returningCommand != null) {
 					@SuppressWarnings("unchecked")
@@ -585,7 +586,7 @@ enum Internals {
 			public R call()
 				throws Exception {
 
-				return Chains.invoke(chain, dto);
+				return Chains.invokeWithReturn(chain, dto);
 			}
 		}
 
@@ -725,7 +726,8 @@ enum Internals {
 				throws Exception {
 
 				final Linker linker = new UndoLinker(this.head(), dto);
-				return (R)Concurrent.sameThreadExecutor().submit(linker).get();
+				Concurrent.sameThreadExecutor().submit(linker).get();
+				return null;
 			}
 		}
 	}
@@ -843,7 +845,7 @@ enum Internals {
 				try {
 					final O returned;
 					executeHandlers(beforeHandlers(), dto);
-					returned = command instanceof IChain ? Chains.invoke((IChain<O>)command, dto) : Commands.invoke(command, dto);
+					returned = command instanceof IChain ? Chains.invokeWithReturn((IChain<O>)command, dto) : Chains.create(command).invoke(dto);
 					executeHandlers(resultsHandlers(), returned);
 					executeHandlers(successHandlers(), dto);
 					return returned;
@@ -919,7 +921,7 @@ enum Internals {
 
 			protected void executeHandlers(final List<ICommand> commands, final Object dto) {
 				try {
-					Commands.invoke(commands, dto);
+					Chains.create(commands).invoke(dto);
 				}
 				catch (final Throwable t) {
 					// REVISIT the show must go on

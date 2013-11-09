@@ -25,7 +25,7 @@ public class CallbackCommandTest {
 
 		final ICommand command = Observers.observable(Does.returns(value)).results(Does.set(called));
 
-		Commands.invoke(command);
+		Chains.create(command).invoke();
 		called.assertEquals(value);
 	}
 
@@ -36,7 +36,7 @@ public class CallbackCommandTest {
 
 		final Variable<Boolean> called = Variable.create(false);
 		final ICommand command = Observers.observable(Commands.nop()).onSuccess(Does.set(called, true));
-		Commands.invoke(command);
+		Chains.create(command).invoke();
 		called.assertEquals(true);
 	}
 
@@ -46,7 +46,7 @@ public class CallbackCommandTest {
 		final Variable<Boolean> called = Variable.create(false);
 		final ICommand command = Observers.observable(Says.boom()).onFailure(Does.set(called, true));
 		try {
-			Commands.invoke(command);
+			Chains.create(command).invoke();
 		}
 		catch (Exception e) {
 			// ignore

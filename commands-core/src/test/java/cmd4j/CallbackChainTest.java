@@ -32,7 +32,7 @@ public class CallbackChainTest {
 		final Variable<Boolean> v = var(false);
 		final IChain<Void> chain = Observers.observable(Chains.create(Says.boom())).onSuccess(toggle(v));
 		try {
-			Chains.invoke(chain);
+			chain.invoke();
 		}
 		catch (Exception e) {
 			// expected
@@ -48,7 +48,7 @@ public class CallbackChainTest {
 		final Variable<Boolean> v = var(false);
 		final IChain<Void> chain = Observers.observable(Chains.builder().add(Says.boom()).build()).onFailure(toggle(v));
 		try {
-			Chains.invoke(chain);
+			chain.invoke();
 		}
 		catch (Exception e) {
 			// expected
@@ -105,7 +105,7 @@ public class CallbackChainTest {
 		final Variable<Boolean> v = var(false);
 		final IChain<Void> chain = Observers.observable(Chains.builder().add(is(v, false)).add(Says.boom()).build()).after(toggle(v));
 		try {
-			Chains.invoke(chain);
+			chain.invoke();
 		}
 		catch (Exception e) {
 			// expected

@@ -1,7 +1,5 @@
 package cmd4j;
 
-import java.util.Collection;
-
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Internals.Command.ReturnVoidWrapper;
@@ -25,52 +23,60 @@ public enum Commands {
 	}
 
 
-	/**
-	 * execute the specified {@link ICommand command}
-	 * @throws Exception
-	 */
+	/*
+		*//**
+		* execute the specified {@link ICommand command}
+		* @throws Exception
+		*/
+	/*
 	public static void invoke(final ICommand command)
-		throws Exception {
+	throws Exception {
 
+	if (command instanceof IReturningCommand<?>) {
+		invoke((IReturningCommand<?>)command);
+	}
+	else {
 		invoke(new ReturnVoidWrapper(command), null);
 	}
-
-
-	/**
-	 * execute the specified {@link ICommand command}
-	 * @throws Exception
-	 */
-	public static <R> R invoke(final IReturningCommand<R> command)
-		throws Exception {
-
-		return invoke(command, null);
 	}
 
 
-	/**
-	 * execute the specified {@link ICommand command}
-	 * @throws Exception
-	 */
-	public static <R> R invoke(final IReturningCommand<R> command, final Object dto)
-		throws Exception {
+	*//**
+		* execute the specified {@link ICommand command}
+		* @throws Exception
+		*/
+	/*
+	public static <R> R invoke(final IReturningCommand<R> command)
+	throws Exception {
 
-		return Chains.invoke(Chains.create(command));
+	return invoke(command, null);
+	}
+
+
+	*//**
+		* execute the specified {@link ICommand command}
+		* @throws Exception
+		*/
+	/*
+	public static <R> R invoke(final IReturningCommand<R> command, final Object dto)
+	throws Exception {
+
+	return Chains.invokeWithReturn(Chains.create(command));
 	}
 
 
 	public static void invoke(final Collection<ICommand> commands)
-		throws Exception {
+	throws Exception {
 
-		invoke(commands, null);
+	invoke(commands, null);
 	}
 
 
 	public static void invoke(final Collection<ICommand> commands, final Object dto)
-		throws Exception {
+	throws Exception {
 
-		Chains.invoke(Chains.create(commands), dto);
-	}
-
+	Chains.invoke(Chains.create(commands), dto);
+	}*/
 
 	/**
 	 * create an empty (no-operation) {@link ICommand command}

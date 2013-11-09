@@ -76,10 +76,10 @@ public enum Chains {
 	 * @param chain
 	 * @throws Exception
 	 */
-	public static <O> O invoke(final IChain<O> chain)
+	public static <O> O invokeWithReturn(final IChain<O> chain)
 		throws Exception {
 
-		return invoke(chain, null);
+		return invokeWithReturn(chain, null);
 	}
 
 
@@ -90,28 +90,14 @@ public enum Chains {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public static <O> O invoke(final IChain<O> chain, final Object dto)
+	public static <O> O invokeWithReturn(final IChain<O> chain, final Object dto)
 		throws Exception {
 
-		/*if (chain.head() != null) {
-			final Linker linker = new Linker(chain.head(), dto);
-			return (R)Executors2.sameThreadExecutor().submit(linker).get();
-		}*/
 		return (O)Internals.Link.invokeCommand(chain, dto, false);
 	}
 
 
 	/**
-	 * create a {@link IChain chain} from a {@link ILink link}
-	 */
-	public static IChain<Void> create(final ILink link) {
-		return new DefaultChain<Void>(link);
-	}
-
-
-	/**
-	 * 
-	 * 
 	 * Builder pattern implementation for creating {@link IChain} objects
 	 *
 	 * @author wassj
@@ -200,7 +186,7 @@ public enum Chains {
 		 */
 		public IChain<Void> build() {
 			if (head != null) {
-				return Chains.create(head.build(visits));
+				return new DefaultChain<Void>(head.build(visits));
 			}
 			return Chains.empty();
 		}
