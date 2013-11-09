@@ -1,5 +1,6 @@
 package cmd4j;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 
@@ -35,17 +36,17 @@ public enum Chains {
 
 
 	/**
-	 * create a {@link IChain chain} that contains the given {@link ICommand commands}
+	 * create a {@link IChain chain} that contains the given vararg {@link ICommand commands}
 	 */
-	public static IChain<Void> create(final Collection<ICommand> commands) {
-		return create(commands.toArray(new ICommand[0]));
+	public static IChain<Void> create(final ICommand... commands) {
+		return create(Arrays.asList(commands));
 	}
 
 
 	/**
-	 * create a {@link IChain chain} that contains the given vararg {@link ICommand commands}
+	 * create a {@link IChain chain} that contains the given {@link ICommand commands}
 	 */
-	public static IChain<Void> create(final ICommand... commands) {
+	public static IChain<Void> create(final Collection<ICommand> commands) {
 		final ChainBuilder builder = Chains.builder();
 		for (ICommand command : commands) {
 			builder.add(command);
