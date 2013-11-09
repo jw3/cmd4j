@@ -6,8 +6,8 @@ import static cmd4j.testing.Does.var;
 
 import org.testng.annotations.Test;
 
+import cmd4j.testing.Does;
 import cmd4j.testing.Does.Variable;
-import cmd4j.testing.Says;
 
 /**
  * Test the {@link IDoneCallback} functionality
@@ -30,7 +30,7 @@ public class ObservableChainsTest {
 	@Test
 	public void testOnSuccessHandlerWithFailure() {
 		final Variable<Boolean> v = var(false);
-		final IChain<Void> chain = Observers.observable(Chains.create(Says.boom())).onSuccess(toggle(v));
+		final IChain<Void> chain = Observers.observable(Chains.create(Does.boom())).onSuccess(toggle(v));
 		try {
 			chain.invoke();
 		}
@@ -46,7 +46,7 @@ public class ObservableChainsTest {
 	@Test
 	public void testOnFailureHandler() {
 		final Variable<Boolean> v = var(false);
-		final IChain<Void> chain = Observers.observable(Chains.builder().add(Says.boom()).build()).onFailure(toggle(v));
+		final IChain<Void> chain = Observers.observable(Chains.builder().add(Does.boom()).build()).onFailure(toggle(v));
 		try {
 			chain.invoke();
 		}
@@ -103,7 +103,7 @@ public class ObservableChainsTest {
 	@Test
 	public void testAfterWithFailure() {
 		final Variable<Boolean> v = var(false);
-		final IChain<Void> chain = Observers.observable(Chains.builder().add(is(v, false)).add(Says.boom()).build()).after(toggle(v));
+		final IChain<Void> chain = Observers.observable(Chains.builder().add(is(v, false)).add(Does.boom()).build()).after(toggle(v));
 		try {
 			chain.invoke();
 		}

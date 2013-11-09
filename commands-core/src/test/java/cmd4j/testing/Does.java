@@ -30,6 +30,17 @@ public enum Does {
 	}
 
 
+	public static Says boom() {
+		return new Says() {
+			public void invoke(final Object dto)
+				throws Exception {
+
+				throw new Exception("boom");
+			}
+		};
+	}
+
+
 	public static ICommand submits(final IReturningCommand<Void> command, final ExecutorService executor) {
 		return new ICommand2<Object>() {
 			public void invoke(final Object dto)

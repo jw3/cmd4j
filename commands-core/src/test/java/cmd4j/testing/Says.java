@@ -19,9 +19,6 @@ abstract public class Says
 		String toString();
 
 
-		Says nothing();
-
-
 		Says dto();
 
 
@@ -32,22 +29,11 @@ abstract public class Says
 
 
 		Says what(Object what);
-
-
-		Says boom();
 	}
 
 
 	public static ISayFactory factory() {
 		return new SayFactory();
-	}
-
-
-	public static Says nothing() {
-		return new Says() {
-			public void invoke(final Object dto) {
-			}
-		};
 	}
 
 
@@ -144,17 +130,6 @@ abstract public class Says
 	}
 
 
-	public static Says boom() {
-		return new Says() {
-			public void invoke(final Object dto)
-				throws Exception {
-
-				throw new Exception("boom");
-			}
-		};
-	}
-
-
 	/*
 	 * 
 	 * 
@@ -181,18 +156,8 @@ abstract public class Says
 		}
 
 
-		public Says nothing() {
-			return Says.nothing();
-		}
-
-
 		public Says dto() {
 			return Says.dto(writer);
-		}
-
-
-		public Says boom() {
-			return Says.boom();
 		}
 
 

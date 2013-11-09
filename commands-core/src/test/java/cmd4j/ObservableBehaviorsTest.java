@@ -7,7 +7,6 @@ import org.testng.annotations.Test;
 
 import cmd4j.ICommand.ICommand1;
 import cmd4j.testing.Does;
-import cmd4j.testing.Says;
 
 /**
  * validate the execution of observer commands
@@ -49,7 +48,7 @@ public class ObservableBehaviorsTest {
 	public void commandOnFailure()
 		throws Exception {
 
-		final ICommand command = Observers.observable(Says.boom()).before(before).after(after).onFailure(failed).onSuccess(success).results(results);
+		final ICommand command = Observers.observable(Does.boom()).before(before).after(after).onFailure(failed).onSuccess(success).results(results);
 
 		try {
 			Chains.create(command).invoke();
@@ -101,7 +100,7 @@ public class ObservableBehaviorsTest {
 	public void chainOnFailure()
 		throws Exception {
 
-		final IChain<Void> chain = Observers.observable(Chains.create(Says.boom())).before(before).after(after).onFailure(failed).onSuccess(success).results(results);
+		final IChain<Void> chain = Observers.observable(Chains.create(Does.boom())).before(before).after(after).onFailure(failed).onSuccess(success).results(results);
 
 		try {
 			chain.invoke();

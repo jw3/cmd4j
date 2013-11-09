@@ -6,7 +6,6 @@ import org.testng.annotations.Test;
 
 import cmd4j.testing.Does;
 import cmd4j.testing.Does.Variable;
-import cmd4j.testing.Says;
 
 /**
  *
@@ -44,7 +43,7 @@ public class ObservableCommandsTest {
 	@Test
 	public void onFailure() {
 		final Variable<Boolean> called = Variable.create(false);
-		final ICommand command = Observers.observable(Says.boom()).onFailure(Does.set(called, true));
+		final ICommand command = Observers.observable(Does.boom()).onFailure(Does.set(called, true));
 		try {
 			Chains.create(command).invoke();
 		}

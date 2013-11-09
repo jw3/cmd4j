@@ -6,7 +6,6 @@ import cmd4j.Chains;
 import cmd4j.Chains.ChainBuilder;
 import cmd4j.IChain;
 import cmd4j.testing.Does;
-import cmd4j.testing.Says;
 
 /**
  *
@@ -30,6 +29,6 @@ public class ExampleHowReadableAreStackTraces {
 			final IChain<Void> chain = recurse(Chains.builder().add(Does.nothing()), count, max);
 			parent.add(chain);
 		}
-		return parent.add(Says.boom()).build();
+		return parent.add(Does.boom()).build();
 	}
 }
