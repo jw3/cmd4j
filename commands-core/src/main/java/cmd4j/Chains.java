@@ -10,6 +10,7 @@ import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Internals.Chain.DefaultChain;
 import cmd4j.Internals.Chain.EmptyChain;
 import cmd4j.Internals.Chain.UndoableChainDecorator;
+import cmd4j.Internals.Link;
 import cmd4j.Internals.Link.LinkBuilder;
 
 /**
@@ -53,7 +54,7 @@ public enum Chains {
 	 * create a {@link IChain chain} that contains the given vararg {@link ICommand commands}
 	 */
 	public static <O> IChain<O> create(final IReturningCommand<O> command) {
-		return new DefaultChain<O>(command);
+		return new DefaultChain<O>(Link.create(command));
 	}
 
 
@@ -176,7 +177,7 @@ public enum Chains {
 	 * @see Links
 	 */
 	public interface ILink
-		extends Callable<ILink> {
+		extends Callable<Object> {
 
 		/**
 		 * get the {@link ILink link} to be executed after this 

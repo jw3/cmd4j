@@ -8,7 +8,6 @@ import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -107,7 +106,7 @@ enum Internals {
 			public Void invoke(final Object input)
 				throws Exception {
 
-				Link.invokeCommand(command, input, true);
+				Link.invokeCommand(command, input, Returns.VOID, true);
 				return null;
 			}
 		}
@@ -164,6 +163,7 @@ enum Internals {
 		static class DefaultLink
 			implements ILink {
 
+			private final Returns returns = new Returns();
 			private final ICommand command;
 			private final ILink next;
 
@@ -219,25 +219,14 @@ enum Internals {
 			/**
 			 * Execute the {@link ICommand} and return the next {@link ILink}
 			 */
-			public ILink call()
+			public Object call()
 				throws Exception {
 
-				//		try {
 				ICommand command = cmd();
 				while (command != null) {
-					// REVISIT not sure what the following is doing?
-					final Object input = input() != null ? input() : this.input;
-					final Object returned = invokeCommand(command, input, ignoreInputMismatch);
-					command = command instanceof IStateCommand && returned instanceof ICommand ? (ICommand)returned : null;
+					command = invokeCommand(command, input, returns, ignoreInputMismatch);
 				}
-				return next();
-				//		}
-				//		catch (Exception e) {
-				//			if (failsafe) {
-				//				return next();
-				//			}
-				//			throw e;
-				//		}
+				return returns.value;
 			}
 		}
 
@@ -385,28 +374,15 @@ enum Internals {
 
 
 			@Override
-			public ILink call()
+			public Object call()
 				throws Exception {
 
-				//		try {
-				/*
-				 * REVISIT lots of duplication with DefaultLink now, perhaps these can be rolled together?
-				 */
+				final Returns returns = new Returns();
 				ICommand command = cmd();
 				while (command != null) {
-					// REVISIT not sure what the following is doing? 
-					final Object input = input() != null ? input() : this.input();
-					final Object returned = invokeCommand(command, input, false, true);
-					command = command instanceof IStateCommand && returned instanceof ICommand ? (ICommand)returned : null;
+					command = invokeCommand(command, input(), returns, false, true);
 				}
-				return next();
-				//		}
-				//		catch (Exception e) {
-				//			if (failsafe) {
-				//				return next();
-				//			}
-				//			throw e;
-				//		}
+				return returns.value;
 			}
 		}
 
@@ -425,16 +401,16 @@ enum Internals {
 		 * @return
 		 * @throws Exception
 		 */
-		static Object invokeCommand(final ICommand command, final Object input, final boolean ignoreInputMismatch)
+		static ICommand invokeCommand(final ICommand command, final Object input, final Returns output, final boolean ignoreInputMismatch)
 			throws Exception {
 
-			return invokeCommand(command, input, ignoreInputMismatch, false);
+			return invokeCommand(command, input, output, ignoreInputMismatch, false);
 		}
 
 
 		@SuppressWarnings({"unchecked", "rawtypes"})
 		/// safely suppressed here: we do some extra checking to ensure the input fits in the invocation
-		static Object invokeCommand(final ICommand command, final Object input, final boolean ignoreInputMismatch, final boolean undo)
+		static ICommand invokeCommand(final ICommand command, final Object input, final Returns output, final boolean ignoreInputMismatch, final boolean undo)
 			throws Exception {
 
 			try {
@@ -449,13 +425,13 @@ enum Internals {
 						return ((ICommand5)command).invoke();
 					}
 					else if (command instanceof ICommand4<?, ?>) {
-						return ((ICommand4)command).invoke(input);
+						output.set(((ICommand4)command).invoke(input));
 					}
 					else if (command instanceof ICommand2<?>) {
 						((ICommand2)command).invoke(input);
 					}
 					else if (command instanceof ICommand3<?>) {
-						return ((ICommand3)command).invoke();
+						output.set(((ICommand3)command).invoke());
 					}
 					else if (command instanceof ICommand1) {
 						((ICommand1)command).invoke();
@@ -463,13 +439,13 @@ enum Internals {
 				}
 				else {
 					if (command instanceof ICommand4.IUndo<?, ?>) {
-						return ((ICommand4.IUndo)command).undo(input);
+						output.set(((ICommand4.IUndo)command).undo(input));
 					}
 					else if (command instanceof ICommand2.IUndo<?>) {
 						((ICommand2.IUndo)command).undo(input);
 					}
 					else if (command instanceof ICommand3.IUndo<?>) {
-						return ((ICommand3.IUndo)command).undo();
+						output.set(((ICommand3.IUndo)command).undo());
 					}
 					else if (command instanceof ICommand1.IUndo) {
 						((ICommand1.IUndo)command).undo();
@@ -534,29 +510,10 @@ enum Internals {
 			implements IChain<O> {
 
 			private final ILink link;
-			private final ICommand command;
-			private final IReturningCommand<O> returningCommand;
 
 
-			public DefaultChain(final ILink link) {
-				this(link, null, null);
-			}
-
-
-			public DefaultChain(final ICommand command) {
-				this(null, command, null);
-			}
-
-
-			public DefaultChain(final IReturningCommand<O> returningCommand) {
-				this(null, null, returningCommand);
-			}
-
-
-			private DefaultChain(final ILink link, final ICommand command, final IReturningCommand<O> returningCommand) {
+			DefaultChain(final ILink link) {
 				this.link = link;
-				this.command = command;
-				this.returningCommand = returningCommand;
 			}
 
 
@@ -570,21 +527,21 @@ enum Internals {
 			public O invoke(Object input)
 				throws Exception {
 
-				if (link != null) {
-					final Linker linker = new Linker(this.head(), input);
-					Concurrent.sameThreadExecutor().submit(linker).get();
-					return null;
+				//				if (link != null) {
+				final Linker linker = new Linker(this.head(), input);
+				return (O)Concurrent.sameThreadExecutor().submit(linker).get();
+				/*	return null;
 				}
 				if (returningCommand != null) {
-					@SuppressWarnings("unchecked")
-					//should be safe cast here
-					final O retval = (O)Internals.Link.invokeCommand(returningCommand, input, false);
-					return retval;
+				@SuppressWarnings("unchecked")
+				//should be safe cast here
+				final O retval = (O)Internals.Link.invokeCommand(returningCommand, input, false);
+				return retval;
 				}
 
 				Internals.Link.invokeCommand(command, input, false);
 
-				return null;
+				return null;*/
 			}
 
 
@@ -629,7 +586,7 @@ enum Internals {
 		 *
 		 */
 		static class Linker
-			implements Callable<Void> {
+			implements Callable<Object> {
 
 			private final ILink head;
 			private final Object input;
@@ -646,29 +603,32 @@ enum Internals {
 			}
 
 
-			public Void call()
+			public Object call()
 				throws Exception {
 
+				final Returns returns = new Returns();
 				ILink next = head();
 				while (next != null) {
-					next = callImpl(next);
+					next = callImpl(next, returns);
 				}
-				return null;
+				return returns.get();
 			}
 
 
-			protected ILink callImpl(final ILink link)
+			protected ILink callImpl(final ILink link, final Returns returns)
 				throws Exception {
 
 				if (input != null && link.input() == null) {
 					link.input(input);
 				}
 				final ExecutorService executor = link.executor();
-				if (executor != null) {
-					final Future<ILink> future = executor.submit(link);
-					return future.get();
+				if (executor == null) {
+					returns.set(link.call());
 				}
-				return link.call();
+				else {
+					returns.set(executor.submit(link).get());
+				}
+				return link.next();
 			}
 		}
 
@@ -688,10 +648,11 @@ enum Internals {
 			public Void call()
 				throws Exception {
 
+				final Returns returns = new Returns();
 				ILink next = head();
 				while (next != null) {
 					next = Link.undo(next);
-					next = callImpl(next);
+					next = callImpl(next, returns);
 				}
 				return null;
 			}
@@ -821,8 +782,7 @@ enum Internals {
 			protected ICommand invokeImpl(final Object input)
 				throws Exception {
 
-				final Object returned = Link.invokeCommand(executing, input, true);
-				return /*command instanceof IStateCommand &&*/returned instanceof ICommand ? (ICommand)returned : null;
+				return Link.invokeCommand(executing, input, Returns.VOID, true);
 			}
 
 
@@ -1230,6 +1190,35 @@ enum Internals {
 					lock.unlock();
 				}
 			}
+		}
+	}
+
+
+	/**
+	 * util class for passing return values as parameter
+	 * @author wassj
+	 */
+	static class Returns {
+		public static Returns VOID = new Returns() {
+			public Object get() {
+				return null;
+			}
+
+
+			public void set(Object value) {
+			}
+		};
+
+		private Object value;
+
+
+		public Object get() {
+			return value;
+		}
+
+
+		public void set(Object value) {
+			this.value = value;
 		}
 	}
 }
