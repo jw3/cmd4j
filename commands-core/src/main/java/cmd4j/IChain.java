@@ -34,6 +34,16 @@ public interface IChain<O>
 
 
 	/**
+	 * 
+	 * @author wassj
+	 * @param <O>
+	 */
+	public interface IUndoChain<O>
+		extends IChain<O>, ICommand3.IUndo<O>, ICommand4.IUndo<Object, O> {
+	}
+
+
+	/**
 	 * an {@link IChain} that can have observer commands added to it
 	 * @author wassj
 	 */

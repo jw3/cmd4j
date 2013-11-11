@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
+import cmd4j.IChain.IUndoChain;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Internals.Chain.DefaultChain;
@@ -62,7 +63,10 @@ public enum Chains {
 	 * add undo support to a {@link IChain chain}
 	 * @return the chain, decorated
 	 */
-	public static <O> IChain<O> undoable(final IChain<O> chain) {
+	public static <O> IUndoChain<O> undoable(final IChain<O> chain) {
+		if (chain instanceof IUndoChain<?>) {
+			return (IUndoChain<O>)chain;
+		}
 		return new UndoableChainDecorator<O>(chain);
 	}
 

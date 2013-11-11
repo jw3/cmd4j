@@ -2,6 +2,7 @@ package cmd4j;
 
 import org.testng.annotations.Test;
 
+import cmd4j.IChain.IUndoChain;
 import cmd4j.testing.Does;
 import cmd4j.testing.Does.Variable;
 
@@ -23,13 +24,13 @@ public class UndoTest {
 		chain.invoke();
 		var.assertEquals(false);
 
-		final IChain<Void> chain2 = Chains.undoable(chain);
-		chain2.invoke();
+		final IUndoChain<Void> undo = Chains.undoable(chain);
+		undo.undo();
 		var.assertEquals(true);
 
 		chain.invoke();
 		var.assertEquals(false);
-		chain2.invoke();
+		undo.undo();
 		var.assertEquals(true);
 	}
 }

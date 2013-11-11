@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import cmd4j.Chains.ChainBuilder;
 import cmd4j.Chains.ILink;
 import cmd4j.IChain.IObservableChain;
+import cmd4j.IChain.IUndoChain;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
@@ -80,34 +81,6 @@ enum Internals {
 				throws Exception {
 
 				return Chains.create(command).invoke(input);
-			}
-		}
-
-
-		/**
-		 * wrap a command to ensure a Void return type
-		 * useful for:
-		 * 1. ensuring return type is ignored
-		 * 2. adding return type to a non returner
-		 *
-		 * @author wassj
-		 */
-		static class ReturnVoidWrapper
-			implements ICommand4<Object, Void> {
-
-			private final ICommand command;
-
-
-			public ReturnVoidWrapper(final ICommand command) {
-				this.command = command;
-			}
-
-
-			public Void invoke(final Object input)
-				throws Exception {
-
-				Link.invokeCommand(command, input, Returns.VOID, true);
-				return null;
 			}
 		}
 
@@ -645,7 +618,7 @@ enum Internals {
 			}
 
 
-			public Void call()
+			public Object call()
 				throws Exception {
 
 				final Returns returns = new Returns();
@@ -654,7 +627,7 @@ enum Internals {
 					next = Link.undo(next);
 					next = callImpl(next, returns);
 				}
-				return null;
+				return returns.get();
 			}
 		}
 
@@ -683,12 +656,14 @@ enum Internals {
 		 * @author wassj
 		 */
 		static class UndoableChainDecorator<O>
-			implements IChainDecorator<O> {
+			extends DefaultChain<O>
+			implements IChainDecorator<O>, IUndoChain<O> {
 
 			private final IChain<O> chain;
 
 
 			public UndoableChainDecorator(final IChain<O> chain) {
+				super(chain.head());
 				this.chain = chain;
 			}
 
@@ -703,19 +678,18 @@ enum Internals {
 			}
 
 
-			public O invoke()
+			public O undo()
 				throws Exception {
 
-				return this.invoke(null);
+				return this.undo(null);
 			}
 
 
-			public O invoke(final Object input)
+			public O undo(Object input)
 				throws Exception {
 
 				final Linker linker = new UndoLinker(this.head(), input);
-				Concurrent.sameThreadExecutor().submit(linker).get();
-				return null;
+				return (O)Concurrent.sameThreadExecutor().submit(linker).get();
 			}
 		}
 	}
@@ -786,6 +760,13 @@ enum Internals {
 			}
 
 
+			protected ICommand undoImpl(Object input)
+				throws Exception {
+
+				return Link.invokeCommand(executing, input, Returns.VOID, true, true);
+			}
+
+
 			@Override
 			public ICommand invoke(final Object input)
 				throws Exception {
@@ -833,6 +814,16 @@ enum Internals {
 
 				return Chains.create(this.decorating()).invoke(input);
 			}
+
+
+			protected O undoImpl(Object input)
+				throws Exception {
+
+				if (this.decorating() instanceof IUndoCommand) {
+					return Chains.undoable(Chains.create(this.decorating())).undo(input);
+				}
+				return this.invokeImpl(input);
+			}
 		}
 
 
@@ -859,6 +850,16 @@ enum Internals {
 
 				return this.decorating().invoke(input);
 			}
+
+
+			protected O undoImpl(Object input)
+				throws Exception {
+
+				if (this.decorating() instanceof IUndoChain<?>) {
+					((IUndoChain<O>)this.decorating()).undo(input);
+				}
+				return Chains.undoable(this.decorating()).undo(input);
+			}
 		}
 
 
@@ -875,7 +876,7 @@ enum Internals {
 		@SuppressWarnings("unchecked")
 		/// EXPLAIN there are some wild generic parms here resulting from the IObservable interface being typed with a generic form of itself
 		abstract static class AbstractObservable<O, T extends IObservable<?>, C extends ICommand>
-			implements IObservable<T>, IDecorator<C> {
+			implements IObservable<T>, IDecorator<C>, ICommand4.IUndo<Object, O> {
 
 			protected final List<ICommand> afterHandlers = new LinkedList<ICommand>();
 			protected final List<ICommand> beforeHandlers = new LinkedList<ICommand>();
@@ -900,6 +901,10 @@ enum Internals {
 				throws Exception;
 
 
+			abstract protected O undoImpl(final Object input)
+				throws Exception;
+
+
 			public O invoke()
 				throws Exception {
 
@@ -914,6 +919,38 @@ enum Internals {
 					final O returned;
 					executeHandlers(beforeHandlers, input);
 					returned = invokeImpl(input);
+					executeHandlers(resultsHandlers, returned);
+					executeHandlers(successHandlers, input);
+					return returned;
+				}
+				catch (final ExecutionException e) {
+					executeHandlers(failureHandlers, e.getCause());
+					throw e;
+				}
+				catch (final Exception e) {
+					executeHandlers(failureHandlers, e);
+					throw e;
+				}
+				finally {
+					executeHandlers(afterHandlers, input);
+				}
+			}
+
+
+			public O undo()
+				throws Exception {
+
+				return this.undo(null);
+			}
+
+
+			public O undo(final Object input)
+				throws Exception {
+
+				try {
+					final O returned;
+					executeHandlers(beforeHandlers, input);
+					returned = undoImpl(input);
 					executeHandlers(resultsHandlers, returned);
 					executeHandlers(successHandlers, input);
 					return returned;

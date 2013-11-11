@@ -5,7 +5,6 @@ import cmd4j.ICommand.IObservableCommand;
 import cmd4j.ICommand.IObservableStateCommand;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.ICommand.IStateCommand;
-import cmd4j.Internals.Command.ReturnVoidWrapper;
 
 /**
  * chain/command observer utils 
@@ -23,19 +22,6 @@ public enum Observers {
 	 */
 	public static <O> IObservableChain<O> observable(final IChain<O> chain) {
 		return Internals.Observer.decorator(chain);
-	}
-
-
-	/**
-	 * decorate a {@link ICommand command} with observable capability, supporting return values
-	 * note that if an untyped ICommand is passed in, any return value provided by the actual
-	 * type will be stripped. use {@link #observable(IReturningCommand)} or {@link #observable(IChain)}
-	 * if a return value is needed.
-	 * @param command
-	 * @return
-	 */
-	public static IObservableCommand<Void> observable(final ICommand command) {
-		return observable(new ReturnVoidWrapper(command));
 	}
 
 
