@@ -55,6 +55,9 @@ public enum Chains {
 	 * create a {@link IChain chain} that contains the given vararg {@link ICommand commands}
 	 */
 	public static <O> IChain<O> create(final IReturningCommand<O> command) {
+		if (command instanceof IChain<?>) {
+			return (IChain<O>)command;
+		}
 		return new DefaultChain<O>(Link.create(command));
 	}
 
