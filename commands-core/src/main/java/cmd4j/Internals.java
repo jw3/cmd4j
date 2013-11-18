@@ -27,12 +27,12 @@ import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommand4;
-import cmd4j.ICommand.ICommand5;
-import cmd4j.ICommand.ICommand6;
 import cmd4j.ICommand.IObservableCommand;
 import cmd4j.ICommand.IObservableStateCommand;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.ICommand.IStateCommand;
+import cmd4j.ICommand.IStateCommand.IStateCommand1;
+import cmd4j.ICommand.IStateCommand.IStateCommand2;
 import cmd4j.Internals.Chain.IChainDecorator;
 import cmd4j.Internals.Chain.IDecorator;
 import cmd4j.Internals.Command.ICommandProxy;
@@ -391,11 +391,11 @@ enum Internals {
 					return ((ICommandProxy)command).command();
 				}
 				else if (!undo) {
-					if (command instanceof ICommand6<?>) {
-						return ((ICommand6)command).invoke(input);
+					if (command instanceof IStateCommand2<?>) {
+						return ((IStateCommand2)command).invoke(input);
 					}
-					else if (command instanceof ICommand5) {
-						return ((ICommand5)command).invoke();
+					else if (command instanceof IStateCommand1) {
+						return ((IStateCommand1)command).invoke();
 					}
 					else if (command instanceof ICommand4<?, ?>) {
 						output.set(((ICommand4)command).invoke(input));
@@ -743,7 +743,7 @@ enum Internals {
 		 */
 		static class StateCommandDecorator
 			extends AbstractObservable<ICommand, IObservableStateCommand, IStateCommand>
-			implements IObservableStateCommand, IStateCommand, ICommand6<Object> {
+			implements IObservableStateCommand, IStateCommand, IStateCommand2<Object> {
 
 			private ICommand executing;
 

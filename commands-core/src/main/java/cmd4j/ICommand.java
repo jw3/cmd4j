@@ -145,44 +145,6 @@ public interface ICommand {
 
 
 	/**
-	 *
-	 * @see IReturningCommand 
-	 * @author wassj
-	 */
-	public interface ICommand5
-		extends ICommand, IStateCommand {
-
-		/**
-		 * 
-		 * @return
-		 * @throws Exception
-		 */
-		ICommand invoke()
-			throws Exception;
-	}
-
-
-	/**
-	 *
-	 * @see IReturningCommand
-	 * @author wassj
-	 * @param <I>
-	 */
-	public interface ICommand6<I>
-		extends ICommand, IStateCommand, IInputCommand<I> {
-
-		/**
-		 * 
-		 * @param input
-		 * @return
-		 * @throws Exception
-		 */
-		ICommand invoke(I input)
-			throws Exception;
-	}
-
-
-	/**
 	 * Marks a {@link ICommand command} as being able to be undone.  It is entirely up to the Command implementation
 	 * to provide the capability to reverse the Command, this interface simply provides the calling
 	 * capability to run that reversing logic in the Command framework.
@@ -198,19 +160,58 @@ public interface ICommand {
 
 
 	/**
+	 * Supports Command based 'State Machine' behavior:
+	 * 
 	 * {@link ICommand} implementation that supports returning a command to be run immediately upon this commands successful completion.
 	 * 
-	 * The returned command could be a {@link IStateCommand} and return another {@link IStateCommand}, so on and so on until null is returned.
+	 * The returned command could be a {@link IStateCommand} and return another {@link IStateCommand}, and so on and so on until null is returned. Or
+	 * the returned command could be a non-IStateCommand in which case the state path ends when that command ends.
 	 * 
-	 * The containing {@link ILink link} is not finished until all commands execute. This provides a very simple to implement state machine behavior.
+	 * The containing {@link ILink link} is not finished until all command paths execute.
 	 * 
 	 * Note that though this command returns, it is not part of the {@link IReturningCommand} hierarchy as that interface returns literal values while
-	 * this interface returns functional states for immediate execution.
+	 * this interface returns functional states for immediate execution.  The distinction between literal and functional is made by not extending {@link IReturningCommand}
 	 * 
 	 * @author wassj
 	 */
 	public interface IStateCommand
 		extends ICommand {
+
+		/**
+		 * a non-{@link IInputCommand} {@link IStateCommand}
+		 * 
+		 * @author wassj
+		 */
+		public interface IStateCommand1
+			extends ICommand, IStateCommand {
+
+			/**
+			 * 
+			 * @return Command to be executed after the successful completion of this command
+			 * @throws Exception
+			 */
+			ICommand invoke()
+				throws Exception;
+		}
+
+
+		/**
+		 * {@link IStateCommand} that supports {@link IInputCommand}
+		 * @author wassj
+		 * @param <I>
+		 */
+		public interface IStateCommand2<I>
+			extends ICommand, IStateCommand, IInputCommand<I> {
+
+			/**
+			 * 
+			 * @param input
+			 * @return Command to be executed after the successful completion of this command
+			 * @throws Exception
+			 */
+			ICommand invoke(I input)
+				throws Exception;
+		}
 	}
 
 
@@ -226,7 +227,8 @@ public interface ICommand {
 
 
 	/**
-	 *
+	 * tagging interface for {@link ICommand commands} which support an input argument
+	 * 
 	 * @author wassj
 	 * @param <I>
 	 */

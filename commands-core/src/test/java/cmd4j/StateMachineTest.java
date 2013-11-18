@@ -2,9 +2,9 @@ package cmd4j;
 
 import org.testng.annotations.Test;
 
-import cmd4j.ICommand.ICommand5;
 import cmd4j.ICommand.IObservableStateCommand;
 import cmd4j.ICommand.IStateCommand;
+import cmd4j.ICommand.IStateCommand.IStateCommand1;
 import cmd4j.testing.Does;
 import cmd4j.testing.Does.Variable;
 
@@ -54,7 +54,7 @@ public class StateMachineTest {
 
 
 	private static IStateCommand repeat(final int times, final Variable<Integer> var) {
-		return new ICommand5() {
+		return new IStateCommand1() {
 			public ICommand invoke() {
 				var.setValue(var.getValue() + 1);
 				return var.getValue() < times ? this : null;
