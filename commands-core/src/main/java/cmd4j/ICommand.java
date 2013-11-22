@@ -219,7 +219,6 @@ public interface ICommand {
 	 * A {@link ICommand command} implementation that supports returning a value
 	 *
 	 * @author wassj
-	 *
 	 */
 	public interface IReturningCommand<O>
 		extends ICommand {
@@ -234,6 +233,17 @@ public interface ICommand {
 	 */
 	public interface IInputCommand<I>
 		extends ICommand {
+	}
+
+
+	/**
+	 * convenience tagging interface for functional commands
+	 * @author wassj
+	 * @param <I>
+	 * @param <O>
+	 */
+	public interface IFunction<I, O>
+		extends ICommand4<I, O> {
 	}
 
 
