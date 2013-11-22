@@ -102,6 +102,14 @@ public enum Chains {
 		}
 
 
+		public ChainBuilder addAll(final Collection<ICommand> commands) {
+			for (final ICommand command : commands) {
+				add(command);
+			}
+			return this;
+		}
+
+
 		/**
 		 * add the command to the end of the chain
 		 * @param command
