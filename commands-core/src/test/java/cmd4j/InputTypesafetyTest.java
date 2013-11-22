@@ -1,6 +1,6 @@
 package cmd4j;
 
-import static cmd4j.testing.Does.is;
+import static cmd4j.testing.Asserts.is;
 import static cmd4j.testing.Does.var;
 
 import org.testng.annotations.Test;

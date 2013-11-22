@@ -5,7 +5,6 @@ import java.util.concurrent.ExecutorService;
 
 import org.testng.Assert;
 
-import cmd4j.Chains;
 import cmd4j.Concurrent;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
@@ -64,32 +63,6 @@ public enum Does {
 
 	public static <T> Variable<T> var(final T val) {
 		return new Variable<T>(val);
-	}
-
-
-	public static <T> ICommand is(final Variable<T> v, final T value) {
-		return new ICommand1() {
-			public void invoke() {
-				Assert.assertEquals(value, v.getValue());
-			}
-		};
-	}
-
-
-	/**
-	 * test the input against the passed value
-	 */
-	public static <T> ICommand is(final T value) {
-		final Variable<Boolean> invoked = var(false);
-		return Chains.builder()//
-			.add(new ICommand2<T>() {
-				public void invoke(final T input) {
-					invoked.setValue(true);
-					Assert.assertEquals(value, input);
-				}
-			})
-			.add(is(invoked, true))
-			.build();
 	}
 
 

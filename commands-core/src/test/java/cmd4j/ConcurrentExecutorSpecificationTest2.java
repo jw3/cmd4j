@@ -36,7 +36,7 @@ public class ConcurrentExecutorSpecificationTest2 {
 			.add(Asserts.isEDT())
 			.executor(Services.edt.executor())
 			//
-			.add(Asserts.is(Services.t1))
+			.add(Asserts.isRunningIn(Services.t1))
 			.executor(Services.t1.executor())
 			//
 			.build()
@@ -65,13 +65,13 @@ public class ConcurrentExecutorSpecificationTest2 {
 		throws Exception {
 
 		Chains.builder()//
-			.add(Asserts.is(Services.t1))
+			.add(Asserts.isRunningIn(Services.t1))
 			.executor(Services.t1.executor())
 
 			.add(Asserts.isCurrent())
 			.executor(Services.edt.executor())
 
-			.add(Asserts.is(Services.t2))
+			.add(Asserts.isRunningIn(Services.t2))
 			.executor(Services.t2.executor())
 
 			.add(Asserts.isCurrent())
@@ -89,7 +89,7 @@ public class ConcurrentExecutorSpecificationTest2 {
 	public void unspecifiedRunsOnChainThread1()
 		throws Exception {
 
-		Concurrent.submit(Chains.builder().add(Asserts.is(Services.t1)).build(), Services.t1.executor());
+		Concurrent.submit(Chains.builder().add(Asserts.isRunningIn(Services.t1)).build(), Services.t1.executor());
 	}
 
 
@@ -102,12 +102,12 @@ public class ConcurrentExecutorSpecificationTest2 {
 		throws Exception {
 
 		final IChain<Void> chain = Chains.builder()//
-			.add(Asserts.is(Services.t1))
+			.add(Asserts.isRunningIn(Services.t1))
 
 			.add(Asserts.isEDT())
 			.executor(Services.edt.executor())
 
-			.add(Asserts.is(Services.t1))
+			.add(Asserts.isRunningIn(Services.t1))
 
 			.build();
 		Concurrent.submit(chain, Services.t1.executor());
@@ -154,11 +154,11 @@ public class ConcurrentExecutorSpecificationTest2 {
 
 		final IChain<Void> chain = Chains.builder()
 		//
-			.add(Asserts.is(Services.edt))
+			.add(Asserts.isRunningIn(Services.edt))
 
-			.add(Asserts.is(Services.edt))
+			.add(Asserts.isRunningIn(Services.edt))
 
-			.add(Asserts.is(Services.edt))
+			.add(Asserts.isRunningIn(Services.edt))
 
 			.build();
 		Concurrent.submit(chain, Services.edt.executor());
@@ -178,7 +178,7 @@ public class ConcurrentExecutorSpecificationTest2 {
 
 			.add(Asserts.isCurrent())
 
-			.add(Asserts.is(Services.t1))
+			.add(Asserts.isRunningIn(Services.t1))
 			.executor(Services.t1.executor())
 
 			.build();

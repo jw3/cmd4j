@@ -1,12 +1,11 @@
 package cmd4j;
 
-import static cmd4j.testing.Does.is;
-
 import java.io.StringWriter;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import cmd4j.testing.Asserts;
 import cmd4j.testing.Says;
 
 /**
@@ -25,7 +24,7 @@ public class InputOverridesTest {
 		throws Exception {
 
 		final String input = "this is the input";
-		Chains.builder().add(is(input)).build().invoke(input);
+		Chains.builder().add(Asserts.is(input)).build().invoke(input);
 	}
 
 
@@ -33,7 +32,7 @@ public class InputOverridesTest {
 	public void basicChainInputNull()
 		throws Exception {
 
-		Chains.builder().add(is(null)).build().invoke(null);
+		Chains.builder().add(Asserts.is(null)).build().invoke(null);
 	}
 
 
@@ -45,7 +44,7 @@ public class InputOverridesTest {
 		throws Exception {
 
 		final String input = "this is the input";
-		Chains.builder().add(is(input)).input(input).build().invoke();
+		Chains.builder().add(Asserts.is(input)).input(input).build().invoke();
 	}
 
 
@@ -53,7 +52,7 @@ public class InputOverridesTest {
 	public void basicLinkInputNull()
 		throws Exception {
 
-		Chains.builder().add(is(null)).input(null).build().invoke();
+		Chains.builder().add(Asserts.is(null)).input(null).build().invoke();
 	}
 
 
@@ -66,7 +65,7 @@ public class InputOverridesTest {
 
 		final String chainInput = "this is the chain input";
 		final String linkInput = "this is the link input";
-		Chains.builder().add(is(linkInput)).input(linkInput).add(is(chainInput)).build().invoke(chainInput);
+		Chains.builder().add(Asserts.is(linkInput)).input(linkInput).add(Asserts.is(chainInput)).build().invoke(chainInput);
 	}
 
 
@@ -79,7 +78,7 @@ public class InputOverridesTest {
 
 		final String chainInput = "this is the chain input";
 		final Integer linkInput = 1010101;
-		Chains.builder().add(is(linkInput)).input(linkInput).add(is(chainInput)).build().invoke(chainInput);
+		Chains.builder().add(Asserts.is(linkInput)).input(linkInput).add(Asserts.is(chainInput)).build().invoke(chainInput);
 	}
 
 

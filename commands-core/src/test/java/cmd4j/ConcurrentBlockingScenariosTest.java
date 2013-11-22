@@ -37,7 +37,7 @@ public class ConcurrentBlockingScenariosTest {
 
 		final Variable<Boolean> var = new Variable<Boolean>();
 		Chains.builder()//
-			.add(Asserts.is(Services.t1))
+			.add(Asserts.isRunningIn(Services.t1))
 			.add(Does.set(var, true))
 			.build()
 			.invoke();
@@ -53,7 +53,7 @@ public class ConcurrentBlockingScenariosTest {
 
 		final Variable<Boolean> var = new Variable<Boolean>();
 		final IChain<Void> chain = Chains.builder()//
-			.add(Asserts.is(Services.t1))
+			.add(Asserts.isRunningIn(Services.t1))
 			.add(Does.set(var, true))
 			.build();
 		Concurrent.submit(chain, Services.t1.executor()).get();
@@ -73,7 +73,7 @@ public class ConcurrentBlockingScenariosTest {
 				throws Exception {
 
 				Chains.builder()//
-					.add(Asserts.is(Services.t1))
+					.add(Asserts.isRunningIn(Services.t1))
 					.add(Does.set(var, true))
 					.build()
 					.invoke();
@@ -100,7 +100,7 @@ public class ConcurrentBlockingScenariosTest {
 				throws Exception {
 
 				final IChain<Void> chain = Chains.builder()//
-					.add(Asserts.is(Services.t1))
+					.add(Asserts.isRunningIn(Services.t1))
 					.add(Does.set(var, true))
 					.build();
 				Concurrent.submit(chain, Services.t1.executor()).get();
@@ -133,7 +133,7 @@ public class ConcurrentBlockingScenariosTest {
 				throws Exception {
 
 				final IChain<Void> chain = Chains.builder()//
-					.add(Asserts.is(service))
+					.add(Asserts.isRunningIn(service))
 					.add(Does.set(var, true))
 					.build();
 				Concurrent.submit(chain, service.executor()).get();
@@ -160,7 +160,7 @@ public class ConcurrentBlockingScenariosTest {
 				throws Exception {
 
 				final IChain<Void> chain = Chains.builder()//
-					.add(Asserts.is(Services.t1))
+					.add(Asserts.isRunningIn(Services.t1))
 					.add(Does.set(var, true))
 					.build();
 				Concurrent.submit(chain, Services.multi1.executor()).get();

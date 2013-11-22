@@ -2,6 +2,7 @@ package cmd4j.testing;
 
 import org.testng.Assert;
 
+import cmd4j.Chains;
 import cmd4j.ICommand;
 import cmd4j.testing.Does.Variable;
 
@@ -17,6 +18,33 @@ public class Asserts
 	private final Thread expected;
 
 
+	public static <T> ICommand is(final Variable<T> v, final T value) {
+		return new ICommand1() {
+			public void invoke() {
+				Assert.assertEquals(value, v.getValue());
+			}
+		};
+	}
+
+
+	/**
+	* test the input against the passed value
+	*/
+
+	public static <T> ICommand is(final T value) {
+		final Variable<Boolean> invoked = Does.var(false);
+		return Chains.builder()//
+			.add(new ICommand2<T>() {
+				public void invoke(final T input) {
+					invoked.setValue(true);
+					Assert.assertEquals(value, input);
+				}
+			})
+			.add(is(invoked, true))
+			.build();
+	}
+
+
 	/**
 	 * Assert that the thread that creates this assertion will also execute it
 	 * @return
@@ -29,12 +57,12 @@ public class Asserts
 	/**
 	 * Assert that the passed thread is used to execute this assertion
 	 */
-	public static Asserts is(final Thread thread) {
+	public static Asserts isRunningIn(final Thread thread) {
 		return new Asserts(thread);
 	}
 
 
-	public static Asserts is(final IService service) {
+	public static Asserts isRunningIn(final IService service) {
 		return new Asserts() {
 			public void invoke() {
 				Assert.assertTrue(service.isOwnerOfCurrentThread(), "expected to be run on " + service.name() + ", was run on " + Thread.currentThread().getName());
@@ -56,7 +84,7 @@ public class Asserts
 	 * Assert that this assertion is run on the Event Dispatch Thread 
 	 */
 	public static Asserts isEDT() {
-		return is(Services.edt);
+		return isRunningIn(Services.edt);
 	}
 
 
