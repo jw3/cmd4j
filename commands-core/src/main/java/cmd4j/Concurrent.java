@@ -12,7 +12,6 @@ import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Internals.Chain.ChainCallable;
 import cmd4j.Internals.Command.CommandCallable;
 import cmd4j.Internals.Executor.EventDispatchExecutor;
-import cmd4j.Internals.Executor.SameThreadExecutorService;
 
 /**
  * java.util.concurrent Command Utilities 
@@ -180,15 +179,6 @@ public enum Concurrent {
 	 */
 	public static ExecutorService swingExecutor() {
 		return new EventDispatchExecutor();
-	}
-
-
-	/**
-	 * returns a new instance of an {@link ExecutorService} that submits tasks to the same {@link Thread} the submission was made from
-	 * @return
-	 */
-	public static ExecutorService sameThreadExecutor() {
-		return new SameThreadExecutorService();
 	}
 
 

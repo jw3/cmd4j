@@ -15,6 +15,8 @@ import cmd4j.ICommand.ICommand4;
 import cmd4j.examples.events.Dispatcher;
 import cmd4j.examples.events.IListener;
 
+import com.google.common.util.concurrent.MoreExecutors;
+
 /**
  * Samples of event dispatcher that is implemeted using {@link ICommand commands} 
  *
@@ -75,7 +77,7 @@ public class ExampleEventDispatcher {
 				final ExecutorService exec = Executors.newSingleThreadExecutor();
 				return Chains.builder()//
 					.add(sayThread())
-					.executor(Concurrent.sameThreadExecutor())
+					.executor(MoreExecutors.sameThreadExecutor())
 
 					.add(sayThread())
 					.executor(Concurrent.swingExecutor())

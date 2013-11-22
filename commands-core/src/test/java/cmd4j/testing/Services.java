@@ -10,6 +10,8 @@ import javax.swing.SwingUtilities;
 
 import cmd4j.Concurrent;
 
+import com.google.common.util.concurrent.MoreExecutors;
+
 /**
  * Manage a set of executors for tests; 
  * 
@@ -138,7 +140,7 @@ public enum Services implements IService {
 
 
 			public ExecutorService executor() {
-				return Concurrent.sameThreadExecutor();
+				return MoreExecutors.sameThreadExecutor();
 			}
 		};
 	}

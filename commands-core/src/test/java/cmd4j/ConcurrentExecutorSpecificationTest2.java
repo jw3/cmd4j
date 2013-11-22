@@ -5,6 +5,8 @@ import org.testng.annotations.Test;
 import cmd4j.testing.Asserts;
 import cmd4j.testing.Services;
 
+import com.google.common.util.concurrent.MoreExecutors;
+
 /**
  *
  *
@@ -125,7 +127,7 @@ public class ConcurrentExecutorSpecificationTest2 {
 			.add(Asserts.isCurrent())
 
 			.build();
-		Concurrent.submit(chain, Concurrent.sameThreadExecutor());
+		Concurrent.submit(chain, MoreExecutors.sameThreadExecutor());
 	}
 
 
@@ -180,6 +182,6 @@ public class ConcurrentExecutorSpecificationTest2 {
 			.executor(Services.t1.executor())
 
 			.build();
-		Concurrent.submit(chain, Concurrent.sameThreadExecutor());
+		Concurrent.submit(chain, MoreExecutors.sameThreadExecutor());
 	}
 }
