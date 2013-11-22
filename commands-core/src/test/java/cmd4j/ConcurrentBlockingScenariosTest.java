@@ -9,7 +9,7 @@ import org.testng.annotations.Test;
 
 import cmd4j.testing.Asserts;
 import cmd4j.testing.Does;
-import cmd4j.testing.Does.Variable;
+import cmd4j.testing.Does.TestVariable;
 import cmd4j.testing.IService;
 import cmd4j.testing.Services;
 import cmd4j.testing.Services.Mode;
@@ -35,7 +35,7 @@ public class ConcurrentBlockingScenariosTest {
 	public void blockMain()
 		throws Exception {
 
-		final Variable<Boolean> var = new Variable<Boolean>();
+		final TestVariable<Boolean> var = new TestVariable<Boolean>();
 		Chains.builder()//
 			.add(Asserts.isRunningIn(Services.t1))
 			.add(Does.set(var, true))
@@ -51,7 +51,7 @@ public class ConcurrentBlockingScenariosTest {
 	public void blockMain_runOnExecutor()
 		throws Exception {
 
-		final Variable<Boolean> var = new Variable<Boolean>();
+		final TestVariable<Boolean> var = new TestVariable<Boolean>();
 		final IChain<Void> chain = Chains.builder()//
 			.add(Asserts.isRunningIn(Services.t1))
 			.add(Does.set(var, true))
@@ -67,7 +67,7 @@ public class ConcurrentBlockingScenariosTest {
 	public void blockExecutorThread()
 		throws Exception {
 
-		final Variable<Boolean> var = new Variable<Boolean>();
+		final TestVariable<Boolean> var = new TestVariable<Boolean>();
 		final Callable<Void> runChain = new Callable<Void>() {
 			public Void call()
 				throws Exception {
@@ -78,7 +78,7 @@ public class ConcurrentBlockingScenariosTest {
 					.build()
 					.invoke();
 
-				Assert.assertEquals(var.getValue(), Boolean.TRUE);
+				Assert.assertEquals(var.get(), Boolean.TRUE);
 
 				return null;
 			}
@@ -94,7 +94,7 @@ public class ConcurrentBlockingScenariosTest {
 	public void blockExecutorThread_runOnDifferentExecutor()
 		throws Exception {
 
-		final Variable<Boolean> var = new Variable<Boolean>();
+		final TestVariable<Boolean> var = new TestVariable<Boolean>();
 		final Callable<Void> runChain = new Callable<Void>() {
 			public Void call()
 				throws Exception {
@@ -105,7 +105,7 @@ public class ConcurrentBlockingScenariosTest {
 					.build();
 				Concurrent.submit(chain, Services.t1.executor()).get();
 
-				Assert.assertEquals(var.getValue(), Boolean.TRUE);
+				Assert.assertEquals(var.get(), Boolean.TRUE);
 
 				return null;
 			}
@@ -127,7 +127,7 @@ public class ConcurrentBlockingScenariosTest {
 		// use a throwaway service here so the exception doesnt blow up any other tests
 		final IService service = Services.create("blockExecutorThread_runOnSameExecutor_SingleThread", Mode.SINGLE);
 
-		final Variable<Boolean> var = new Variable<Boolean>();
+		final TestVariable<Boolean> var = new TestVariable<Boolean>();
 		final Callable<Void> runChain = new Callable<Void>() {
 			public Void call()
 				throws Exception {
@@ -154,7 +154,7 @@ public class ConcurrentBlockingScenariosTest {
 	public void blockExecutorThread_runOnSameExecutor_Pooled()
 		throws Exception {
 
-		final Variable<Boolean> var = new Variable<Boolean>();
+		final TestVariable<Boolean> var = new TestVariable<Boolean>();
 		final Callable<Void> runChain = new Callable<Void>() {
 			public Void call()
 				throws Exception {

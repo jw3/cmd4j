@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.testing.Asserts;
 import cmd4j.testing.Does;
-import cmd4j.testing.Does.Variable;
+import cmd4j.testing.Does.TestVariable;
 import cmd4j.testing.Services;
 
 /**
@@ -21,7 +21,7 @@ public class ConcurrentFuturesTest {
 	public void submitFuture()
 		throws Exception {
 
-		final Variable<Integer> var = new Variable<Integer>(0);
+		final TestVariable<Integer> var = new TestVariable<Integer>(0);
 		Chains.builder() //
 			.add(Asserts.isEquals(var, 0))
 
@@ -45,10 +45,10 @@ public class ConcurrentFuturesTest {
 	static class IncrementVariableCommand
 		implements ICommand1 {
 
-		private final Variable<Integer> var;
+		private final TestVariable<Integer> var;
 
 
-		public IncrementVariableCommand(final Variable<Integer> var) {
+		public IncrementVariableCommand(final TestVariable<Integer> var) {
 			this.var = var;
 		}
 
@@ -56,7 +56,7 @@ public class ConcurrentFuturesTest {
 		public void invoke()
 			throws Exception {
 
-			var.setValue(var.getValue() + 1);
+			var.set(var.get() + 1);
 		}
 	}
 }

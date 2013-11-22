@@ -6,7 +6,7 @@ import static cmd4j.testing.Does.var;
 import org.testng.annotations.Test;
 
 import cmd4j.ICommand.ICommand2;
-import cmd4j.testing.Does.Variable;
+import cmd4j.testing.Does.TestVariable;
 
 /**
  * Ensure that a Input does not end up being passed to a {@link ICommand} that will not accept it.
@@ -17,46 +17,46 @@ import cmd4j.testing.Does.Variable;
  */
 public class InputTypesafetyTest {
 
-	static ICommand invoked(final Variable<Boolean> called) {
+	static ICommand invoked(final TestVariable<Boolean> called) {
 		return new ICommand2<Object>() {
 			public void invoke(final Object input) {
-				called.setValue(true);
+				called.set(true);
 			}
 		};
 	}
 
 
-	static ICommand invokedString(final Variable<Boolean> called) {
+	static ICommand invokedString(final TestVariable<Boolean> called) {
 		return new ICommand2<String>() {
 			public void invoke(final String input) {
-				called.setValue(true);
+				called.set(true);
 			}
 		};
 	}
 
 
-	static ICommand invokedNumber(final Variable<Boolean> called) {
+	static ICommand invokedNumber(final TestVariable<Boolean> called) {
 		return new ICommand2<Number>() {
 			public void invoke(final Number input) {
-				called.setValue(true);
+				called.set(true);
 			}
 		};
 	}
 
 
-	static ICommand invokedInteger(final Variable<Boolean> called) {
+	static ICommand invokedInteger(final TestVariable<Boolean> called) {
 		return new ICommand2<Integer>() {
 			public void invoke(final Integer input) {
-				called.setValue(true);
+				called.set(true);
 			}
 		};
 	}
 
 
-	static ICommand invokedDouble(final Variable<Boolean> called) {
+	static ICommand invokedDouble(final TestVariable<Boolean> called) {
 		return new ICommand2<Double>() {
 			public void invoke(final Double input) {
-				called.setValue(true);
+				called.set(true);
 			}
 		};
 	}
@@ -75,17 +75,17 @@ public class InputTypesafetyTest {
 		throws Exception {
 
 		{
-			final Variable<Boolean> v = var(false);
+			final TestVariable<Boolean> v = var(false);
 			Chains.builder().add(invokedString(v)).build().invoke(new String());
 			v.assertEquals(true);
 		}
 		{
-			final Variable<Boolean> v = var(false);
+			final TestVariable<Boolean> v = var(false);
 			Chains.builder().add(invokedDouble(v)).build().invoke(1.1);
 			v.assertEquals(true);
 		}
 		{
-			final Variable<Boolean> v = var(false);
+			final TestVariable<Boolean> v = var(false);
 			Chains.builder().add(invokedInteger(v)).build().invoke(1);
 			v.assertEquals(true);
 		}
@@ -98,7 +98,7 @@ public class InputTypesafetyTest {
 	public void testIncorrectTypes1()
 		throws Exception {
 
-		final Variable<Boolean> v = var(false);
+		final TestVariable<Boolean> v = var(false);
 		Chains.builder()//
 			.add(invokedInteger(v))
 			.add(is(v, false))
@@ -120,10 +120,10 @@ public class InputTypesafetyTest {
 	public void testIncorrectTypes2()
 		throws Exception {
 
-		final Variable<Boolean> v1 = var(false);
-		final Variable<Boolean> v2 = var(false);
-		final Variable<Boolean> v3 = var(false);
-		final Variable<Boolean> v4 = var(false);
+		final TestVariable<Boolean> v1 = var(false);
+		final TestVariable<Boolean> v2 = var(false);
+		final TestVariable<Boolean> v3 = var(false);
+		final TestVariable<Boolean> v4 = var(false);
 
 		Chains.builder()//
 			.add(invokedInteger(v1))
@@ -147,10 +147,10 @@ public class InputTypesafetyTest {
 	public void testIncorrectTypes1_visitable()
 		throws Exception {
 
-		final Variable<Boolean> v1 = var(false);
-		final Variable<Boolean> v2 = var(false);
-		final Variable<Boolean> v3 = var(false);
-		final Variable<Boolean> v4 = var(false);
+		final TestVariable<Boolean> v1 = var(false);
+		final TestVariable<Boolean> v2 = var(false);
+		final TestVariable<Boolean> v3 = var(false);
+		final TestVariable<Boolean> v4 = var(false);
 
 		Chains.builder().add(invokedNumber(v1)).add(invokedInteger(v2)).add(invokedString(v3)).add(invoked(v4)).visits(true).build().invoke("not a number");
 
@@ -168,10 +168,10 @@ public class InputTypesafetyTest {
 	public void testIncorrectTypes2_visitable()
 		throws Exception {
 
-		final Variable<Boolean> v1 = var(false);
-		final Variable<Boolean> v2 = var(false);
-		final Variable<Boolean> v3 = var(false);
-		final Variable<Boolean> v4 = var(false);
+		final TestVariable<Boolean> v1 = var(false);
+		final TestVariable<Boolean> v2 = var(false);
+		final TestVariable<Boolean> v3 = var(false);
+		final TestVariable<Boolean> v4 = var(false);
 
 		Chains.builder().add(invokedInteger(v1)).add(invokedNumber(v2)).add(invokedString(v3)).add(invoked(v4)).visits(true).build().invoke(1.1);
 

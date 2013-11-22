@@ -6,7 +6,7 @@ import cmd4j.ICommand.IObservableStateCommand;
 import cmd4j.ICommand.IStateCommand;
 import cmd4j.ICommand.IStateCommand.IStateCommand1;
 import cmd4j.testing.Does;
-import cmd4j.testing.Does.Variable;
+import cmd4j.testing.Does.TestVariable;
 
 /**
  * ensure that ICommand returns are always treated as executable states
@@ -22,7 +22,7 @@ public class StateMachineTest {
 	public void chains_create()
 		throws Exception {
 
-		final Variable<Integer> var = Variable.create(0);
+		final TestVariable<Integer> var = TestVariable.create(0);
 		Chains.create(repeat(expected, var)).invoke();
 		var.assertEquals(expected);
 	}
@@ -32,7 +32,7 @@ public class StateMachineTest {
 	public void chains_builder()
 		throws Exception {
 
-		final Variable<Integer> var = Variable.create(0);
+		final TestVariable<Integer> var = TestVariable.create(0);
 		Chains.builder().add(repeat(expected, var)).build().invoke();
 		var.assertEquals(expected);
 	}
@@ -42,8 +42,8 @@ public class StateMachineTest {
 	public void observable()
 		throws Exception {
 
-		final Variable<Integer> var = Variable.create(0);
-		final Variable<Integer> otherVar = Variable.create(0);
+		final TestVariable<Integer> var = TestVariable.create(0);
+		final TestVariable<Integer> otherVar = TestVariable.create(0);
 
 		final IObservableStateCommand cmd = Observers.observable(repeat(expected, var)).after(Does.add(otherVar, 1));
 		Chains.create(cmd).invoke();
@@ -53,11 +53,11 @@ public class StateMachineTest {
 	}
 
 
-	private static IStateCommand repeat(final int times, final Variable<Integer> var) {
+	private static IStateCommand repeat(final int times, final TestVariable<Integer> var) {
 		return new IStateCommand1() {
 			public ICommand invoke() {
-				var.setValue(var.getValue() + 1);
-				return var.getValue() < times ? this : null;
+				var.set(var.get() + 1);
+				return var.get() < times ? this : null;
 			}
 		};
 	}

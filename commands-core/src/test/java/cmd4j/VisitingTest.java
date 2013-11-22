@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand4;
-import cmd4j.testing.Does.Variable;
+import cmd4j.testing.Does.TestVariable;
 
 /**
  *
@@ -20,10 +20,10 @@ public class VisitingTest {
 	public void test_String()
 		throws Exception {
 
-		final Variable<Boolean> strings = Variable.create(false);
-		final Variable<Boolean> integers = Variable.create(false);
-		final Variable<Boolean> numbers = Variable.create(false);
-		final Variable<Boolean> objects = Variable.create(false);
+		final TestVariable<Boolean> strings = TestVariable.create(false);
+		final TestVariable<Boolean> integers = TestVariable.create(false);
+		final TestVariable<Boolean> numbers = TestVariable.create(false);
+		final TestVariable<Boolean> objects = TestVariable.create(false);
 
 		Chains.builder().add(handleObject2(objects)).add(handleString2(strings)).add(handleInteger2(integers)).add(handleNumber2(numbers)).visits(true).build().invoke("string");
 
@@ -51,10 +51,10 @@ public class VisitingTest {
 	public void test_Integer()
 		throws Exception {
 
-		final Variable<Boolean> strings = Variable.create(false);
-		final Variable<Boolean> integers = Variable.create(false);
-		final Variable<Boolean> numbers = Variable.create(false);
-		final Variable<Boolean> objects = Variable.create(false);
+		final TestVariable<Boolean> strings = TestVariable.create(false);
+		final TestVariable<Boolean> integers = TestVariable.create(false);
+		final TestVariable<Boolean> numbers = TestVariable.create(false);
+		final TestVariable<Boolean> objects = TestVariable.create(false);
 
 		Chains.builder().add(handleObject2(objects)).add(handleString2(strings)).add(handleInteger2(integers)).add(handleNumber2(numbers)).visits(true).build().invoke(Integer.MAX_VALUE);
 
@@ -82,10 +82,10 @@ public class VisitingTest {
 	public void test_Number()
 		throws Exception {
 
-		final Variable<Boolean> strings = Variable.create(false);
-		final Variable<Boolean> integers = Variable.create(false);
-		final Variable<Boolean> numbers = Variable.create(false);
-		final Variable<Boolean> objects = Variable.create(false);
+		final TestVariable<Boolean> strings = TestVariable.create(false);
+		final TestVariable<Boolean> integers = TestVariable.create(false);
+		final TestVariable<Boolean> numbers = TestVariable.create(false);
+		final TestVariable<Boolean> objects = TestVariable.create(false);
 
 		Chains.builder().add(handleObject2(objects)).add(handleString2(strings)).add(handleInteger2(integers)).add(handleNumber2(numbers)).visits(true).build().invoke(1.3f);
 
@@ -113,10 +113,10 @@ public class VisitingTest {
 	public void test_Object()
 		throws Exception {
 
-		final Variable<Boolean> strings = Variable.create(false);
-		final Variable<Boolean> integers = Variable.create(false);
-		final Variable<Boolean> numbers = Variable.create(false);
-		final Variable<Boolean> objects = Variable.create(false);
+		final TestVariable<Boolean> strings = TestVariable.create(false);
+		final TestVariable<Boolean> integers = TestVariable.create(false);
+		final TestVariable<Boolean> numbers = TestVariable.create(false);
+		final TestVariable<Boolean> objects = TestVariable.create(false);
 
 		Chains.builder().add(handleObject2(objects)).add(handleString2(strings)).add(handleInteger2(integers)).add(handleNumber2(numbers)).visits(true).build().invoke(new Object());
 
@@ -146,9 +146,9 @@ public class VisitingTest {
 	public void test2_foo()
 		throws Exception {
 
-		final Variable<Boolean> foo = Variable.create(false);
-		final Variable<Boolean> bar = Variable.create(false);
-		final Variable<Boolean> foobar = Variable.create(false);
+		final TestVariable<Boolean> foo = TestVariable.create(false);
+		final TestVariable<Boolean> bar = TestVariable.create(false);
+		final TestVariable<Boolean> foobar = TestVariable.create(false);
 
 		Chains.builder().add(handleFoo2(foo)).add(handleBar2(bar)).add(handleFooBar2(foobar)).visits(true).build().invoke(new IFoo() {
 		});
@@ -177,9 +177,9 @@ public class VisitingTest {
 	public void test2_bar()
 		throws Exception {
 
-		final Variable<Boolean> foo = Variable.create(false);
-		final Variable<Boolean> bar = Variable.create(false);
-		final Variable<Boolean> foobar = Variable.create(false);
+		final TestVariable<Boolean> foo = TestVariable.create(false);
+		final TestVariable<Boolean> bar = TestVariable.create(false);
+		final TestVariable<Boolean> foobar = TestVariable.create(false);
 
 		Chains.builder().add(handleFoo2(foo)).add(handleBar2(bar)).add(handleFooBar2(foobar)).visits(true).build().invoke(new IBar() {
 		});
@@ -208,9 +208,9 @@ public class VisitingTest {
 	public void test2_foobar()
 		throws Exception {
 
-		final Variable<Boolean> foo = Variable.create(false);
-		final Variable<Boolean> bar = Variable.create(false);
-		final Variable<Boolean> foobar = Variable.create(false);
+		final TestVariable<Boolean> foo = TestVariable.create(false);
+		final TestVariable<Boolean> bar = TestVariable.create(false);
+		final TestVariable<Boolean> foobar = TestVariable.create(false);
 
 		Chains.builder().add(handleFoo2(foo)).add(handleBar2(bar)).add(handleFooBar2(foobar)).visits(true).build().invoke(new IFooBar() {
 		});
@@ -225,9 +225,9 @@ public class VisitingTest {
 	public void test4_foo()
 		throws Exception {
 
-		final Variable<Boolean> foo = Variable.create(false);
-		final Variable<Boolean> bar = Variable.create(false);
-		final Variable<Boolean> foobar = Variable.create(false);
+		final TestVariable<Boolean> foo = TestVariable.create(false);
+		final TestVariable<Boolean> bar = TestVariable.create(false);
+		final TestVariable<Boolean> foobar = TestVariable.create(false);
 
 		Chains.builder().add(handleFoo4(foo)).add(handleBar4(bar)).add(handleFooBar4(foobar)).visits(true).build().invoke(new IFoo() {
 		});
@@ -257,9 +257,9 @@ public class VisitingTest {
 	public void test4_bar()
 		throws Exception {
 
-		final Variable<Boolean> foo = Variable.create(false);
-		final Variable<Boolean> bar = Variable.create(false);
-		final Variable<Boolean> foobar = Variable.create(false);
+		final TestVariable<Boolean> foo = TestVariable.create(false);
+		final TestVariable<Boolean> bar = TestVariable.create(false);
+		final TestVariable<Boolean> foobar = TestVariable.create(false);
 
 		Chains.builder().add(handleFoo4(foo)).add(handleBar4(bar)).add(handleFooBar4(foobar)).visits(true).build().invoke(new IBar() {
 		});
@@ -288,9 +288,9 @@ public class VisitingTest {
 	public void test4_foobar()
 		throws Exception {
 
-		final Variable<Boolean> foo = Variable.create(false);
-		final Variable<Boolean> bar = Variable.create(false);
-		final Variable<Boolean> foobar = Variable.create(false);
+		final TestVariable<Boolean> foo = TestVariable.create(false);
+		final TestVariable<Boolean> bar = TestVariable.create(false);
+		final TestVariable<Boolean> foobar = TestVariable.create(false);
 
 		Chains.builder().add(handleFoo2(foo)).add(handleBar2(bar)).add(handleFooBar2(foobar)).visits(true).build().invoke(new IFooBar() {
 		});
@@ -314,37 +314,37 @@ public class VisitingTest {
 	}
 
 
-	public ICommand handleObject2(final Variable<Boolean> ran) {
+	public ICommand handleObject2(final TestVariable<Boolean> ran) {
 		return new ICommand2<Object>() {
 			public void invoke(final Object object) {
-				ran.setValue(true);
+				ran.set(true);
 			}
 		};
 	}
 
 
-	public ICommand handleString2(final Variable<Boolean> ran) {
+	public ICommand handleString2(final TestVariable<Boolean> ran) {
 		return new ICommand2<String>() {
 			public void invoke(final String string) {
-				ran.setValue(true);
+				ran.set(true);
 			}
 		};
 	}
 
 
-	public ICommand handleInteger2(final Variable<Boolean> ran) {
+	public ICommand handleInteger2(final TestVariable<Boolean> ran) {
 		return new ICommand2<Integer>() {
 			public void invoke(final Integer integer) {
-				ran.setValue(true);
+				ran.set(true);
 			}
 		};
 	}
 
 
-	public ICommand handleNumber2(final Variable<Boolean> ran) {
+	public ICommand handleNumber2(final TestVariable<Boolean> ran) {
 		return new ICommand2<Number>() {
 			public void invoke(final Number number) {
-				ran.setValue(true);
+				ran.set(true);
 			}
 		};
 	}
@@ -352,28 +352,28 @@ public class VisitingTest {
 
 	//
 
-	public ICommand handleFoo2(final Variable<Boolean> ran) {
+	public ICommand handleFoo2(final TestVariable<Boolean> ran) {
 		return new ICommand2<IFoo>() {
 			public void invoke(final IFoo foo) {
-				ran.setValue(true);
+				ran.set(true);
 			}
 		};
 	}
 
 
-	public ICommand handleBar2(final Variable<Boolean> ran) {
+	public ICommand handleBar2(final TestVariable<Boolean> ran) {
 		return new ICommand2<IBar>() {
 			public void invoke(final IBar bar) {
-				ran.setValue(true);
+				ran.set(true);
 			}
 		};
 	}
 
 
-	public ICommand handleFooBar2(final Variable<Boolean> ran) {
+	public ICommand handleFooBar2(final TestVariable<Boolean> ran) {
 		return new ICommand2<IFooBar>() {
 			public void invoke(final IFooBar foo) {
-				ran.setValue(true);
+				ran.set(true);
 			}
 		};
 	}
@@ -381,30 +381,30 @@ public class VisitingTest {
 
 	//
 
-	public ICommand handleFoo4(final Variable<Boolean> ran) {
+	public ICommand handleFoo4(final TestVariable<Boolean> ran) {
 		return new ICommand4<IFoo, ICommand>() {
 			public ICommand invoke(final IFoo foo) {
-				ran.setValue(true);
+				ran.set(true);
 				return null;
 			}
 		};
 	}
 
 
-	public ICommand handleBar4(final Variable<Boolean> ran) {
+	public ICommand handleBar4(final TestVariable<Boolean> ran) {
 		return new ICommand4<IBar, ICommand>() {
 			public ICommand invoke(final IBar bar) {
-				ran.setValue(true);
+				ran.set(true);
 				return null;
 			}
 		};
 	}
 
 
-	public ICommand handleFooBar4(final Variable<Boolean> ran) {
+	public ICommand handleFooBar4(final TestVariable<Boolean> ran) {
 		return new ICommand4<IFooBar, ICommand>() {
 			public ICommand invoke(final IFooBar foo) {
-				ran.setValue(true);
+				ran.set(true);
 				return null;
 			}
 		};

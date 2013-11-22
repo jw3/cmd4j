@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 import cmd4j.ICommand.IFunction;
 import cmd4j.testing.Asserts;
 import cmd4j.testing.Does;
-import cmd4j.testing.Does.Variable;
+import cmd4j.testing.Does.TestVariable;
 
 import com.google.common.base.Predicates;
 
@@ -23,14 +23,14 @@ public class FunctionalTest {
 
 		{
 			final boolean runs = true;
-			final Variable<Boolean> var = Variable.create(false);
+			final TestVariable<Boolean> var = TestVariable.create(false);
 			Chains.create(Functional.invokeIf(Does.set(var, true), Predicates.alwaysTrue())).invoke();
 			var.assertEquals(runs);
 		}
 
 		{
 			final boolean runs = false;
-			final Variable<Boolean> var = Variable.create(false);
+			final TestVariable<Boolean> var = TestVariable.create(false);
 			Chains.create(Functional.invokeIf(Does.set(var, true), Predicates.alwaysFalse())).invoke();
 			var.assertEquals(runs);
 		}

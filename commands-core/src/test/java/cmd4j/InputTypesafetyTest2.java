@@ -5,7 +5,7 @@ import java.io.InputStream;
 import cmd4j.ICommand.ICommand4;
 import cmd4j.ICommand.IInputCommand;
 import cmd4j.ICommand.IReturningCommand;
-import cmd4j.testing.Does.Variable;
+import cmd4j.testing.Does.TestVariable;
 
 /**
 * validate the type inspection logic; particularly when there are complex generic extensions of command and chain
@@ -40,11 +40,11 @@ public class InputTypesafetyTest2 {
 	}
 
 
-	public static ISub<InputStream> inputStreamReturningSub(final Variable<Boolean> ran) {
+	public static ISub<InputStream> inputStreamReturningSub(final TestVariable<Boolean> ran) {
 		return new ISub<InputStream>() {
 			public InputStream invoke(final String input) {
 				if (ran != null) {
-					ran.setValue(true);
+					ran.set(true);
 				}
 				return null;
 			}
@@ -73,7 +73,7 @@ public class InputTypesafetyTest2 {
 	public void success_setVisitImplicit(final Object input)
 		throws Exception {
 
-		final Variable<Boolean> ran = Variable.create();
+		final TestVariable<Boolean> ran = TestVariable.create();
 		Chains.builder().add(inputStreamReturningSub(ran)).build().invoke(input);
 		ran.assertEquals(true);
 	}
@@ -91,7 +91,7 @@ public class InputTypesafetyTest2 {
 	public void success_setVisitExplicit(final Object input)
 		throws Exception {
 
-		final Variable<Boolean> ran = Variable.create();
+		final TestVariable<Boolean> ran = TestVariable.create();
 		Chains.builder().add(inputStreamReturningSub(ran)).visits(true).build().invoke(input);
 		ran.assertEquals(true);
 	}
@@ -109,7 +109,7 @@ public class InputTypesafetyTest2 {
 	public void success_setNotVisitExplicit(final Object input)
 		throws Exception {
 
-		final Variable<Boolean> ran = Variable.create();
+		final TestVariable<Boolean> ran = TestVariable.create();
 		Chains.builder().add(inputStreamReturningSub(ran)).visits(false).build().invoke(input);
 		ran.assertEquals(true);
 	}

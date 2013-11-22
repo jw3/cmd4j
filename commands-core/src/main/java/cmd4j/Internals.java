@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import cmd4j.Chains.ChainBuilder;
 import cmd4j.Chains.ILink;
+import cmd4j.Commands.Variable;
 import cmd4j.IChain.IObservableChain;
 import cmd4j.IChain.IUndoChain;
 import cmd4j.ICommand.ICommand1;
@@ -1048,41 +1049,11 @@ enum Internals {
 
 
 	/**
-	 * util class for passing values as parameter
-	 * @author wassj
-	 */
-	static class Variable {
-		private Object value;
-
-
-		public Object get() {
-			return value;
-		}
-
-
-		public void set(final Object value) {
-			this.value = value;
-		}
-
-
-		public boolean isNull() {
-			return null == value;
-		}
-
-
-		@Override
-		public String toString() {
-			return String.valueOf(value);
-		}
-	}
-
-
-	/**
 	 * {@link Variable} for return values
 	 * @author wassj
 	 */
 	static class Returns
-		extends Variable {
+		extends Variable<Object> {
 
 		public static Returns VOID = new Returns() {
 			@Override
@@ -1103,7 +1074,7 @@ enum Internals {
 	 * @author wassj
 	 */
 	static class Input
-		extends Variable {
+		extends Variable<Object> {
 
 		public Input() {
 		}

@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.testing.Asserts;
 import cmd4j.testing.Does;
-import cmd4j.testing.Does.Variable;
+import cmd4j.testing.Does.TestVariable;
 
 /**
  *
@@ -21,7 +21,7 @@ public class ObservableCommandsTest {
 	public void onResults()
 		throws Exception {
 
-		final Variable<String> called = Variable.create();
+		final TestVariable<String> called = TestVariable.create();
 		final String value = UUID.randomUUID().toString().substring(0, 6);
 
 		final ICommand command = Observers.observable(Does.returns(value)).results(Does.set(called));
@@ -35,7 +35,7 @@ public class ObservableCommandsTest {
 	public void onSuccess()
 		throws Exception {
 
-		final Variable<Boolean> called = Variable.create(false);
+		final TestVariable<Boolean> called = TestVariable.create(false);
 		final ICommand command = Observers.observable(Does.nothing()).onSuccess(Does.set(called, true));
 		Chains.create(command).invoke();
 		called.assertEquals(true);
@@ -44,7 +44,7 @@ public class ObservableCommandsTest {
 
 	@Test
 	public void onFailure() {
-		final Variable<Boolean> called = Variable.create(false);
+		final TestVariable<Boolean> called = TestVariable.create(false);
 		final ICommand command = Observers.observable(Does.boom()).onFailure(Does.set(called, true));
 		try {
 			Chains.create(command).invoke();
@@ -61,7 +61,7 @@ public class ObservableCommandsTest {
 	public void nesting1x()
 		throws Exception {
 
-		final Variable<Boolean> called = Variable.create(false);
+		final TestVariable<Boolean> called = TestVariable.create(false);
 		final ICommand command = Observers.observable(Does.nothing()).onSuccess(Does.set(called, true));
 		final IChain<Void> chain = Chains.create(command);
 		Chains.builder().add(chain).build().invoke();
@@ -73,7 +73,7 @@ public class ObservableCommandsTest {
 	public void nesting2x()
 		throws Exception {
 
-		final Variable<Boolean> called = Variable.create(false);
+		final TestVariable<Boolean> called = TestVariable.create(false);
 		final ICommand command = Observers.observable(Does.nothing()).onSuccess(Does.set(called, true));
 		final IChain<Void> chain = Chains.create(command);
 		final IChain<Void> chain2 = Chains.builder().add(chain).build();
@@ -86,8 +86,8 @@ public class ObservableCommandsTest {
 	public void bothCommandAndChain()
 		throws Exception {
 
-		final Variable<Boolean> called = Variable.create(false);
-		final Variable<Boolean> called2 = Variable.create(false);
+		final TestVariable<Boolean> called = TestVariable.create(false);
+		final TestVariable<Boolean> called2 = TestVariable.create(false);
 
 		final ICommand command = Observers.observable(Does.nothing()).onSuccess(Does.set(called, true));
 		final IChain<Void> chain = Observers.observable(Chains.create(command)).onSuccess(Does.set(called2, true));
@@ -119,7 +119,7 @@ public class ObservableCommandsTest {
 	public void resultsDtoMismatch()
 		throws Exception {
 
-		final Variable<Boolean> fits = Variable.create(false);
+		final TestVariable<Boolean> fits = TestVariable.create(false);
 		final ICommand command = Observers.observable(Does.returns(true)).results(Does.set(fits), new ICommand2<Integer>() {
 			public void invoke(final Integer input)
 				throws Exception {

@@ -4,7 +4,7 @@ import org.testng.annotations.Test;
 
 import cmd4j.IChain.IUndoChain;
 import cmd4j.testing.Does;
-import cmd4j.testing.Does.Variable;
+import cmd4j.testing.Does.TestVariable;
 
 /**
  *
@@ -18,7 +18,7 @@ public class UndoTest {
 	public void test()
 		throws Exception {
 
-		final Variable<Boolean> var = Does.var(true);
+		final TestVariable<Boolean> var = Does.var(true);
 
 		final IChain<Void> chain = Chains.builder().add(Does.undoableSet(var, false)).build();
 		chain.invoke();

@@ -7,7 +7,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import cmd4j.testing.Does;
-import cmd4j.testing.Does.Variable;
+import cmd4j.testing.Does.TestVariable;
 import cmd4j.testing.Services;
 
 /**
@@ -23,7 +23,7 @@ public class ObservablesReturningTest {
 		throws Exception {
 
 		final String expected = UUID.randomUUID().toString().substring(0, 7);
-		final Variable<Boolean> ran = Variable.create(false);
+		final TestVariable<Boolean> ran = TestVariable.create(false);
 		final String result = Chains.create(Observers.observable(Does.returns(expected)).after(Does.set(ran, true))).invoke();
 
 		ran.assertEquals(true);
@@ -36,7 +36,7 @@ public class ObservablesReturningTest {
 		throws Exception {
 
 		final String expected = UUID.randomUUID().toString().substring(0, 7);
-		final Variable<Boolean> ran = Variable.create(false);
+		final TestVariable<Boolean> ran = TestVariable.create(false);
 		final String result = Observers.observable(Chains.create(Does.returns(expected))).after(Does.set(ran, true)).invoke();
 
 		ran.assertEquals(true);
@@ -49,7 +49,7 @@ public class ObservablesReturningTest {
 		throws Exception {
 
 		final String expected = UUID.randomUUID().toString().substring(0, 7);
-		final Variable<Boolean> ran = Variable.create(false);
+		final TestVariable<Boolean> ran = TestVariable.create(false);
 		final IChain<String> chain = Observers.observable(Chains.create(Does.returns(expected))).after(Does.set(ran, true));
 		final String result = Concurrent.submit(chain, Services.t1.executor()).get();
 
@@ -63,7 +63,7 @@ public class ObservablesReturningTest {
 		throws Exception {
 
 		final String expected = UUID.randomUUID().toString().substring(0, 7);
-		final Variable<Boolean> ran = Variable.create(false);
+		final TestVariable<Boolean> ran = TestVariable.create(false);
 		final IChain<String> chain = Observers.observable(Chains.create(Does.returns(expected))).after(Does.set(ran, true));
 		final Callable<String> callable = Concurrent.asCallable(chain);
 		final String result = Services.t1.executor().submit(callable).get();

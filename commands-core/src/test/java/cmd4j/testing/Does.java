@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutorService;
 
 import org.testng.Assert;
 
+import cmd4j.Commands.Variable;
 import cmd4j.Concurrent;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
@@ -52,58 +53,58 @@ public enum Does {
 	}
 
 
-	public static ICommand invoked(final Variable<Boolean> called) {
+	public static ICommand invoked(final TestVariable<Boolean> called) {
 		return new ICommand2<Object>() {
 			public void invoke(final Object input) {
-				called.setValue(true);
+				called.set(true);
 			}
 		};
 	}
 
 
-	public static <T> Variable<T> var(final T val) {
-		return new Variable<T>(val);
+	public static <T> TestVariable<T> var(final T val) {
+		return new TestVariable<T>(val);
 	}
 
 
-	public static ICommand toggle(final Variable<Boolean> v) {
+	public static ICommand toggle(final TestVariable<Boolean> v) {
 		return new ICommand1() {
 			public void invoke() {
-				if (v.getValue() == null) {
+				if (v.get() == null) {
 					throw new NullPointerException("variable was not initialized");
 				}
-				v.setValue(!v.getValue());
+				v.set(!v.get());
 			}
 		};
 	}
 
 
-	public static ICommand add(final Variable<Integer> v, final int amount) {
+	public static ICommand add(final TestVariable<Integer> v, final int amount) {
 		return new ICommand1() {
 			public void invoke() {
-				if (v.getValue() == null) {
+				if (v.get() == null) {
 					throw new NullPointerException("variable was not initialized");
 				}
-				v.setValue(v.getValue() + amount);
-				System.out.println(v.getValue());
+				v.set(v.get() + amount);
+				System.out.println(v.get());
 			}
 		};
 	}
 
 
-	public static <T> ICommand set(final Variable<T> v, final T value) {
+	public static <T> ICommand set(final TestVariable<T> v, final T value) {
 		return new ICommand1() {
 			public void invoke() {
-				v.setValue(value);
+				v.set(value);
 			}
 		};
 	}
 
 
-	public static <T> ICommand set(final Variable<T> v) {
+	public static <T> ICommand set(final TestVariable<T> v) {
 		return new ICommand2<T>() {
 			public void invoke(final T value) {
-				v.setValue(value);
+				v.set(value);
 			}
 		};
 	}
@@ -118,16 +119,16 @@ public enum Does {
 	}
 
 
-	public static <R> IReturningCommand<R> returns(final Variable<R> val) {
+	public static <R> IReturningCommand<R> returns(final TestVariable<R> val) {
 		return new ICommand3<R>() {
 			public R invoke() {
-				return val.getValue();
+				return val.get();
 			}
 		};
 	}
 
 
-	public static <T> ICommand undoableSet(final Variable<T> v, final T value) {
+	public static <T> ICommand undoableSet(final TestVariable<T> v, final T value) {
 		return new UndodoableSetter<T>(v, value);
 	}
 
@@ -137,23 +138,23 @@ public enum Does {
 
 		private final T original;
 		private final T modified;
-		private final Variable<T> var;
+		private final TestVariable<T> var;
 
 
-		public UndodoableSetter(final Variable<T> var, final T modified) {
-			this.original = var.getValue();
+		public UndodoableSetter(final TestVariable<T> var, final T modified) {
+			this.original = var.get();
 			this.modified = modified;
 			this.var = var;
 		}
 
 
 		public void invoke() {
-			var.setValue(modified);
+			var.set(modified);
 		}
 
 
 		public void undo() {
-			var.setValue(original);
+			var.set(original);
 		}
 	}
 
@@ -166,51 +167,35 @@ public enum Does {
 	 *
 	 * @param <T>
 	 */
-	public static class Variable<T> {
-		private T value;
+	public static class TestVariable<T>
+		extends Variable<T> {
 
-
-		public static <T> Variable<T> create() {
-			return new Variable<T>();
+		public static <T> TestVariable<T> create() {
+			return new TestVariable<T>();
 		}
 
 
-		public static <T> Variable<T> create(final T value) {
-			return new Variable<T>(value);
+		public static <T> TestVariable<T> create(final T value) {
+			return new TestVariable<T>(value);
 		}
 
 
-		public Variable() {
+		public TestVariable() {
 		}
 
 
-		public Variable(final T value) {
-			this.value = value;
-		}
-
-
-		public T getValue() {
-			return value;
-		}
-
-
-		public void setValue(T value) {
-			this.value = value;
-		}
-
-
-		public boolean isNull() {
-			return null == value;
+		public TestVariable(final T value) {
+			super(value);
 		}
 
 
 		public void assertEquals(final T expected) {
-			Assert.assertEquals(value, expected);
+			Assert.assertEquals(get(), expected);
 		}
 
 
 		public void assertNotEquals(final T expected) {
-			Assert.assertNotEquals(value, expected);
+			Assert.assertNotEquals(get(), expected);
 		}
 	}
 }

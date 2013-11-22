@@ -5,7 +5,7 @@ import java.util.concurrent.Callable;
 import org.testng.annotations.Test;
 
 import cmd4j.testing.Asserts;
-import cmd4j.testing.Does.Variable;
+import cmd4j.testing.Does.TestVariable;
 import cmd4j.testing.Services;
 
 /**
@@ -20,7 +20,7 @@ public class ConcurrentCallablesTest {
 	public void wrapCallable()
 		throws Exception {
 
-		final Variable<Integer> var = new Variable<Integer>(0);
+		final TestVariable<Integer> var = new TestVariable<Integer>(0);
 		Chains.builder() //
 			.add(Asserts.isEquals(var, 0))
 			.add(Concurrent.asCommand(new IncrementVariable(var)))
@@ -36,7 +36,7 @@ public class ConcurrentCallablesTest {
 	public void wrapLongRunning()
 		throws Exception {
 
-		final Variable<Integer> var = new Variable<Integer>(0);
+		final TestVariable<Integer> var = new TestVariable<Integer>(0);
 		Chains.builder() //
 			.add(Asserts.isEquals(var, 0))
 
@@ -57,16 +57,16 @@ public class ConcurrentCallablesTest {
 	static class IncrementVariable
 		implements Callable<Void> {
 
-		private final Variable<Integer> var;
+		private final TestVariable<Integer> var;
 		private final long delay;
 
 
-		public IncrementVariable(final Variable<Integer> var) {
+		public IncrementVariable(final TestVariable<Integer> var) {
 			this(var, 0);
 		}
 
 
-		public IncrementVariable(final Variable<Integer> var, final long delay) {
+		public IncrementVariable(final TestVariable<Integer> var, final long delay) {
 			this.var = var;
 			this.delay = delay;
 		}
@@ -76,7 +76,7 @@ public class ConcurrentCallablesTest {
 			throws Exception {
 
 			Thread.sleep(delay);
-			var.setValue(var.getValue() + 1);
+			var.set(var.get() + 1);
 
 			return null;
 		}

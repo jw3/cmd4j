@@ -4,7 +4,7 @@ import org.testng.Assert;
 
 import cmd4j.Chains;
 import cmd4j.ICommand;
-import cmd4j.testing.Does.Variable;
+import cmd4j.testing.Does.TestVariable;
 
 /**
  * Utility factory class for making assertions about what thread a given point in a chain is executing on
@@ -18,10 +18,10 @@ public class Asserts
 	private final Thread expected;
 
 
-	public static <T> ICommand is(final Variable<T> v, final T value) {
+	public static <T> ICommand is(final TestVariable<T> v, final T value) {
 		return new ICommand1() {
 			public void invoke() {
-				Assert.assertEquals(v.getValue(), value);
+				Assert.assertEquals(v.get(), value);
 			}
 		};
 	}
@@ -32,11 +32,11 @@ public class Asserts
 	*/
 
 	public static <T> ICommand is(final T value) {
-		final Variable<Boolean> invoked = Does.var(false);
+		final TestVariable<Boolean> invoked = Does.var(false);
 		return Chains.builder()//
 			.add(new ICommand2<T>() {
 				public void invoke(final T input) {
-					invoked.setValue(true);
+					invoked.set(true);
 					Assert.assertEquals(input, value);
 				}
 			})
@@ -71,10 +71,10 @@ public class Asserts
 	}
 
 
-	public static <T> ICommand isEquals(final Variable<T> var, final T val) {
+	public static <T> ICommand isEquals(final TestVariable<T> var, final T val) {
 		return new ICommand1() {
 			public void invoke() {
-				Assert.assertEquals(val, var.getValue());
+				Assert.assertEquals(val, var.get());
 			}
 		};
 	}
