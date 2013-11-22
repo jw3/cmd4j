@@ -102,12 +102,6 @@ public enum Chains {
 		}
 
 
-		public ChainBuilder visits(final boolean visits) {
-			this.visits = visits;
-			return this;
-		}
-
-
 		/**
 		 * add the command to the end of the chain
 		 * @param command
@@ -153,6 +147,26 @@ public enum Chains {
 				throw new NullPointerException("chain builder was not initialized, tail is null");
 			}
 			tail.input(input);
+			return this;
+		}
+
+
+		public ChainBuilder visits(final boolean visits) {
+			this.visits = visits;
+			return this;
+		}
+
+
+		/**
+		 * calling this method will result in the input object being swapped out with the last returned value (voids excluded)
+		 * can be called on multiple links
+		 * @return
+		 */
+		public ChainBuilder ioSwap() {
+			if (tail == null) {
+				throw new NullPointerException("chain builder was not initialized, tail is null");
+			}
+			tail.postSwap(true);
 			return this;
 		}
 
@@ -215,5 +229,8 @@ public enum Chains {
 
 
 		ExecutorService executor();
+
+
+		boolean postSwap();
 	}
 }

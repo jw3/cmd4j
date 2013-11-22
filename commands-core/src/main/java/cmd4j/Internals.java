@@ -140,7 +140,8 @@ enum Internals {
 
 			private Object input;
 			private ExecutorService executor;
-			private boolean ignoreInputMismatch;
+			private boolean visits;
+			private boolean postSwap;
 
 
 			public DefaultLink(final ICommand command, final ILink next) {
@@ -181,8 +182,19 @@ enum Internals {
 			}
 
 
-			public DefaultLink ignoreInputMismatch(final boolean ignoreInputMismatch) {
-				this.ignoreInputMismatch = ignoreInputMismatch;
+			public DefaultLink visits(final boolean visits) {
+				this.visits = visits;
+				return this;
+			}
+
+
+			public boolean postSwap() {
+				return postSwap;
+			}
+
+
+			public DefaultLink postSwap(final boolean postSwap) {
+				this.postSwap = postSwap;
 				return this;
 			}
 
@@ -195,7 +207,7 @@ enum Internals {
 
 				ICommand command = cmd();
 				while (command != null) {
-					command = invokeCommand(command, input, returns, ignoreInputMismatch);
+					command = invokeCommand(command, input, returns, visits);
 				}
 				return returns.value;
 			}
@@ -213,6 +225,8 @@ enum Internals {
 
 			private ExecutorService executor;
 			private Object input;
+
+			private boolean postSwap;
 
 
 			/**
@@ -247,13 +261,19 @@ enum Internals {
 			}
 
 
-			ILink build() {
-				return new DefaultLink(command, next != null ? next.build() : null).executor(executor).input(input);
+			LinkBuilder postSwap(final boolean postSwap) {
+				this.postSwap = postSwap;
+				return this;
 			}
 
 
-			ILink build(boolean visits) {
-				return new DefaultLink(command, next != null ? next.build(visits) : null).executor(executor).input(input).ignoreInputMismatch(visits);
+			ILink build() {
+				return build(false);
+			}
+
+
+			ILink build(final boolean visits) {
+				return new DefaultLink(command, next != null ? next.build(visits) : null).executor(executor).input(input).visits(visits).postSwap(postSwap);
 			}
 		}
 
@@ -279,6 +299,11 @@ enum Internals {
 
 			public ILink input(Object input) {
 				return this;
+			}
+
+
+			public boolean postSwap() {
+				return false;
 			}
 
 
@@ -328,6 +353,11 @@ enum Internals {
 			}
 
 
+			public boolean postSwap() {
+				return false;
+			}
+
+
 			public ICommand cmd() {
 				return link.cmd();
 			}
@@ -366,16 +396,16 @@ enum Internals {
 		 * @return
 		 * @throws Exception
 		 */
-		static ICommand invokeCommand(final ICommand command, final Object input, final Returns output, final boolean ignoreInputMismatch)
+		static ICommand invokeCommand(final ICommand command, final Object input, final Returns output, final boolean visits)
 			throws Exception {
 
-			return invokeCommand(command, input, output, ignoreInputMismatch, false);
+			return invokeCommand(command, input, output, visits, false);
 		}
 
 
 		@SuppressWarnings({"unchecked", "rawtypes"})
 		/// safely suppressed here: we do some extra checking to ensure the input fits in the invocation
-		static ICommand invokeCommand(final ICommand command, final Object input, final Returns output, final boolean ignoreInputMismatch, final boolean undo)
+		static ICommand invokeCommand(final ICommand command, final Object input, final Returns output, final boolean visits, final boolean undo)
 			throws Exception {
 
 			try {
@@ -418,7 +448,7 @@ enum Internals {
 				}
 			}
 			catch (final ClassCastException e) {
-				if (!ignoreInputMismatch) {
+				if (!visits) {
 					throw new IllegalArgumentException("input does not fit");
 				}
 			}
@@ -554,7 +584,7 @@ enum Internals {
 			implements Callable<Object> {
 
 			private final ILink head;
-			private final Object input;
+			private Object input;
 
 
 			public Linker(final ILink head, final Object input) {
@@ -592,6 +622,9 @@ enum Internals {
 				}
 				else {
 					returns.set(executor.submit(link).get());
+				}
+				if (link.postSwap()) {
+					this.input = returns.get();
 				}
 				return link.next();
 			}
