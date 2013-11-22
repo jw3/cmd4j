@@ -21,7 +21,7 @@ public class Asserts
 	public static <T> ICommand is(final Variable<T> v, final T value) {
 		return new ICommand1() {
 			public void invoke() {
-				Assert.assertEquals(value, v.getValue());
+				Assert.assertEquals(v.getValue(), value);
 			}
 		};
 	}
@@ -37,7 +37,7 @@ public class Asserts
 			.add(new ICommand2<T>() {
 				public void invoke(final T input) {
 					invoked.setValue(true);
-					Assert.assertEquals(value, input);
+					Assert.assertEquals(input, value);
 				}
 			})
 			.add(is(invoked, true))
