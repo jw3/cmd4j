@@ -40,6 +40,9 @@ public class VisitingTest {
 		catch (ExecutionException e) {
 			cause = e.getCause();
 		}
+		catch (Exception e) {
+			cause = e;
+		}
 		Assert.assertTrue(cause instanceof IllegalArgumentException);
 	}
 
@@ -67,6 +70,9 @@ public class VisitingTest {
 		}
 		catch (ExecutionException e) {
 			cause = e.getCause();
+		}
+		catch (Exception e) {
+			cause = e;
 		}
 		Assert.assertTrue(cause instanceof IllegalArgumentException);
 	}
@@ -96,6 +102,9 @@ public class VisitingTest {
 		catch (ExecutionException e) {
 			cause = e.getCause();
 		}
+		catch (Exception e) {
+			cause = e;
+		}
 		Assert.assertTrue(cause instanceof IllegalArgumentException);
 	}
 
@@ -123,6 +132,9 @@ public class VisitingTest {
 		}
 		catch (ExecutionException e) {
 			cause = e.getCause();
+		}
+		catch (Exception e) {
+			cause = e;
 		}
 		Assert.assertTrue(cause instanceof IllegalArgumentException);
 	}
@@ -154,6 +166,9 @@ public class VisitingTest {
 		catch (ExecutionException e) {
 			cause = e.getCause();
 		}
+		catch (Exception e) {
+			cause = e;
+		}
 		Assert.assertTrue(cause instanceof IllegalArgumentException);
 	}
 
@@ -181,6 +196,9 @@ public class VisitingTest {
 		}
 		catch (ExecutionException e) {
 			cause = e.getCause();
+		}
+		catch (Exception e) {
+			cause = e;
 		}
 		Assert.assertTrue(cause instanceof IllegalArgumentException);
 	}
@@ -228,6 +246,9 @@ public class VisitingTest {
 		catch (ExecutionException e) {
 			cause = e.getCause();
 		}
+		catch (Exception e) {
+			cause = e;
+		}
 		Assert.assertTrue(cause instanceof IllegalArgumentException);
 	}
 
@@ -255,6 +276,9 @@ public class VisitingTest {
 		}
 		catch (ExecutionException e) {
 			cause = e.getCause();
+		}
+		catch (Exception e) {
+			cause = e;
 		}
 		Assert.assertTrue(cause instanceof IllegalArgumentException);
 	}

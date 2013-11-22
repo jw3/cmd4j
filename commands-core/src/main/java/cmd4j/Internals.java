@@ -34,8 +34,6 @@ import cmd4j.Internals.Chain.IDecorator;
 import cmd4j.Internals.Command.ICommandProxy;
 import cmd4j.Observers.IObservable;
 
-import com.google.common.util.concurrent.MoreExecutors;
-
 /**
  * Non-API Implementations; Not for public consumption
  *
@@ -519,24 +517,41 @@ enum Internals {
 			}
 
 
-			public O invoke(Object input)
+			public O invoke(final Object input)
 				throws Exception {
 
-				//				if (link != null) {
-				final Linker linker = new Linker(this.head(), input);
-				return (O)MoreExecutors.sameThreadExecutor().submit(linker).get();
-				/*	return null;
+				//				final Linker linker = new Linker(this.head(), input);
+				//				return (O)MoreExecutors.sameThreadExecutor().submit(linker).get();
+
+				final Returns returns = new Returns();
+				Object currentInput = input;
+				ILink run = head();
+				while (run != null) {
+					final ILink next = callImpl(run, currentInput, returns);
+					if (run.postSwap()) {
+						currentInput = returns.get();
+					}
+					run = next;
 				}
-				if (returningCommand != null) {
-				@SuppressWarnings("unchecked")
-				//should be safe cast here
-				final O retval = (O)Internals.Link.invokeCommand(returningCommand, input, false);
-				return retval;
+				return (O)returns.get();
+			}
+
+
+			protected ILink callImpl(final ILink link, final Object input, final Returns returns)
+				throws Exception {
+
+				if (input != null && link.input() == null) {
+					link.input(input);
+				}
+				final ExecutorService executor = link.executor();
+				if (executor == null) {
+					returns.set(link.call());
+				}
+				else {
+					returns.set(executor.submit(link).get());
 				}
 
-				Internals.Link.invokeCommand(command, input, false);
-
-				return null;*/
+				return link.next();
 			}
 
 
@@ -568,91 +583,6 @@ enum Internals {
 				throws Exception {
 
 				return chain.invoke(input);
-			}
-		}
-
-
-		/**
-		 * A {@link ILinker linker} is a traverser of {@link ILink links} in an {@link IChain chain}.  It controls the 
-		 * execution flow from link to link and ensures that each command is run by the appropriate {@link ExecutorService executor}.
-		 * 
-		 * @author wassj
-		 * @internal Intended for Command Framework use only.  Unsafe for direct client usage.
-		 *
-		 */
-		static class Linker
-			implements Callable<Object> {
-
-			private final ILink head;
-			private Object input;
-
-
-			public Linker(final ILink head, final Object input) {
-				this.head = head;
-				this.input = input;
-			}
-
-
-			public ILink head() {
-				return head;
-			}
-
-
-			public Object call()
-				throws Exception {
-
-				final Returns returns = new Returns();
-				ILink next = head();
-				while (next != null) {
-					next = callImpl(next, returns);
-				}
-				return returns.get();
-			}
-
-
-			protected ILink callImpl(final ILink link, final Returns returns)
-				throws Exception {
-
-				if (input != null && link.input() == null) {
-					link.input(input);
-				}
-				final ExecutorService executor = link.executor();
-				if (executor == null) {
-					returns.set(link.call());
-				}
-				else {
-					returns.set(executor.submit(link).get());
-				}
-				if (link.postSwap()) {
-					this.input = returns.get();
-				}
-				return link.next();
-			}
-		}
-
-
-		/**
-		 * 
-		 * @author wassj
-		 */
-		static class UndoLinker
-			extends Linker {
-
-			public UndoLinker(final ILink head, final Object input) {
-				super(head, input);
-			}
-
-
-			public Object call()
-				throws Exception {
-
-				final Returns returns = new Returns();
-				ILink next = head();
-				while (next != null) {
-					next = Link.undo(next);
-					next = callImpl(next, returns);
-				}
-				return returns.get();
 			}
 		}
 
@@ -710,11 +640,20 @@ enum Internals {
 			}
 
 
-			public O undo(Object input)
+			public O undo(final Object input)
 				throws Exception {
 
-				final Linker linker = new UndoLinker(this.head(), input);
-				return (O)MoreExecutors.sameThreadExecutor().submit(linker).get();
+				//				final Linker linker = new UndoLinker(this.head(), input);
+				//				return (O)MoreExecutors.sameThreadExecutor().submit(linker).get();
+
+				final Returns returns = new Returns();
+				Object currentInput = input;
+				ILink next = head();
+				while (next != null) {
+					next = Link.undo(next);
+					next = callImpl(next, currentInput, returns);
+				}
+				return (O)returns.get();
 			}
 		}
 	}
