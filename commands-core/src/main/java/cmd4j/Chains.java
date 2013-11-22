@@ -165,7 +165,7 @@ public enum Chains {
 			if (head != null) {
 				return new DefaultChain<Void>(head.build(visits));
 			}
-			return new EmptyChain();
+			return new EmptyChain<Void>();
 		}
 	}
 

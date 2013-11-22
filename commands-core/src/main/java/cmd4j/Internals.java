@@ -241,12 +241,6 @@ enum Internals {
 			}
 
 
-			LinkBuilder add(final LinkBuilder builder) {
-				next = builder;
-				return builder.next;
-			}
-
-
 			LinkBuilder input(final Object input) {
 				this.input = input;
 				return this;
@@ -450,8 +444,8 @@ enum Internals {
 		 * 
 		 * @author wassj
 		 */
-		static class EmptyChain
-			implements IChain<Void> {
+		static class EmptyChain<O>
+			implements IChain<O> {
 
 			private final ILink head = Link.empty();
 
@@ -461,12 +455,12 @@ enum Internals {
 			}
 
 
-			public Void invoke() {
+			public O invoke() {
 				return null;
 			}
 
 
-			public Void invoke(final Object input) {
+			public O invoke(final Object input) {
 				return null;
 			}
 		}
