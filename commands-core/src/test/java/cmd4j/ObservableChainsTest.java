@@ -4,8 +4,12 @@ import static cmd4j.testing.Asserts.is;
 import static cmd4j.testing.Does.toggle;
 import static cmd4j.testing.Does.var;
 
+import java.util.UUID;
+
 import org.testng.annotations.Test;
 
+import cmd4j.ICommand.ICommand2;
+import cmd4j.testing.Asserts;
 import cmd4j.testing.Does;
 import cmd4j.testing.Does.Variable;
 
@@ -113,5 +117,36 @@ public class ObservableChainsTest {
 		finally {
 			v.assertEquals(true);
 		}
+	}
+
+
+	@Test
+	public void results()
+		throws Exception {
+
+		{
+			final int value = 101010;
+			Observers.observable(Chains.builder().add(Does.returns(value)).build()).results(Asserts.is(value)).invoke();
+		}
+		{
+			final String value = UUID.randomUUID().toString().substring(0, 7);
+			Observers.observable(Chains.builder().add(Does.returns(value)).build()).results(Asserts.is(value)).invoke();
+		}
+	}
+
+
+	@Test
+	public void resultsDtoMismatch()
+		throws Exception {
+
+		final Variable<Boolean> fits = Variable.create(false);
+		Observers.observable(Chains.builder().add(Does.returns(true)).build()).results(Does.set(fits), new ICommand2<Integer>() {
+			public void invoke(final Integer input)
+				throws Exception {
+				throw new Exception("Dto does not fit, this should not have been run");
+			}
+		}).invoke();
+
+		fits.assertEquals(true);
 	}
 }

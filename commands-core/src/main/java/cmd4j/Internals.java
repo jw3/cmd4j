@@ -962,7 +962,7 @@ enum Internals {
 
 			protected void executeHandlers(final List<ICommand> commands, final Object input) {
 				try {
-					Chains.create(commands).invoke(input);
+					Chains.builder().addAll(commands).visits(true).build().invoke(input);
 				}
 				catch (final Throwable t) {
 					// REVISIT the show must go on

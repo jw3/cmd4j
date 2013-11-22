@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import org.testng.annotations.Test;
 
+import cmd4j.ICommand.ICommand2;
+import cmd4j.testing.Asserts;
 import cmd4j.testing.Does;
 import cmd4j.testing.Does.Variable;
 
@@ -93,5 +95,39 @@ public class ObservableCommandsTest {
 
 		called.assertEquals(true);
 		called2.assertEquals(true);
+	}
+
+
+	@Test
+	public void results()
+		throws Exception {
+
+		{
+			final int value = 101010;
+			final ICommand command = Observers.observable(Does.returns(value)).results(Asserts.is(value));
+			Chains.builder().add(command).build().invoke();
+		}
+		{
+			final String value = UUID.randomUUID().toString().substring(0, 7);
+			final ICommand command = Observers.observable(Does.returns(value)).results(Asserts.is(value));
+			Chains.builder().add(command).build().invoke();
+		}
+	}
+
+
+	@Test
+	public void resultsDtoMismatch()
+		throws Exception {
+
+		final Variable<Boolean> fits = Variable.create(false);
+		final ICommand command = Observers.observable(Does.returns(true)).results(Does.set(fits), new ICommand2<Integer>() {
+			public void invoke(final Integer input)
+				throws Exception {
+				throw new Exception("Dto does not fit, this should not have been run");
+			}
+		});
+		Chains.builder().add(command).build().invoke();
+
+		fits.assertEquals(true);
 	}
 }

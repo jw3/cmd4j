@@ -46,7 +46,10 @@ public enum Observers {
 
 
 	/**
-	 *
+	 * Defines a wrapper that allows for listening at different points in a commands lifecycle.
+	 * 
+	 * All commands set in an observer method will be treated as visitors
+	 * 
 	 * @author wassj
 	 * @param <O>
 	 */
