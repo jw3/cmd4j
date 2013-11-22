@@ -207,7 +207,7 @@ enum Internals {
 				while (command != null) {
 					command = invokeCommand(command, input, returns, visits);
 				}
-				return returns.value;
+				return returns.get();
 			}
 		}
 
@@ -375,7 +375,7 @@ enum Internals {
 				while (command != null) {
 					command = invokeCommand(command, input(), returns, false, true);
 				}
-				return returns.value;
+				return returns.get();
 			}
 		}
 
@@ -523,25 +523,21 @@ enum Internals {
 				//				final Linker linker = new Linker(this.head(), input);
 				//				return (O)MoreExecutors.sameThreadExecutor().submit(linker).get();
 
+				final Input inputs = new Input(input);
 				final Returns returns = new Returns();
-				Object currentInput = input;
-				ILink run = head();
-				while (run != null) {
-					final ILink next = callImpl(run, currentInput, returns);
-					if (run.postSwap()) {
-						currentInput = returns.get();
-					}
-					run = next;
+				ILink next = head();
+				while (next != null) {
+					next = callImpl(next, inputs, returns);
 				}
 				return (O)returns.get();
 			}
 
 
-			protected ILink callImpl(final ILink link, final Object input, final Returns returns)
+			protected ILink callImpl(final ILink link, final Input inputs, final Returns returns)
 				throws Exception {
 
-				if (input != null && link.input() == null) {
-					link.input(input);
+				if (!inputs.isNull() && link.input() == null) {
+					link.input(inputs.get());
 				}
 				final ExecutorService executor = link.executor();
 				if (executor == null) {
@@ -550,7 +546,9 @@ enum Internals {
 				else {
 					returns.set(executor.submit(link).get());
 				}
-
+				if (link.postSwap()) {
+					inputs.set(returns.get());
+				}
 				return link.next();
 			}
 
@@ -646,12 +644,11 @@ enum Internals {
 				//				final Linker linker = new UndoLinker(this.head(), input);
 				//				return (O)MoreExecutors.sameThreadExecutor().submit(linker).get();
 
+				final Input inputs = new Input(input);
 				final Returns returns = new Returns();
-				Object currentInput = input;
 				ILink next = head();
 				while (next != null) {
-					next = Link.undo(next);
-					next = callImpl(next, currentInput, returns);
+					next = callImpl(Link.undo(next), inputs, returns);
 				}
 				return (O)returns.get();
 			}
@@ -1051,20 +1048,10 @@ enum Internals {
 
 
 	/**
-	 * util class for passing return values as parameter
+	 * util class for passing values as parameter
 	 * @author wassj
 	 */
-	static class Returns {
-		public static Returns VOID = new Returns() {
-			public Object get() {
-				return null;
-			}
-
-
-			public void set(Object value) {
-			}
-		};
-
+	static class Variable {
 		private Object value;
 
 
@@ -1073,8 +1060,57 @@ enum Internals {
 		}
 
 
-		public void set(Object value) {
+		public void set(final Object value) {
 			this.value = value;
+		}
+
+
+		public boolean isNull() {
+			return null == value;
+		}
+
+
+		@Override
+		public String toString() {
+			return String.valueOf(value);
+		}
+	}
+
+
+	/**
+	 * {@link Variable} for return values
+	 * @author wassj
+	 */
+	static class Returns
+		extends Variable {
+
+		public static Returns VOID = new Returns() {
+			@Override
+			public Object get() {
+				return null;
+			}
+
+
+			@Override
+			public void set(Object value) {
+			}
+		};
+	}
+
+
+	/**
+	 * {@link Variable} for input values
+	 * @author wassj
+	 */
+	static class Input
+		extends Variable {
+
+		public Input() {
+		}
+
+
+		public Input(final Object value) {
+			super.set(value);
 		}
 	}
 }
