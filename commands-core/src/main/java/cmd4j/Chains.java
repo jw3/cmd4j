@@ -2,7 +2,6 @@ package cmd4j;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
 import cmd4j.IChain.IUndoChain;
@@ -11,6 +10,7 @@ import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Internals.Chain.DefaultChain;
 import cmd4j.Internals.Chain.EmptyChain;
 import cmd4j.Internals.Chain.UndoableChainDecorator;
+import cmd4j.Internals.DefaultCallFactory;
 import cmd4j.Internals.Link;
 import cmd4j.Internals.Link.LinkBuilder;
 
@@ -185,7 +185,7 @@ public enum Chains {
 		 */
 		public IChain<Void> build() {
 			if (head != null) {
-				return new DefaultChain<Void>(head.build(visits));
+				return new DefaultChain<Void>(head.build()).callFactory(new DefaultCallFactory(visits, false));
 			}
 			return new EmptyChain<Void>();
 		}
@@ -201,12 +201,10 @@ public enum Chains {
 	 * @author wassj
 	 * 
 	 * @input A Link can provide an overriding input that will be passed to commands executing withing the context of this Link.
-	 * @concurrency A Link does not exhibit any concurrency behavior by default, but can be decorated to do so. 
 	 * 
 	 * @see Links
 	 */
-	public interface ILink
-		extends Callable<Object> {
+	public interface ILink {
 
 		/**
 		 * get the {@link ILink link} to be executed after this 

@@ -118,11 +118,6 @@ enum Internals {
 		}
 
 
-		static ILink undo(final ILink link) {
-			return new LinkUndoDecorator(link);
-		}
-
-
 		/**
 		 * Provides the context in which a {@link ICommand command} executes.  
 		 * Can combine together with other {@link ILink links} to form a chain.
@@ -133,13 +128,11 @@ enum Internals {
 		static class DefaultLink
 			implements ILink {
 
-			private final Returns returns = new Returns();
 			private final ICommand command;
 			private final ILink next;
 
 			private Object input;
 			private ExecutorService executor;
-			private boolean visits;
 			private boolean postSwap;
 
 
@@ -181,12 +174,6 @@ enum Internals {
 			}
 
 
-			public DefaultLink visits(final boolean visits) {
-				this.visits = visits;
-				return this;
-			}
-
-
 			public boolean postSwap() {
 				return postSwap;
 			}
@@ -195,20 +182,6 @@ enum Internals {
 			public DefaultLink postSwap(final boolean postSwap) {
 				this.postSwap = postSwap;
 				return this;
-			}
-
-
-			/**
-			 * Execute the {@link ICommand} and return the next {@link ILink}
-			 */
-			public Object call()
-				throws Exception {
-
-				ICommand command = cmd();
-				while (command != null) {
-					command = invokeCommand(command, input, returns, visits);
-				}
-				return returns.get();
 			}
 		}
 
@@ -267,12 +240,7 @@ enum Internals {
 
 
 			ILink build() {
-				return build(false);
-			}
-
-
-			ILink build(final boolean visits) {
-				return new DefaultLink(command, next != null ? next.build(visits) : null).executor(executor).input(input).visits(visits).postSwap(postSwap);
+				return new DefaultLink(command, next != null ? next.build() : null).executor(executor).input(input).postSwap(postSwap);
 			}
 		}
 
@@ -325,62 +293,6 @@ enum Internals {
 		}
 
 
-		// REVISIT should this support input mismatch ignores?
-		static class LinkUndoDecorator
-			implements ILink {
-
-			private final ILink link;
-
-
-			public LinkUndoDecorator(final ILink link) {
-				this.link = link;
-			}
-
-
-			public ILink next() {
-				return link.next();
-			}
-
-
-			public Object input() {
-				return link.input();
-			}
-
-
-			public ILink input(Object input) {
-				return link.input(input);
-			}
-
-
-			public boolean postSwap() {
-				return false;
-			}
-
-
-			public ICommand cmd() {
-				return link.cmd();
-			}
-
-
-			public ExecutorService executor() {
-				return link.executor();
-			}
-
-
-			@Override
-			public Object call()
-				throws Exception {
-
-				final Returns returns = new Returns();
-				ICommand command = cmd();
-				while (command != null) {
-					command = invokeCommand(command, input(), returns, false, true);
-				}
-				return returns.get();
-			}
-		}
-
-
 		/*
 		 * 
 		 * utils
@@ -395,20 +307,24 @@ enum Internals {
 		 * @return
 		 * @throws Exception
 		 */
-		static ICommand invokeCommand(final ICommand command, final Object input, final Returns output, final boolean visits)
+		static ICommand invokeCommand(final ICommand command, final Object input, final Returns output, final Called called, final boolean visits)
 			throws Exception {
 
-			return invokeCommand(command, input, output, visits, false);
+			return invokeCommand(command, input, output, called, visits, false);
 		}
 
 
 		@SuppressWarnings({"unchecked", "rawtypes"})
 		/// safely suppressed here: we do some extra checking to ensure the input fits in the invocation
-		static ICommand invokeCommand(final ICommand command, final Object input, final Returns output, final boolean visits, final boolean undo)
+		static ICommand invokeCommand(final ICommand command, final Object input, final Returns output, final Called called, final boolean visits, final boolean undo)
 			throws Exception {
+
+			// will unset later if calling does not occur
+			called.set(true);
 
 			try {
 				if (command instanceof ICommandProxy) {
+					called.set(false);
 					return ((ICommandProxy)command).command();
 				}
 				else if (!undo) {
@@ -448,6 +364,7 @@ enum Internals {
 			}
 			catch (final ClassCastException e) {
 				if (!visits) {
+					called.set(false);
 					throw new IllegalArgumentException("input does not fit");
 				}
 			}
@@ -504,10 +421,22 @@ enum Internals {
 			implements IChain<O> {
 
 			private final ILink link;
+			private ICommandCallFactory callFactory = new DefaultCallFactory();
 
 
 			DefaultChain(final ILink link) {
 				this.link = link;
+			}
+
+
+			public ICommandCallFactory callFactory() {
+				return callFactory;
+			}
+
+
+			public DefaultChain<O> callFactory(final ICommandCallFactory callFactory) {
+				this.callFactory = callFactory;
+				return this;
 			}
 
 
@@ -525,27 +454,30 @@ enum Internals {
 				//				return (O)MoreExecutors.sameThreadExecutor().submit(linker).get();
 
 				final Input inputs = new Input(input);
+				final Called called = new Called();
 				final Returns returns = new Returns();
 				ILink next = head();
 				while (next != null) {
-					next = callImpl(next, inputs, returns);
+					next = callImpl(next, inputs, returns, called, callFactory);
 				}
 				return (O)returns.get();
 			}
 
 
-			protected ILink callImpl(final ILink link, final Input inputs, final Returns returns)
+			protected ILink callImpl(final ILink link, final Input inputs, final Returns returns, final Called called, final ICommandCallFactory callFactory)
 				throws Exception {
 
 				if (!inputs.isNull() && link.input() == null) {
 					link.input(inputs.get());
 				}
+				final Input input = link.input() != null ? new Input(link.input()) : inputs;
+				final Callable<Object> callable = callFactory.create(link.cmd(), input, called);
 				final ExecutorService executor = link.executor();
 				if (executor == null) {
-					returns.set(link.call());
+					returns.set(callable.call());
 				}
 				else {
-					returns.set(executor.submit(link).get());
+					returns.set(executor.submit(callable).get());
 				}
 				if (link.postSwap()) {
 					inputs.set(returns.get());
@@ -646,10 +578,11 @@ enum Internals {
 				//				return (O)MoreExecutors.sameThreadExecutor().submit(linker).get();
 
 				final Input inputs = new Input(input);
+				final Called called = new Called();
 				final Returns returns = new Returns();
 				ILink next = head();
 				while (next != null) {
-					next = callImpl(Link.undo(next), inputs, returns);
+					next = callImpl(next, inputs, returns, called, new DefaultCallFactory(false, true));
 				}
 				return (O)returns.get();
 			}
@@ -718,14 +651,14 @@ enum Internals {
 			protected ICommand invokeImpl(final Object input)
 				throws Exception {
 
-				return Link.invokeCommand(executing, input, Returns.VOID, true);
+				return Link.invokeCommand(executing, input, Returns.VOID, Called.nop, true);
 			}
 
 
 			protected ICommand undoImpl(Object input)
 				throws Exception {
 
-				return Link.invokeCommand(executing, input, Returns.VOID, true, true);
+				return Link.invokeCommand(executing, input, Returns.VOID, Called.nop, true, true);
 			}
 
 
@@ -1077,11 +1010,82 @@ enum Internals {
 		extends Variable<Object> {
 
 		public Input() {
+			super();
 		}
 
 
-		public Input(final Object value) {
+		public Input(Object value) {
+			super(value);
+		}
+	}
+
+
+	/**
+	 * {@link Variable} for flagging a command as having been run
+	 * @author wassj
+	 */
+	static class Called
+		extends Variable<Boolean> {
+
+		public static Called nop = new Called();
+
+
+		public Called() {
+			super(Boolean.FALSE);
+		}
+
+
+		public boolean was() {
+			return this.get();
+		}
+
+
+		@Override
+		public void set(final Boolean value) {
+			if (value == null) {
+				throw new IllegalArgumentException("called cannot be null");
+			}
 			super.set(value);
+		}
+	}
+
+
+	interface ICommandCallFactory {
+		Callable<Object> create(ICommand head, Input input, Called called);
+	}
+
+
+	static class DefaultCallFactory
+		implements ICommandCallFactory {
+
+		private final boolean visit;
+		private final boolean undo;
+
+
+		public DefaultCallFactory() {
+			this(false, false);
+		}
+
+
+		public DefaultCallFactory(final boolean visit, final boolean undo) {
+			this.visit = visit;
+			this.undo = undo;
+		}
+
+
+		public Callable<Object> create(final ICommand head, final Input input, final Called called) {
+			return new Callable<Object>() {
+				public Object call()
+					throws Exception {
+
+					final Returns returns = new Returns();
+					ICommand command = head;
+					while (command != null) {
+						command = Link.invokeCommand(command, input.get(), returns, called, visit, undo);
+					}
+					return returns.get();
+				}
+			};
 		}
 	}
 }
