@@ -10,7 +10,7 @@ import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Internals.Chain.DefaultChain;
 import cmd4j.Internals.Chain.EmptyChain;
 import cmd4j.Internals.Chain.UndoableChainDecorator;
-import cmd4j.Internals.DefaultCallFactory;
+import cmd4j.Internals.Command.DefaultCallFactory;
 import cmd4j.Internals.Link;
 import cmd4j.Internals.Link.LinkBuilder;
 
@@ -166,20 +166,6 @@ public enum Chains {
 
 
 		/**
-		 * calling this method will result in the input object being swapped out with the last returned value (voids excluded)
-		 * can be called on multiple links
-		 * @return
-		 */
-		public ChainBuilder ioSwap() {
-			if (tail == null) {
-				throw new NullPointerException("chain builder was not initialized, tail is null");
-			}
-			tail.postSwap(true);
-			return this;
-		}
-
-
-		/**
 		 * construct an {@link IChain} object from the {@link ICommand}s that have been added to this builder
 		 * @return
 		 */
@@ -235,8 +221,5 @@ public enum Chains {
 
 
 		ExecutorService executor();
-
-
-		boolean postSwap();
 	}
 }

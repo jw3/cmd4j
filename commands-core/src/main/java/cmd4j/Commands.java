@@ -1,7 +1,9 @@
 package cmd4j;
 
 import cmd4j.ICommand.ICommand1;
+import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
+import cmd4j.ICommand.IPipeIO;
 import cmd4j.ICommand.IReturningCommand;
 
 /**
@@ -24,10 +26,39 @@ public class Commands {
 	}
 
 
+	/**
+	 * command that returns the passed value
+	 * @param output
+	 * @return
+	 */
 	public static <O> IReturningCommand<O> returns(final O output) {
 		return new ICommand3<O>() {
 			public O invoke() {
 				return output;
+			}
+		};
+	}
+
+
+	/**
+	 * an io pipe, aka |, directs the previous output to the next input
+	 * @see IPipeIO
+	 * @return
+	 */
+	public static <I> IPipeIO<I> pipe() {
+		return new IPipeIO<I>() {
+			public I invoke(final I input) {
+				return input;
+			}
+		};
+	}
+
+
+	public static <T> ICommand returns(final Variable<T> returns) {
+		return new ICommand2<T>() {
+			public void invoke(final T input)
+				throws Exception {
+
 			}
 		};
 	}

@@ -32,7 +32,8 @@ import cmd4j.ICommand.IStateCommand.IStateCommand1;
 import cmd4j.ICommand.IStateCommand.IStateCommand2;
 import cmd4j.Internals.Chain.IChainDecorator;
 import cmd4j.Internals.Chain.IDecorator;
-import cmd4j.Internals.Command.ICommandProxy;
+import cmd4j.Internals.Command.DefaultCallFactory;
+import cmd4j.Internals.Command.ICommandCallFactory;
 import cmd4j.Observers.IObservable;
 
 /**
@@ -93,202 +94,60 @@ enum Internals {
 
 			IInputCommand<C> command();
 		}
-	}
-
-
-	/******************************************************************************
-	 * 
-	 * 
-	 * 
-	 * {@link ILink} implementation details
-	 * 
-	 * 
-	 * 
-	 ******************************************************************************/
-	enum Link {
-		/*noinstance*/;
-
-		static ILink empty() {
-			return new EmptyLink();
-		}
-
-
-		static ILink create(final ICommand command) {
-			return new LinkBuilder(command).build();
-		}
 
 
 		/**
-		 * Provides the context in which a {@link ICommand command} executes.  
-		 * Can combine together with other {@link ILink links} to form a chain.
-		 * 
+		 * factory for {@link Callable} implementation that will execute the specified {@link ICommand}
 		 * @author wassj
-		 * @internal Intended for Command Framework use only.  Unsafe for direct client usage.
+		 * @param <O>
 		 */
-		static class DefaultLink
-			implements ILink {
-
-			private final ICommand command;
-			private final ILink next;
-
-			private Object input;
-			private ExecutorService executor;
-			private boolean postSwap;
-
-
-			public DefaultLink(final ICommand command, final ILink next) {
-				this.command = command;
-				this.next = next;
-			}
-
-
-			public Object input() {
-				return input;
-			}
-
-
-			public DefaultLink input(final Object input) {
-				this.input = input;
-				return this;
-			}
-
-
-			public ICommand cmd() {
-				return command;
-			}
-
-
-			public ILink next() {
-				return next;
-			}
-
-
-			public ExecutorService executor() {
-				return executor;
-			}
-
-
-			public DefaultLink executor(final ExecutorService executor) {
-				this.executor = executor;
-				return this;
-			}
-
-
-			public boolean postSwap() {
-				return postSwap;
-			}
-
-
-			public DefaultLink postSwap(final boolean postSwap) {
-				this.postSwap = postSwap;
-				return this;
-			}
-		}
-
-
-		/**
-		 * Builder pattern implementation for {@link ILink links}
-		 * 
-		 * @author wassj
-		 */
-		static class LinkBuilder {
-			private final ICommand command;
-			private LinkBuilder next;
-
-			private ExecutorService executor;
-			private Object input;
-
-			private boolean postSwap;
-
-
+		interface ICommandCallFactory<O> {
 			/**
-			 * creates a new builder. package private as only the {@link ChainBuilder} should create these
-			 * @param command
-			 */
-			LinkBuilder(final ICommand command) {
-				this.command = command;
-			}
-
-
-			/**
-			 * sets the executor for the link
-			 * @param executor
+			 * create a {@link Callable}
+			 * @param head
+			 * @param input
+			 * @param returns
+			 * @param called
 			 * @return
 			 */
-			LinkBuilder executor(final ExecutorService executor) {
-				this.executor = executor;
-				return this;
-			}
-
-
-			LinkBuilder add(final ICommand command) {
-				next = new LinkBuilder(command);
-				return next;
-			}
-
-
-			LinkBuilder input(final Object input) {
-				this.input = input;
-				return this;
-			}
-
-
-			LinkBuilder postSwap(final boolean postSwap) {
-				this.postSwap = postSwap;
-				return this;
-			}
-
-
-			ILink build() {
-				return new DefaultLink(command, next != null ? next.build() : null).executor(executor).input(input).postSwap(postSwap);
-			}
+			Callable<O> create(ICommand head, Input input, Returns returns, Called called);
 		}
 
 
 		/**
-		 * An empty {@link ILink link}
-		 *
+		 * default implementation of {@link ICommandCallFactory}
 		 * @author wassj
-		 *
 		 */
-		static class EmptyLink
-			implements ILink {
+		static class DefaultCallFactory
+			implements ICommandCallFactory<Void> {
 
-			public ILink next() {
-				return null;
+			private final boolean visit;
+			private final boolean undo;
+
+
+			public DefaultCallFactory() {
+				this(false, false);
 			}
 
 
-			public Object input() {
-				return null;
+			public DefaultCallFactory(final boolean visit, final boolean undo) {
+				this.visit = visit;
+				this.undo = undo;
 			}
 
 
-			public ILink input(Object input) {
-				return this;
-			}
+			public Callable<Void> create(final ICommand head, final Input input, final Returns returns, final Called called) {
+				return new Callable<Void>() {
+					public Void call()
+						throws Exception {
 
-
-			public boolean postSwap() {
-				return false;
-			}
-
-
-			public ICommand cmd() {
-				return new ICommand1() {
-					public void invoke() {
+						ICommand command = head;
+						while (command != null) {
+							command = invoke(command, input.get(), returns, called, visit, undo);
+						}
+						return null;
 					}
 				};
-			}
-
-
-			public ExecutorService executor() {
-				return null;
-			}
-
-
-			public ILink call() {
-				return next();
 			}
 		}
 
@@ -307,16 +166,16 @@ enum Internals {
 		 * @return
 		 * @throws Exception
 		 */
-		static ICommand invokeCommand(final ICommand command, final Object input, final Returns output, final Called called, final boolean visits)
+		static ICommand invoke(final ICommand command, final Object input, final Returns output, final Called called, final boolean visits)
 			throws Exception {
 
-			return invokeCommand(command, input, output, called, visits, false);
+			return invoke(command, input, output, called, visits, false);
 		}
 
 
 		@SuppressWarnings({"unchecked", "rawtypes"})
 		/// safely suppressed here: we do some extra checking to ensure the input fits in the invocation
-		static ICommand invokeCommand(final ICommand command, final Object input, final Returns output, final Called called, final boolean visits, final boolean undo)
+		static ICommand invoke(final ICommand command, final Object input, final Returns output, final Called called, final boolean visits, final boolean undo)
 			throws Exception {
 
 			// will unset later if calling does not occur
@@ -377,6 +236,184 @@ enum Internals {
 	 * 
 	 * 
 	 * 
+	 * {@link ILink} implementation details
+	 * 
+	 * 
+	 * 
+	 ******************************************************************************/
+	enum Link {
+		/*noinstance*/;
+
+		static ILink empty() {
+			return new EmptyLink();
+		}
+
+
+		static ILink create(final ICommand command) {
+			return new LinkBuilder(command).build();
+		}
+
+
+		/**
+		 * Provides the context in which a {@link ICommand command} executes.  
+		 * Can combine together with other {@link ILink links} to form a chain.
+		 * 
+		 * @author wassj
+		 * @internal Intended for Command Framework use only.  Unsafe for direct client usage.
+		 */
+		static class DefaultLink
+			implements ILink {
+
+			private final ICommand command;
+			private final ILink next;
+
+			private Object input;
+			private ExecutorService executor;
+
+
+			public DefaultLink(final ICommand command, final ILink next) {
+				this.command = command;
+				this.next = next;
+			}
+
+
+			public Object input() {
+				return input;
+			}
+
+
+			public DefaultLink input(final Object input) {
+				this.input = input;
+				return this;
+			}
+
+
+			public ICommand cmd() {
+				return command;
+			}
+
+
+			public ILink next() {
+				return next;
+			}
+
+
+			public ExecutorService executor() {
+				return executor;
+			}
+
+
+			public DefaultLink executor(final ExecutorService executor) {
+				this.executor = executor;
+				return this;
+			}
+		}
+
+
+		/**
+		 * Builder pattern implementation for {@link ILink links}
+		 * 
+		 * @author wassj
+		 */
+		static class LinkBuilder {
+			private final ICommand command;
+			private LinkBuilder next;
+
+			private ExecutorService executor;
+			private Object input;
+
+
+			/**
+			 * creates a new builder. package private as only the {@link ChainBuilder} should create these
+			 * @param command
+			 */
+			LinkBuilder(final ICommand command) {
+				this.command = command;
+			}
+
+
+			/**
+			 * sets the executor for the link
+			 * @param executor
+			 * @return
+			 */
+			LinkBuilder executor(final ExecutorService executor) {
+				this.executor = executor;
+				return this;
+			}
+
+
+			LinkBuilder add(final ICommand command) {
+				next = new LinkBuilder(command);
+				return next;
+			}
+
+
+			LinkBuilder input(final Object input) {
+				this.input = input;
+				return this;
+			}
+
+
+			ILink build() {
+				return new DefaultLink(command, next != null ? next.build() : null).executor(executor).input(input);
+			}
+		}
+
+
+		/**
+		 * An empty {@link ILink link}
+		 *
+		 * @author wassj
+		 *
+		 */
+		static class EmptyLink
+			implements ILink {
+
+			public ILink next() {
+				return null;
+			}
+
+
+			public Object input() {
+				return null;
+			}
+
+
+			public ILink input(Object input) {
+				return this;
+			}
+
+
+			public boolean postSwap() {
+				return false;
+			}
+
+
+			public ICommand cmd() {
+				return new ICommand1() {
+					public void invoke() {
+					}
+				};
+			}
+
+
+			public ExecutorService executor() {
+				return null;
+			}
+
+
+			public ILink call() {
+				return next();
+			}
+		}
+	}
+
+
+	/******************************************************************************
+	 * 
+	 * 
+	 * 
 	 * {@link IChain} implementation details
 	 * 
 	 * 
@@ -421,7 +458,7 @@ enum Internals {
 			implements IChain<O> {
 
 			private final ILink link;
-			private ICommandCallFactory callFactory = new DefaultCallFactory();
+			private ICommandCallFactory<?> callFactory = new DefaultCallFactory();
 
 
 			DefaultChain(final ILink link) {
@@ -429,12 +466,12 @@ enum Internals {
 			}
 
 
-			public ICommandCallFactory callFactory() {
+			public ICommandCallFactory<?> callFactory() {
 				return callFactory;
 			}
 
 
-			public DefaultChain<O> callFactory(final ICommandCallFactory callFactory) {
+			public DefaultChain<O> callFactory(final ICommandCallFactory<?> callFactory) {
 				this.callFactory = callFactory;
 				return this;
 			}
@@ -464,24 +501,34 @@ enum Internals {
 			}
 
 
-			protected ILink callImpl(final ILink link, final Input inputs, final Returns returns, final Called called, final ICommandCallFactory callFactory)
+			protected ILink callImpl(final ILink link, final Input inputs, final Returns returns, final Called called, final ICommandCallFactory<?> callFactory)
 				throws Exception {
 
 				if (!inputs.isNull() && link.input() == null) {
 					link.input(inputs.get());
 				}
+				final ICommand command = link.cmd();
 				final Input input = link.input() != null ? new Input(link.input()) : inputs;
-				final Callable<Object> callable = callFactory.create(link.cmd(), input, called);
+
+				// output pipes redirect the current output value as their input 
+				if (command instanceof IOutputPipe<?>) {
+					input.set(returns.get());
+				}
+
+				final Callable<?> callable = callFactory.create(command, input, returns, called);
 				final ExecutorService executor = link.executor();
 				if (executor == null) {
-					returns.set(callable.call());
+					callable.call();
 				}
 				else {
-					returns.set(executor.submit(callable).get());
+					executor.submit(callable).get();
 				}
-				if (link.postSwap()) {
+
+				// input pipes redirect their output to the next input value 
+				if (command instanceof IInputPipe<?>) {
 					inputs.set(returns.get());
 				}
+
 				return link.next();
 			}
 
@@ -651,14 +698,14 @@ enum Internals {
 			protected ICommand invokeImpl(final Object input)
 				throws Exception {
 
-				return Link.invokeCommand(executing, input, Returns.VOID, Called.nop, true);
+				return Command.invoke(executing, input, Returns.VOID, Called.nop, true);
 			}
 
 
 			protected ICommand undoImpl(Object input)
 				throws Exception {
 
-				return Link.invokeCommand(executing, input, Returns.VOID, Called.nop, true, true);
+				return Command.invoke(executing, input, Returns.VOID, Called.nop, true, true);
 			}
 
 
@@ -1046,46 +1093,6 @@ enum Internals {
 				throw new IllegalArgumentException("called cannot be null");
 			}
 			super.set(value);
-		}
-	}
-
-
-	interface ICommandCallFactory {
-		Callable<Object> create(ICommand head, Input input, Called called);
-	}
-
-
-	static class DefaultCallFactory
-		implements ICommandCallFactory {
-
-		private final boolean visit;
-		private final boolean undo;
-
-
-		public DefaultCallFactory() {
-			this(false, false);
-		}
-
-
-		public DefaultCallFactory(final boolean visit, final boolean undo) {
-			this.visit = visit;
-			this.undo = undo;
-		}
-
-
-		public Callable<Object> create(final ICommand head, final Input input, final Called called) {
-			return new Callable<Object>() {
-				public Object call()
-					throws Exception {
-
-					final Returns returns = new Returns();
-					ICommand command = head;
-					while (command != null) {
-						command = Link.invokeCommand(command, input.get(), returns, called, visit, undo);
-					}
-					return returns.get();
-				}
-			};
 		}
 	}
 }

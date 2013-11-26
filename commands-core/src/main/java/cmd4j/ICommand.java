@@ -226,6 +226,16 @@ public interface ICommand {
 
 
 	/**
+	 * A {@link IReturningCommand} that will set its return value as the input value for the following execution scope 
+	 * @author wassj
+	 * @param <O> output type
+	 */
+	public interface IInputPipe<O>
+		extends IReturningCommand<O> {
+	}
+
+
+	/**
 	 * tagging interface for {@link ICommand commands} which support an input argument
 	 * 
 	 * @author wassj
@@ -237,6 +247,16 @@ public interface ICommand {
 
 
 	/**
+	 * a {@link IInputCommand} that receives the output value of the chain as input
+	 * @author wassj
+	 * @param <I> input type
+	 */
+	public interface IOutputPipe<I>
+		extends IInputCommand<I> {
+	}
+
+
+	/**
 	 * convenience tagging interface for functional commands
 	 * @author wassj
 	 * @param <I>
@@ -244,6 +264,26 @@ public interface ICommand {
 	 */
 	public interface IFunction<I, O>
 		extends ICommand4<I, O> {
+	}
+
+
+	/**
+	 * {@link IFunction} which has the same type of input as output
+	 * @author wassj
+	 * @param <T>
+	 */
+	public interface IUnaryFunction<T>
+		extends IFunction<T, T> {
+	}
+
+
+	/**
+	 * a {@link IUnaryFunction}  which will redirect the previous command output into the next commands input
+	 * @author wassj
+	 * @param <T>
+	 */
+	public interface IPipeIO<T>
+		extends IUnaryFunction<T>, IInputPipe<T>, IOutputPipe<T> {
 	}
 
 
