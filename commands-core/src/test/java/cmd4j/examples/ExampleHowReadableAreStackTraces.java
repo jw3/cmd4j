@@ -3,7 +3,7 @@ package cmd4j.examples;
 import org.testng.annotations.Test;
 
 import cmd4j.Chains;
-import cmd4j.Chains.ChainBuilder;
+import cmd4j.Chains.IChainBuilder;
 import cmd4j.IChain;
 import cmd4j.testing.Does;
 
@@ -19,12 +19,12 @@ public class ExampleHowReadableAreStackTraces {
 	public void tenChainsDeep()
 		throws Exception {
 
-		final ChainBuilder builder = Chains.builder();
+		final IChainBuilder builder = Chains.builder();
 		this.recurse(builder, 0, 10).invoke();
 	}
 
 
-	private IChain<Void> recurse(ChainBuilder parent, int count, int max) {
+	private IChain<Void> recurse(IChainBuilder parent, int count, int max) {
 		if (++count < max) {
 			final IChain<Void> chain = recurse(Chains.builder().add(Does.nothing()), count, max);
 			parent.add(chain);

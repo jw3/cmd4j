@@ -1,6 +1,7 @@
 package cmd4j;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.SwingUtilities;
@@ -15,8 +17,10 @@ import javax.swing.SwingUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cmd4j.Chains.ChainBuilder;
+import cmd4j.Chains.IBaseFluentChainBuilder;
+import cmd4j.Chains.IChainBuilder;
 import cmd4j.Chains.ILink;
+import cmd4j.Chains.IReturningChainBuilder;
 import cmd4j.Commands.Variable;
 import cmd4j.IChain.IObservableChain;
 import cmd4j.IChain.IUndoChain;
@@ -24,16 +28,21 @@ import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommand4;
+import cmd4j.ICommand.IFunction;
 import cmd4j.ICommand.IObservableCommand;
 import cmd4j.ICommand.IObservableStateCommand;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.ICommand.IStateCommand;
 import cmd4j.ICommand.IStateCommand.IStateCommand1;
 import cmd4j.ICommand.IStateCommand.IStateCommand2;
+import cmd4j.Internals.Chain.DefaultChain;
+import cmd4j.Internals.Chain.DefaultChain.ReturningChain;
+import cmd4j.Internals.Chain.EmptyChain;
 import cmd4j.Internals.Chain.IChainDecorator;
 import cmd4j.Internals.Chain.IDecorator;
 import cmd4j.Internals.Command.DefaultCallFactory;
 import cmd4j.Internals.Command.ICommandCallFactory;
+import cmd4j.Internals.Link.LinkBuilder;
 import cmd4j.Observers.IObservable;
 
 /**
@@ -457,12 +466,19 @@ enum Internals {
 		static class DefaultChain<O>
 			implements IChain<O> {
 
+			private final Returns returns = new Returns();
 			private final ILink link;
+
 			private ICommandCallFactory<?> callFactory = new DefaultCallFactory();
 
 
 			DefaultChain(final ILink link) {
 				this.link = link;
+			}
+
+
+			public Object returns() {
+				return returns.get();
 			}
 
 
@@ -487,17 +503,13 @@ enum Internals {
 			public O invoke(final Object input)
 				throws Exception {
 
-				//				final Linker linker = new Linker(this.head(), input);
-				//				return (O)MoreExecutors.sameThreadExecutor().submit(linker).get();
-
 				final Input inputs = new Input(input);
 				final Called called = new Called();
-				final Returns returns = new Returns();
 				ILink next = head();
 				while (next != null) {
 					next = callImpl(next, inputs, returns, called, callFactory);
 				}
-				return (O)returns.get();
+				return (O)returns();
 			}
 
 
@@ -530,6 +542,22 @@ enum Internals {
 				}
 
 				return link.next();
+			}
+
+
+			static class ReturningChain<O>
+				extends DefaultChain<O> {
+
+				public ReturningChain(final ILink link) {
+					super(link);
+				}
+
+
+				public O invoke(final Object input)
+					throws Exception {
+
+					return super.invoke(input);
+				}
 			}
 
 
@@ -589,7 +617,8 @@ enum Internals {
 		 * @author wassj
 		 */
 		static class UndoableChainDecorator<O>
-			extends DefaultChain<O>
+			// returning should be safe, as we are decorating and the decorated chain is responsible for ensuring return safety
+			extends ReturningChain<O>
 			implements IChainDecorator<O>, IUndoChain<O> {
 
 			private final IChain<O> chain;
@@ -620,9 +649,6 @@ enum Internals {
 
 			public O undo(final Object input)
 				throws Exception {
-
-				//				final Linker linker = new UndoLinker(this.head(), input);
-				//				return (O)MoreExecutors.sameThreadExecutor().submit(linker).get();
 
 				final Input inputs = new Input(input);
 				final Called called = new Called();
@@ -1023,6 +1049,238 @@ enum Internals {
 					// we shouldnt get errors here as we handle them all within the chains
 					logger.warn("caught something in an ede", e);
 				}
+			}
+		}
+	}
+
+
+	enum Builder {
+		/*noinstance*/;
+
+		/**
+		 * @see IBaseFluentChainBuilder
+		 * @see IChainBuilder
+		 * @author wassj
+		 *
+		 */
+		static class BaseBuilder
+			implements IChainBuilder {
+
+			private LinkBuilder head;
+			private LinkBuilder tail;
+			private boolean visits;
+
+
+			public IReturningChainBuilder<Object> returns() {
+				return new ReturningBuilder<Object>(this);
+			}
+
+
+			public <O> IReturningChainBuilder<O> returns(final Class<O> type) {
+				return returns(new IFunction<Object, O>() {
+					public O invoke(final Object input) {
+						return type.isInstance(input) ? type.cast(input) : null;
+					}
+				});
+			}
+
+
+			public <O> IReturningChainBuilder<O> returns(final IFunction<?, O> function) {
+				return new ReturningBuilder<O>(this, function);
+			}
+
+
+			public IChainBuilder visits(final boolean visits) {
+				this.visits = visits;
+				return this;
+			}
+
+
+			/**
+			 * add the {@link ICommand} to the end of the chain
+			 * @param command
+			 * @return
+			 */
+			public IChainBuilder add(final ICommand command) {
+				if (command == null) {
+					throw new IllegalArgumentException("command cannot be null");
+				}
+
+				// if created with the noarg create() method it will need initd on the first add
+				if (head == null) {
+					this.init(new LinkBuilder(command));
+				}
+				else {
+					tail = tail != null ? tail.add(command) : new LinkBuilder(command);
+				}
+				return this;
+			}
+
+
+			/**
+			 * add the {@link Future} to the end of the chain
+			 * @param command
+			 * @return
+			 */
+			public <R> IChainBuilder add(final Future<R> future) {
+				return add(Concurrent.asCommand(future));
+			}
+
+
+			public IChainBuilder addAll(final Collection<ICommand> commands) {
+				for (final ICommand command : commands) {
+					add(command);
+				}
+				return this;
+			}
+
+
+			/**
+			 * init the builder with the passed builder as head (and tail for now)
+			 * @param builder
+			 * @return
+			 */
+			private IChainBuilder init(final LinkBuilder builder) {
+				this.head = builder;
+				this.tail = builder;
+				return this;
+			}
+
+
+			/**
+			 * set the executor for the tail link
+			 * @param executor
+			 * @return
+			 */
+			public IChainBuilder executor(final ExecutorService executor) {
+				if (tail == null) {
+					throw new NullPointerException("chain builder was not initialized, tail is null");
+				}
+				tail.executor(executor);
+				return this;
+			}
+
+
+			/**
+			 * set an individual overriding input for the tail link
+			 * @param input
+			 * @return
+			 */
+			public IChainBuilder input(final Object input) {
+				if (tail == null) {
+					throw new NullPointerException("chain builder was not initialized, tail is null");
+				}
+				tail.input(input);
+				return this;
+			}
+
+
+			/**
+			 * construct an {@link IChain} object from the {@link ICommand}s that have been added to this builder
+			 * @return
+			 */
+			public IChain<Void> build() {
+				if (head != null) {
+					return new DefaultChain<Void>(head.build()).callFactory(new DefaultCallFactory(visits, false));
+				}
+				return new EmptyChain<Void>();
+			}
+		}
+
+
+		/**
+		 * @see IBaseFluentChainBuilder
+		 * @see IReturningChainBuilder
+		 * @author wassj
+		 * @param <O>
+		 */
+		static class ReturningBuilder<O>
+			implements IReturningChainBuilder<O> {
+
+			private final BaseBuilder base;
+			private final IFunction<?, O> returnFunction;
+
+
+			public ReturningBuilder(final BaseBuilder base) {
+				this(base, null);
+			}
+
+
+			public ReturningBuilder(final BaseBuilder base, final IFunction<?, O> returnFunction) {
+				this.base = base;
+				this.returnFunction = returnFunction;
+			}
+
+
+			public IReturningChainBuilder<O> visits(final boolean visits) {
+				base.visits(true);
+				return this;
+			}
+
+
+			/**
+			 * set the executor for the tail link
+			 * @param executor
+			 * @return
+			 */
+			public IReturningChainBuilder<O> executor(final ExecutorService executor) {
+				if (base.tail == null) {
+					throw new NullPointerException("chain builder was not initialized, tail is null");
+				}
+				base.tail.executor(executor);
+				return this;
+			}
+
+
+			/**
+			 * set an individual overriding input for the tail link
+			 * @param input
+			 * @return
+			 */
+			public IReturningChainBuilder<O> input(final Object input) {
+				if (base.tail == null) {
+					throw new NullPointerException("chain builder was not initialized, tail is null");
+				}
+				base.tail.input(input);
+				return this;
+			}
+
+
+			public IReturningChainBuilder<O> add(final ICommand command) {
+				base.add(command);
+				return this;
+			}
+
+
+			public <R> IReturningChainBuilder<O> add(final Future<R> future) {
+				base.add(future);
+				return this;
+			}
+
+
+			public IReturningChainBuilder<O> addAll(final Collection<ICommand> commands) {
+				for (final ICommand command : commands) {
+					add(command);
+				}
+				return this;
+			}
+
+
+			public IChain<O> build() {
+				if (base.head != null) {
+					if (returnFunction != null) {
+						/*
+						 * Use a visiting chain containing the return function to implement the return behavior.
+						 * An IO pipe will transfer the main chain result value into the returning function chain. 
+						 * The returning function chain will then be responsible for returning the final result value.
+						 * We avoid recursion here because the returning chain can just return type of object.
+						 */
+						final IChain<Object> returnFunctionChain = Chains.builder().visits(true).add(returnFunction).returns().build();
+						base.add(Commands.pipe()).add(returnFunctionChain);
+					}
+					return new ReturningChain<O>(base.head.build()).callFactory(new DefaultCallFactory(base.visits, false));
+				}
+				return new EmptyChain<O>();
 			}
 		}
 	}

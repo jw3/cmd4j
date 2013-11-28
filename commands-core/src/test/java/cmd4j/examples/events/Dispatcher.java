@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import cmd4j.Chains;
-import cmd4j.Chains.ChainBuilder;
+import cmd4j.Chains.IChainBuilder;
 import cmd4j.IChain;
 import cmd4j.ICommand;
 
@@ -56,7 +56,7 @@ public enum Dispatcher {
 			listeners.addAll(instance.listeners);
 		}
 
-		final ChainBuilder builder = Chains.builder();
+		final IChainBuilder builder = Chains.builder();
 		for (final IListener listener : listeners) {
 			if (inputIsCastableForCommand(listener, event)) {
 				final ICommand command = listener.handle(event);

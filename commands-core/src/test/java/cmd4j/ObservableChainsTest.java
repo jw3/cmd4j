@@ -140,7 +140,7 @@ public class ObservableChainsTest {
 		throws Exception {
 
 		final TestVariable<Boolean> fits = TestVariable.create(false);
-		Observers.observable(Chains.builder().add(Does.returns(true)).build()).results(Does.set(fits), new ICommand2<Integer>() {
+		Observers.observable(Chains.builder().add(Does.returns(true)).returns().build()).results(Does.set(fits), new ICommand2<Integer>() {
 			public void invoke(final Integer input)
 				throws Exception {
 				throw new Exception("Dto does not fit, this should not have been run");

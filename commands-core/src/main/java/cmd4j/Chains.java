@@ -3,16 +3,16 @@ package cmd4j;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import cmd4j.IChain.IUndoChain;
 import cmd4j.ICommand.ICommand3;
+import cmd4j.ICommand.IFunction;
 import cmd4j.ICommand.IReturningCommand;
-import cmd4j.Internals.Chain.DefaultChain;
-import cmd4j.Internals.Chain.EmptyChain;
+import cmd4j.Internals.Builder;
+import cmd4j.Internals.Chain.DefaultChain.ReturningChain;
 import cmd4j.Internals.Chain.UndoableChainDecorator;
-import cmd4j.Internals.Command.DefaultCallFactory;
 import cmd4j.Internals.Link;
-import cmd4j.Internals.Link.LinkBuilder;
 
 /**
  * Utility methods for {@link IChain chains}
@@ -26,8 +26,8 @@ public enum Chains {
 	/**
 	 * creates a new {@link ChainBuilder}
 	 */
-	public static ChainBuilder builder() {
-		return new ChainBuilder();
+	public static IChainBuilder builder() {
+		return new Builder.BaseBuilder();
 	}
 
 
@@ -43,7 +43,7 @@ public enum Chains {
 	 * create a {@link IChain chain} that contains the given {@link ICommand commands}
 	 */
 	public static IChain<Void> create(final Collection<ICommand> commands) {
-		final ChainBuilder builder = Chains.builder();
+		final IChainBuilder builder = builder();
 		for (final ICommand command : commands) {
 			builder.add(command);
 		}
@@ -58,7 +58,7 @@ public enum Chains {
 		if (command instanceof IChain<?>) {
 			return (IChain<O>)command;
 		}
-		return new DefaultChain<O>(Link.create(command));
+		return new ReturningChain<O>(Link.create(command));
 	}
 
 
@@ -75,106 +75,112 @@ public enum Chains {
 
 
 	/**
-	 * Builder pattern implementation for creating {@link IChain} objects
-	 *
+	 * base interface for a chain builder, allows returning of the active type
 	 * @author wassj
-	 *
+	 * @param <O> return type
+	 * @param <B> active type
 	 */
-	final public static class ChainBuilder {
-		private LinkBuilder head;
-		private LinkBuilder tail;
-		private boolean visits;
-
-
-		private ChainBuilder() {
-		}
-
-
+	interface IBaseFluentChainBuilder<O, B extends IBaseFluentChainBuilder<O, ?>> {
 		/**
-		 * init the builder with the passed builder as head (and tail for now)
-		 * @param builder
+		 * construct the chain
 		 * @return
 		 */
-		private ChainBuilder init(final LinkBuilder builder) {
-			this.head = builder;
-			this.tail = builder;
-			return this;
-		}
-
-
-		public ChainBuilder addAll(final Collection<ICommand> commands) {
-			for (final ICommand command : commands) {
-				add(command);
-			}
-			return this;
-		}
+		IChain<O> build();
 
 
 		/**
-		 * add the command to the end of the chain
+		 * add a {@link ICommand command}
 		 * @param command
 		 * @return
 		 */
-		public ChainBuilder add(final ICommand command) {
-			if (command == null) {
-				throw new IllegalArgumentException("command cannot be null");
-			}
-
-			// if created with the noarg create() method it will need initd on the first add
-			if (head == null) {
-				this.init(new LinkBuilder(command));
-			}
-			else {
-				tail = tail != null ? tail.add(command) : new LinkBuilder(command);
-			}
-			return this;
-		}
+		B add(ICommand command);
 
 
 		/**
-		 * set the executor for the tail link
+		 * add a collection of commands 
+		 * @param command
+		 * @return
+		 */
+		B addAll(Collection<ICommand> command);
+
+
+		/**
+		 * add a {@link Future}
+		 * @param future
+		 * @return
+		 */
+		<R> B add(Future<R> future);
+
+
+		/**
+		 * specify an executor for the previously added command 
 		 * @param executor
 		 * @return
 		 */
-		public ChainBuilder executor(final ExecutorService executor) {
-			if (tail == null) {
-				throw new NullPointerException("chain builder was not initialized, tail is null");
-			}
-			tail.executor(executor);
-			return this;
-		}
+		B executor(ExecutorService executor);
 
 
 		/**
-		 * set an individual overriding input for the tail link
+		 * specify the input object for the previously added command
+		 * this overrides the chain input object
 		 * @param input
 		 * @return
 		 */
-		public ChainBuilder input(final Object input) {
-			if (tail == null) {
-				throw new NullPointerException("chain builder was not initialized, tail is null");
-			}
-			tail.input(input);
-			return this;
-		}
-
-
-		public ChainBuilder visits(final boolean visits) {
-			this.visits = visits;
-			return this;
-		}
+		B input(Object input);
 
 
 		/**
-		 * construct an {@link IChain} object from the {@link ICommand}s that have been added to this builder
+		* set the chain to visiting mode
+		* @param visits
+		* @return
+		*/
+		B visits(boolean visits);
+	}
+
+
+	/**
+	 * a IChain<Void> {@link IBaseFluentChainBuilder builder}
+	 * @author wassj
+	 *
+	 */
+	public interface IChainBuilder
+		extends IBaseFluentChainBuilder<Void, IChainBuilder> {
+
+		/**
+		 * obtain a {@link IReturningChainBuilder builder} that specifies a return type of {@link Object} 
 		 * @return
 		 */
-		public IChain<Void> build() {
-			if (head != null) {
-				return new DefaultChain<Void>(head.build()).callFactory(new DefaultCallFactory(visits, false));
-			}
-			return new EmptyChain<Void>();
-		}
+		IReturningChainBuilder<Object> returns();
+
+
+		/**
+		 * obtain a {@link IReturningChainBuilder builder} that specifies a return value of the provided type
+		 * if the chain result is not of the specified type the chain will return null 
+		 * @param type
+		 * @return
+		 */
+		<O> IReturningChainBuilder<O> returns(final Class<O> type);
+
+
+		/**
+		 * obtain a {@link IReturningChainBuilder builder} that specifies a return type based on the
+		 * return type of the specified {@link IFunction}.  the chain will apply the function to the 
+		 * chain result value and return the result. if the function cannot run (ie the result object
+		 * does not fit) the chain will return null
+		 * @param function
+		 * @return
+		 */
+		<O> IReturningChainBuilder<O> returns(final IFunction<?, O> function);
+	}
+
+
+	/**
+	 * chain builder of return type O
+	 * @author wassj
+	 * @param <O> the return type
+	 */
+	public interface IReturningChainBuilder<O>
+		extends IBaseFluentChainBuilder<O, IReturningChainBuilder<O>> {
 	}
 
 
