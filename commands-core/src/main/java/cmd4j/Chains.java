@@ -68,7 +68,7 @@ public class Chains {
 	 * @return
 	 */
 	public static IChain<Object> returns(final IChain<?> chain) {
-		return Chains.builder().add(chain).returns().build();
+		return Chains.builder().add(chain).add(Internals.Chain.peekAt(chain)).returns().build();
 	}
 
 
@@ -79,7 +79,7 @@ public class Chains {
 	 * @return
 	 */
 	public static <O> IChain<O> returns(final IChain<?> chain, final Class<O> type) {
-		return Chains.builder().add(chain).returns(type).build();
+		return Chains.builder().add(chain).add(Internals.Chain.peekAt(chain)).returns(type).build();
 	}
 
 
@@ -90,7 +90,7 @@ public class Chains {
 	 * @return
 	 */
 	public static <O> IChain<O> returns(final IChain<?> chain, final IFunction<?, O> returnFunction) {
-		return Chains.builder().add(chain).returns(returnFunction).build();
+		return Chains.builder().add(chain).add(Internals.Chain.peekAt(chain)).returns(returnFunction).build();
 	}
 
 

@@ -442,38 +442,23 @@ enum Internals {
 
 		/**
 		 * An empty {@link IChain} implementation
-		 * 
 		 * @author wassj
 		 */
 		static class EmptyChain<O>
-			implements IChain<O> {
+			extends DefaultChain<O> {
 
-			private final ILink head = Link.empty();
-
-
-			public ILink head() {
-				return head;
-			}
-
-
-			public O invoke() {
-				return null;
-			}
-
-
-			public O invoke(final Object input) {
-				return null;
+			public EmptyChain() {
+				super(Link.empty());
 			}
 		}
 
 
 		/**
 		 * the default {@link IChain} implementation
-		 *
 		 * @author wassj
 		 */
 		static class DefaultChain<O>
-			implements IChain<O> {
+			implements IChain<O>, IPeekable {
 
 			private final Returns returns = new Returns();
 			private final ILink link;
@@ -518,7 +503,7 @@ enum Internals {
 				while (next != null) {
 					next = callImpl(next, inputs, returns, called, callFactory);
 				}
-				return (O)returns();
+				return null;//(O)returns();
 			}
 
 
@@ -565,7 +550,8 @@ enum Internals {
 				public O invoke(final Object input)
 					throws Exception {
 
-					return super.invoke(input);
+					super.invoke(input);
+					return (O)returns();
 				}
 			}
 
@@ -576,6 +562,11 @@ enum Internals {
 		}
 
 
+		/**
+		 * {@link Callable} wrapper for a {@link IChain}
+		 * @author wassj
+		 * @param <O>
+		 */
 		static class ChainCallable<O>
 			implements Callable<O> {
 
@@ -699,6 +690,45 @@ enum Internals {
 				}
 				return (O)returns.get();
 			}
+		}
+
+
+		/**
+		 * test a chain for peeking capability
+		 * @param chain
+		 * @return a peekable
+		 * @Beta
+		 */
+		static IPeekable assertPeekable(final IChain<?> chain) {
+			if (chain instanceof IPeekable) {
+				return (IPeekable)chain;
+			}
+			throw new IllegalArgumentException("unsupported chain impl, not peekable");
+		}
+
+
+		/**
+		 * somewhat of a hack to work around the returning Void issue
+		 * @author wassj
+		 * @Beta
+		 */
+		interface IPeekable {
+			Object returns();
+		}
+
+
+		/**
+		 * somewhat of a hack to work around the returning Void issue
+		 * @see IPeekable
+		 * @author wassj
+		 * @Beta
+		 */
+		static ICommand peekAt(final IChain<?> chain) {
+			return new ICommand3<Object>() {
+				public Object invoke() {
+					return assertPeekable(chain).returns();
+				}
+			};
 		}
 	}
 
@@ -856,7 +886,8 @@ enum Internals {
 			protected O invokeImpl(final Object input)
 				throws Exception {
 
-				return this.decorating().invoke(input);
+				this.decorating().invoke(input);
+				return (O)Chain.assertPeekable(this.decorating()).returns();
 			}
 
 

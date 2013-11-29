@@ -7,7 +7,7 @@ import cmd4j.testing.Does;
 
 /**
  * a collection of API issues that will be resolved going forward and should
- * not be relied upon at any point as a valied API usage. 
+ * not be relied upon at any point as valid API usage. 
  *
  * @author wassj
  *
@@ -23,7 +23,7 @@ public class ApiHoles {
 	 * This behavior will be fixed in the future and should not be relied upon 
 	 */
 	@Test
-	public void chainsAlwaysReturn()
+	public void chainsAlwaysReturn_FIXED()
 		throws Exception {
 
 		// chain that should return null as Void type
@@ -31,6 +31,11 @@ public class ApiHoles {
 		// instead returns the chain result 
 		final Object value = chain.invoke();
 		// when fixed; assert value is null should pass
-		Assert.assertEquals(value, 100);
+
+		/*
+		 * this has now been fixed, the value asserts to null as expected 11-29-2013
+		 */
+		//Assert.assertEquals(value, 100);
+		Assert.assertNull(value);
 	}
 }
