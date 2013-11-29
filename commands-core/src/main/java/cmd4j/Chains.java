@@ -101,7 +101,7 @@ public enum Chains {
 		 * @param command
 		 * @return
 		 */
-		B addAll(Collection<ICommand> command);
+		B add(Collection<ICommand> command);
 
 
 		/**

@@ -969,7 +969,7 @@ enum Internals {
 
 			protected void executeHandlers(final List<ICommand> commands, final Object input) {
 				try {
-					Chains.builder().addAll(commands).visits(true).build().invoke(input);
+					Chains.builder().add(commands).visits(true).build().invoke(input);
 				}
 				catch (final Throwable t) {
 					// REVISIT the show must go on
@@ -1127,7 +1127,7 @@ enum Internals {
 			}
 
 
-			public IChainBuilder addAll(final Collection<ICommand> commands) {
+			public IChainBuilder add(final Collection<ICommand> commands) {
 				for (final ICommand command : commands) {
 					add(command);
 				}
@@ -1258,7 +1258,7 @@ enum Internals {
 			}
 
 
-			public IReturningChainBuilder<O> addAll(final Collection<ICommand> commands) {
+			public IReturningChainBuilder<O> add(final Collection<ICommand> commands) {
 				for (final ICommand command : commands) {
 					add(command);
 				}
