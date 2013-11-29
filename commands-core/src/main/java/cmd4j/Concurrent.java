@@ -19,8 +19,7 @@ import cmd4j.Internals.Executor.EventDispatchExecutor;
  * @author wassj
  *
  */
-public enum Concurrent {
-	/*noinstance*/;
+public class Concurrent {
 
 	/**
 	 * submit a {@link IChain} to the {@link ExecutorService} returning the resulting {@link Future}
@@ -193,5 +192,10 @@ public enum Concurrent {
 				executor.shutdown();
 			}
 		};
+	}
+
+
+	private Concurrent() {
+		/*noinstance*/
 	}
 }

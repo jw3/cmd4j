@@ -60,4 +60,9 @@ public class Functional {
 			}
 		};
 	}
+
+
+	private Functional() {
+		/*noinstance*/
+	}
 }

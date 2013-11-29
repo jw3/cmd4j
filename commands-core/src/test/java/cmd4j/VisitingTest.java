@@ -10,7 +10,7 @@ import cmd4j.ICommand.ICommand4;
 import cmd4j.testing.Does.TestVariable;
 
 /**
- *
+ * some pretty complex visiting tests
  *
  * @author wassj
  *

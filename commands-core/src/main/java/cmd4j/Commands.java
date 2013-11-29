@@ -1,7 +1,6 @@
 package cmd4j;
 
 import cmd4j.ICommand.ICommand1;
-import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.IPipeIO;
 import cmd4j.ICommand.IReturningCommand;
@@ -49,16 +48,6 @@ public class Commands {
 		return new IPipeIO<I>() {
 			public I invoke(final I input) {
 				return input;
-			}
-		};
-	}
-
-
-	public static <T> ICommand returns(final Variable<T> returns) {
-		return new ICommand2<T>() {
-			public void invoke(final T input)
-				throws Exception {
-
 			}
 		};
 	}

@@ -120,6 +120,9 @@ enum Internals {
 			 * @return
 			 */
 			Callable<O> create(ICommand head, Input input, Returns returns, Called called);
+
+
+			ICommandCallFactory<O> visits(boolean visit);
 		}
 
 
@@ -130,8 +133,8 @@ enum Internals {
 		static class DefaultCallFactory
 			implements ICommandCallFactory<Void> {
 
-			private final boolean visit;
 			private final boolean undo;
+			private boolean visit;
 
 
 			public DefaultCallFactory() {
@@ -142,6 +145,12 @@ enum Internals {
 			public DefaultCallFactory(final boolean visit, final boolean undo) {
 				this.visit = visit;
 				this.undo = undo;
+			}
+
+
+			public ICommandCallFactory<Void> visits(final boolean visit) {
+				this.visit = visit;
+				return this;
 			}
 
 
@@ -609,6 +618,37 @@ enum Internals {
 		 */
 		interface IChainDecorator<O>
 			extends IDecorator<IChain<O>>, IChain<O> {
+		}
+
+
+		static class VisitingChainDecorator<O>
+			extends ReturningChain<O>
+			implements IChainDecorator<O> {
+
+			private final IChain<O> chain;
+
+
+			public VisitingChainDecorator(final IChain<O> chain) {
+				super(chain.head());
+				this.chain = chain;
+			}
+
+
+			public IChain<O> decorating() {
+				return chain;
+			}
+
+
+			public ILink head() {
+				return chain.head();
+			}
+
+
+			protected ILink callImpl(ILink link, Input inputs, Returns returns, Called called, ICommandCallFactory<?> callFactory)
+				throws Exception {
+
+				return super.callImpl(link, inputs, returns, called, callFactory.visits(true));
+			}
 		}
 
 

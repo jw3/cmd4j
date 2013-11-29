@@ -23,7 +23,7 @@ public class ApiHoles {
 	 * This behavior will be fixed in the future and should not be relied upon 
 	 */
 	@Test
-	public void test()
+	public void chainsAlwaysReturn()
 		throws Exception {
 
 		// chain that should return null as Void type

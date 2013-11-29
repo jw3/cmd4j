@@ -12,8 +12,7 @@ import cmd4j.ICommand.IStateCommand;
  * @author wassj
  *
  */
-public enum Observers {
-	/*noinstance*/;
+public class Observers {
 
 	/**
 	 * decorate a {@link IChain chain} with observable capability
@@ -92,4 +91,8 @@ public enum Observers {
 		T onFailure(final ICommand... commands);
 	}
 
+
+	private Observers() {
+		/*noinstance*/
+	}
 }

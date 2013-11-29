@@ -12,6 +12,7 @@ import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Internals.Builder;
 import cmd4j.Internals.Chain.DefaultChain.ReturningChain;
 import cmd4j.Internals.Chain.UndoableChainDecorator;
+import cmd4j.Internals.Chain.VisitingChainDecorator;
 import cmd4j.Internals.Link;
 
 /**
@@ -20,8 +21,7 @@ import cmd4j.Internals.Link;
  * @author wassj
  *
  */
-public enum Chains {
-	/*singleton-enum*/;
+public class Chains {
 
 	/**
 	 * creates a new {@link ChainBuilder}
@@ -59,6 +59,14 @@ public enum Chains {
 			return (IChain<O>)command;
 		}
 		return new ReturningChain<O>(Link.create(command));
+	}
+
+
+	/**
+	 * decorate a {@link IChain chain} with visiting behavior
+	 */
+	public static <O> IChain<O> visits(final IChain<O> chain) {
+		return new VisitingChainDecorator<O>(chain);
 	}
 
 
@@ -227,5 +235,10 @@ public enum Chains {
 
 
 		ExecutorService executor();
+	}
+
+
+	private Chains() {
+		/*noinstance*/
 	}
 }
