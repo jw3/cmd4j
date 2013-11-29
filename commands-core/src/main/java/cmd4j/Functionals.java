@@ -12,7 +12,7 @@ import com.google.common.base.Predicate;
  * @author wassj
  *
  */
-public class Functional {
+public class Functionals {
 
 	/**
 	 * wrap a Guava {@link Function} in a {@link ICommand4}
@@ -62,7 +62,7 @@ public class Functional {
 	}
 
 
-	private Functional() {
+	private Functionals() {
 		/*noinstance*/
 	}
 }

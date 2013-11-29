@@ -25,10 +25,10 @@ public class ConcurrentLatchingTest {
 		final CountDownLatch latch = new CountDownLatch(1);
 		final StringBuilder buffer = new StringBuilder();
 
-		final IChain<Void> chain = Chains.builder().add(Says.what("0", buffer)).add(Concurrent.waitFor(latch)).add(Says.what("2", buffer)).build();
-		final IChain<Void> chain2 = Chains.builder().add(Concurrent.waitFor(100)).add(Says.what("1", buffer)).add(Concurrent.countDown(latch)).build();
-		final Future<Void> f = Concurrent.submit(chain, Services.multi1.executor());
-		Concurrent.submit(chain2, Services.multi1.executor());
+		final IChain<Void> chain = Chains.builder().add(Says.what("0", buffer)).add(Concurrency.waitFor(latch)).add(Says.what("2", buffer)).build();
+		final IChain<Void> chain2 = Chains.builder().add(Concurrency.waitFor(100)).add(Says.what("1", buffer)).add(Concurrency.countDown(latch)).build();
+		final Future<Void> f = Concurrency.submit(chain, Services.multi1.executor());
+		Concurrency.submit(chain2, Services.multi1.executor());
 		f.get();
 
 		final String result = buffer.toString();

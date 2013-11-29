@@ -8,7 +8,7 @@ import java.util.concurrent.ThreadFactory;
 
 import javax.swing.SwingUtilities;
 
-import cmd4j.Concurrent;
+import cmd4j.Concurrency;
 
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -22,7 +22,7 @@ public enum Services implements IService {
 	t1(Mode.SINGLE),
 	t2(Mode.SINGLE),
 	multi1(Mode.MULTI),
-	edt(Concurrent.swingExecutor()) {
+	edt(Concurrency.swingExecutor()) {
 		@Override
 		public boolean isOwnerOfCurrentThread() {
 			return SwingUtilities.isEventDispatchThread();

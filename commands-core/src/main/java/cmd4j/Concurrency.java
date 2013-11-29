@@ -19,7 +19,7 @@ import cmd4j.Internals.Executor.EventDispatchExecutor;
  * @author wassj
  *
  */
-public class Concurrent {
+public class Concurrency {
 
 	/**
 	 * submit a {@link IChain} to the {@link ExecutorService} returning the resulting {@link Future}
@@ -195,7 +195,7 @@ public class Concurrent {
 	}
 
 
-	private Concurrent() {
+	private Concurrency() {
 		/*noinstance*/
 	}
 }
