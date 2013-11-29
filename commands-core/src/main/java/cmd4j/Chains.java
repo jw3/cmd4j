@@ -63,6 +63,38 @@ public class Chains {
 
 
 	/**
+	 * wrap a chain with returning capability
+	 * @param chain
+	 * @return
+	 */
+	public static IChain<Object> returns(final IChain<?> chain) {
+		return Chains.builder().add(chain).returns().build();
+	}
+
+
+	/**
+	 * wrap a chain with returning capability
+	 * @param chain
+	 * @param type
+	 * @return
+	 */
+	public static <O> IChain<O> returns(final IChain<?> chain, final Class<O> type) {
+		return Chains.builder().add(chain).returns(type).build();
+	}
+
+
+	/**
+	 * wrap a chain with returning capability
+	 * @param chain
+	 * @param returnFunction
+	 * @return
+	 */
+	public static <O> IChain<O> returns(final IChain<?> chain, final IFunction<?, O> returnFunction) {
+		return Chains.builder().add(chain).returns(returnFunction).build();
+	}
+
+
+	/**
 	 * decorate a {@link IChain chain} with visiting behavior
 	 */
 	public static <O> IChain<O> visits(final IChain<O> chain) {
