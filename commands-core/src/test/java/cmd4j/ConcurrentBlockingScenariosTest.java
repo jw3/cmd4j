@@ -56,7 +56,7 @@ public class ConcurrentBlockingScenariosTest {
 			.add(Asserts.isRunningIn(Services.t1))
 			.add(Does.set(var, true))
 			.build();
-		Concurrency.submit(chain, Services.t1.executor()).get();
+		Chains.submit(chain, Services.t1.executor()).get();
 
 		var.assertEquals(true);
 	}
@@ -103,7 +103,7 @@ public class ConcurrentBlockingScenariosTest {
 					.add(Asserts.isRunningIn(Services.t1))
 					.add(Does.set(var, true))
 					.build();
-				Concurrency.submit(chain, Services.t1.executor()).get();
+				Chains.submit(chain, Services.t1.executor()).get();
 
 				Assert.assertEquals(var.get(), Boolean.TRUE);
 
@@ -136,7 +136,7 @@ public class ConcurrentBlockingScenariosTest {
 					.add(Asserts.isRunningIn(service))
 					.add(Does.set(var, true))
 					.build();
-				Concurrency.submit(chain, service.executor()).get();
+				Chains.submit(chain, service.executor()).get();
 
 				return null;
 			}
@@ -163,7 +163,7 @@ public class ConcurrentBlockingScenariosTest {
 					.add(Asserts.isRunningIn(Services.t1))
 					.add(Does.set(var, true))
 					.build();
-				Concurrency.submit(chain, Services.multi1.executor()).get();
+				Chains.submit(chain, Services.multi1.executor()).get();
 
 				return null;
 			}

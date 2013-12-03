@@ -27,15 +27,15 @@ public class ConcurrentFuturesTest {
 
 			.add(Does.submits(new IncrementVariableCommand(var), Services.t1.executor()))
 			.add(Asserts.isEquals(var, 1))
-			.add(Concurrency.waitFor(1))
+			.add(Commands.waitFor(1))
 
 			.add(Does.submits(new IncrementVariableCommand(var), Services.t2.executor()))
 			.add(Asserts.isEquals(var, 2))
-			.add(Concurrency.waitFor(1))
+			.add(Commands.waitFor(1))
 
 			.add(Does.submits(new IncrementVariableCommand(var), Services.multi1.executor()))
 			.add(Asserts.isEquals(var, 3))
-			.add(Concurrency.waitFor(1))
+			.add(Commands.waitFor(1))
 
 			.build()
 			.invoke();

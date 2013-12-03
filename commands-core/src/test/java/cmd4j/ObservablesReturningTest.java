@@ -51,7 +51,7 @@ public class ObservablesReturningTest {
 		final String expected = UUID.randomUUID().toString().substring(0, 7);
 		final TestVariable<Boolean> ran = TestVariable.create(false);
 		final IChain<String> chain = Observers.observable(Chains.create(Does.returns(expected))).after(Does.set(ran, true));
-		final String result = Concurrency.submit(chain, Services.t1.executor()).get();
+		final String result = Chains.submit(chain, Services.t1.executor()).get();
 
 		ran.assertEquals(true);
 		Assert.assertEquals(result, expected);
@@ -65,7 +65,7 @@ public class ObservablesReturningTest {
 		final String expected = UUID.randomUUID().toString().substring(0, 7);
 		final TestVariable<Boolean> ran = TestVariable.create(false);
 		final IChain<String> chain = Observers.observable(Chains.create(Does.returns(expected))).after(Does.set(ran, true));
-		final Callable<String> callable = Concurrency.asCallable(chain);
+		final Callable<String> callable = Commands.callable(chain);
 		final String result = Services.t1.executor().submit(callable).get();
 
 		ran.assertEquals(true);

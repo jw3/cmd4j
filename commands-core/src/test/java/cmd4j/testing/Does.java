@@ -5,8 +5,8 @@ import java.util.concurrent.ExecutorService;
 
 import org.testng.Assert;
 
+import cmd4j.Commands;
 import cmd4j.Commands.Variable;
-import cmd4j.Concurrency;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
@@ -46,7 +46,7 @@ public enum Does {
 			public void invoke(final Object input)
 				throws Exception {
 
-				final Callable<Void> callable = Concurrency.asCallable(command, input);
+				final Callable<Void> callable = Commands.callable(command, input);
 				executor.submit(callable).get();
 			}
 		};

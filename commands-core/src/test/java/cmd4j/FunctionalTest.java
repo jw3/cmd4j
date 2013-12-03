@@ -80,14 +80,14 @@ public class FunctionalTest {
 		{
 			final boolean runs = true;
 			final TestVariable<Boolean> var = TestVariable.create(false);
-			Chains.create(Functionals.invokeIf(Does.set(var, true), Predicates.alwaysTrue())).invoke();
+			Chains.create(Commands.invokeIf(Does.set(var, true), Predicates.alwaysTrue())).invoke();
 			var.assertEquals(runs);
 		}
 
 		{
 			final boolean runs = false;
 			final TestVariable<Boolean> var = TestVariable.create(false);
-			Chains.create(Functionals.invokeIf(Does.set(var, true), Predicates.alwaysFalse())).invoke();
+			Chains.create(Commands.invokeIf(Does.set(var, true), Predicates.alwaysFalse())).invoke();
 			var.assertEquals(runs);
 		}
 	}

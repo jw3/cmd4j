@@ -115,6 +115,28 @@ public class Chains {
 
 
 	/**
+	 * submit a {@link IChain} to the {@link ExecutorService} returning the resulting {@link Future}
+	 * @param chain
+	 * @param executor
+	 * @return
+	 */
+	public static <O> Future<O> submit(final IChain<O> chain, final ExecutorService executor) {
+		return executor.submit(Commands.callable(chain));
+	}
+
+
+	/**
+	 * submit a {@link IChain} with input to the {@link ExecutorService} returning the resulting {@link Future}
+	 * @param chain
+	 * @param executor
+	 * @return
+	 */
+	public static <O> Future<O> submit(final IChain<O> chain, final Object input, final ExecutorService executor) {
+		return executor.submit(Commands.callable(chain, input));
+	}
+
+
+	/**
 	 * base interface for a chain builder, allows returning of the active type
 	 * @author wassj
 	 * @param <O> return type

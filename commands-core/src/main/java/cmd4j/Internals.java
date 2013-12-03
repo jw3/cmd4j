@@ -1194,7 +1194,7 @@ enum Internals {
 			 * @return
 			 */
 			public <R> IChainBuilder add(final Future<R> future) {
-				return add(Concurrency.asCommand(future));
+				return add(Commands.from(future));
 			}
 
 
