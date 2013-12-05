@@ -12,7 +12,6 @@ import cmd4j.ICommand.ICommand4;
 import cmd4j.ICommand.IPipeIO;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.ICommand.IStateCommand.IStateCommand2;
-import cmd4j.Internals.Chain.ChainCallable;
 import cmd4j.Internals.Command.CommandCallable;
 import cmd4j.Internals.Executor.EventDispatchExecutor;
 
@@ -152,27 +151,6 @@ public class Commands {
 				return callable.call();
 			}
 		};
-	}
-
-
-	/**
-	 * wrap a chain up in a {@link Callable}
-	 * @param chain
-	 * @return
-	 */
-	public static <O> Callable<O> callable(final IChain<O> chain) {
-		return new ChainCallable<O>(chain);
-	}
-
-
-	/**
-	 * wrap a {@link IChain} and input up in a {@link Callable}
-	 * @param chain
-	 * @param input
-	 * @return
-	 */
-	public static <O> Callable<O> callable(final IChain<O> chain, final Object input) {
-		return new ChainCallable<O>(chain, input);
 	}
 
 

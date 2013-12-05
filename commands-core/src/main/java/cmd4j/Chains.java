@@ -2,6 +2,7 @@ package cmd4j;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -10,6 +11,7 @@ import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.IFunction;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Internals.Builder;
+import cmd4j.Internals.Chain.ChainCallable;
 import cmd4j.Internals.Chain.DefaultChain.ReturningChain;
 import cmd4j.Internals.Chain.UndoableChainDecorator;
 import cmd4j.Internals.Chain.VisitingChainDecorator;
@@ -111,6 +113,27 @@ public class Chains {
 			return (IUndoChain<O>)chain;
 		}
 		return new UndoableChainDecorator<O>(chain);
+	}
+
+
+	/**
+	 * wrap a chain up in a {@link Callable}
+	 * @param chain
+	 * @return
+	 */
+	public static <O> Callable<O> callable(final IChain<O> chain) {
+		return new ChainCallable<O>(chain);
+	}
+
+
+	/**
+	 * wrap a {@link IChain} and input up in a {@link Callable}
+	 * @param chain
+	 * @param input
+	 * @return
+	 */
+	public static <O> Callable<O> callable(final IChain<O> chain, final Object input) {
+		return new ChainCallable<O>(chain, input);
 	}
 
 
