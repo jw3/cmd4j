@@ -35,7 +35,7 @@ public enum Does {
 			public void invoke(final Object input)
 				throws Exception {
 
-				throw new Exception("boom");
+				throw new Boom();
 			}
 		};
 	}
@@ -196,6 +196,15 @@ public enum Does {
 
 		public void assertNotEquals(final T expected) {
 			Assert.assertNotEquals(get(), expected);
+		}
+	}
+
+
+	public static class Boom
+		extends Exception {
+
+		public Boom() {
+			super("boom");
 		}
 	}
 }

@@ -130,8 +130,8 @@ enum Internals {
 		 * default implementation of {@link ICommandCallFactory}
 		 * @author wassj
 		 */
-		static class DefaultCallFactory
-			implements ICommandCallFactory<Void> {
+		static class DefaultCallFactory<O>
+			implements ICommandCallFactory<O> {
 
 			private final boolean undo;
 			private boolean visit;
@@ -148,20 +148,51 @@ enum Internals {
 			}
 
 
-			public ICommandCallFactory<Void> visits(final boolean visit) {
+			public ICommandCallFactory<O> visits(final boolean visit) {
 				this.visit = visit;
 				return this;
 			}
 
 
-			public Callable<Void> create(final ICommand head, final Input input, final Returns returns, final Called called) {
-				return new Callable<Void>() {
-					public Void call()
+			public Callable<O> create(final ICommand head, final Input input, final Returns returns, final Called called) {
+				return new Callable<O>() {
+					public O call()
 						throws Exception {
 
 						ICommand command = head;
 						while (command != null) {
 							command = invoke(command, input.get(), returns, called, visit, undo);
+						}
+						return null;
+					}
+				};
+			}
+		}
+
+
+		static class RunOneCallFactory<O>
+			extends DefaultCallFactory<O> {
+
+			private boolean ran;
+
+
+			public RunOneCallFactory() {
+			}
+
+
+			@Override
+			public Callable<O> create(final ICommand head, final Input input, final Returns returns, final Called called) {
+				return new Callable<O>() {
+					public O call()
+						throws Exception {
+
+						if (!ran) {
+							ICommand command = head;
+							while (command != null) {
+								command = invoke(command, input.get(), returns, called, true, false);
+								ran = called.was();
+								// dont break on ran; allows state commands to run to completion if they are the one-run
+							}
 						}
 						return null;
 					}
@@ -463,7 +494,7 @@ enum Internals {
 			private final Returns returns = new Returns();
 			private final ILink link;
 
-			private ICommandCallFactory<?> callFactory = new DefaultCallFactory();
+			private ICommandCallFactory<?> callFactory = new DefaultCallFactory<O>();
 
 
 			DefaultChain(final ILink link) {
@@ -686,7 +717,7 @@ enum Internals {
 				final Returns returns = new Returns();
 				ILink next = head();
 				while (next != null) {
-					next = callImpl(next, inputs, returns, called, new DefaultCallFactory(false, true));
+					next = callImpl(next, inputs, returns, called, new DefaultCallFactory<O>(false, true));
 				}
 				return (O)returns.get();
 			}
@@ -1198,7 +1229,7 @@ enum Internals {
 			}
 
 
-			public IChainBuilder add(final Collection<ICommand> commands) {
+			public IChainBuilder add(final Collection<? extends ICommand> commands) {
 				for (final ICommand command : commands) {
 					add(command);
 				}
@@ -1251,8 +1282,13 @@ enum Internals {
 			 * @return
 			 */
 			public IChain<Void> build() {
+				return build(new DefaultCallFactory<Void>(visits, false));
+			}
+
+
+			public IChain<Void> build(final ICommandCallFactory<Void> callFactory) {
 				if (head != null) {
-					return new DefaultChain<Void>(head.build()).callFactory(new DefaultCallFactory(visits, false));
+					return new DefaultChain<Void>(head.build()).callFactory(callFactory);
 				}
 				return new EmptyChain<Void>();
 			}
@@ -1329,7 +1365,7 @@ enum Internals {
 			}
 
 
-			public IReturningChainBuilder<O> add(final Collection<ICommand> commands) {
+			public IReturningChainBuilder<O> add(final Collection<? extends ICommand> commands) {
 				for (final ICommand command : commands) {
 					add(command);
 				}
@@ -1338,6 +1374,11 @@ enum Internals {
 
 
 			public IChain<O> build() {
+				return build(new DefaultCallFactory<O>(base.visits, false));
+			}
+
+
+			public IChain<O> build(final ICommandCallFactory<O> callFactory) {
 				if (base.head != null) {
 					if (returnFunction != null) {
 						/*
@@ -1349,7 +1390,7 @@ enum Internals {
 						final IChain<Object> returnFunctionChain = Chains.builder().visits(true).add(returnFunction).returns().build();
 						base.add(Commands.pipe()).add(returnFunctionChain);
 					}
-					return new ReturningChain<O>(base.head.build()).callFactory(new DefaultCallFactory(base.visits, false));
+					return new ReturningChain<O>(base.head.build()).callFactory(callFactory);
 				}
 				return new EmptyChain<O>();
 			}

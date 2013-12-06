@@ -186,7 +186,7 @@ public class Chains {
 		 * @param command
 		 * @return
 		 */
-		B add(Collection<ICommand> command);
+		B add(Collection<? extends ICommand> command);
 
 
 		/**

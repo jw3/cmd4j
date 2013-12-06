@@ -1,5 +1,7 @@
 package cmd4j;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -12,7 +14,10 @@ import cmd4j.ICommand.ICommand4;
 import cmd4j.ICommand.IPipeIO;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.ICommand.IStateCommand.IStateCommand2;
+import cmd4j.Internals.Builder.BaseBuilder;
+import cmd4j.Internals.Builder.ReturningBuilder;
 import cmd4j.Internals.Command.CommandCallable;
+import cmd4j.Internals.Command.RunOneCallFactory;
 import cmd4j.Internals.Executor.EventDispatchExecutor;
 
 import com.google.common.base.Function;
@@ -242,6 +247,28 @@ public class Commands {
 				return condition.apply(input) ? command : null;
 			}
 		};
+	}
+
+
+	/**
+	 * execute no more than one of the passed commands
+	 * @param commands
+	 * @return
+	 */
+	public static ICommand onlyOne(final ICommand... commands) {
+		return onlyOne(Arrays.asList(commands));
+	}
+
+
+	/**
+	 * execute no more than one of the passed commands
+	 * @param commands
+	 * @return
+	 */
+	public static ICommand onlyOne(final Collection<? extends ICommand> commands) {
+		final BaseBuilder builder = new BaseBuilder();
+		builder.add(commands);
+		return new ReturningBuilder<Object>(builder).build(new RunOneCallFactory<Object>());
 	}
 
 
