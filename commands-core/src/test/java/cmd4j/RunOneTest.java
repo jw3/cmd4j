@@ -6,6 +6,7 @@ import junit.framework.Assert;
 
 import org.testng.annotations.Test;
 
+import cmd4j.ICommand.ICommand2;
 import cmd4j.testing.Does;
 import cmd4j.testing.Does.Boom;
 import cmd4j.testing.Does.TestVariable;
@@ -91,5 +92,29 @@ public class RunOneTest {
 		final String expected = UUID.randomUUID().toString().substring(0, 7);
 		final String actual = Chains.builder().add(Commands.onlyOne(Does.returns(expected), Does.boom())).returns(String.class).build().invoke();
 		Assert.assertEquals(expected, actual);
+	}
+
+
+	/*
+	 * fix bug where the ran flag was being set when in visit mode but on unvisited nodes
+	 * the bug caused the following to short circuit before the second command was run
+	 */
+	@Test
+	public void visitBug()
+		throws Exception {
+
+		final TestVariable<String> strvar = TestVariable.create("string");
+		Chains.builder().add(Commands.onlyOne(new ICommand2<Integer>() {
+			public void invoke(final Integer input)
+				throws Exception {
+				throw new Exception("shouldnt have run");
+			}
+		}, Does.set(strvar), new ICommand2<Integer>() {
+			public void invoke(final Integer input)
+				throws Exception {
+				throw new Exception("shouldnt have run");
+			}
+		})).build().invoke("fooooooooo");
+		strvar.assertEquals("fooooooooo");
 	}
 }

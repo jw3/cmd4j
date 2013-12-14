@@ -177,6 +177,7 @@ enum Internals {
 
 
 			public RunOneCallFactory() {
+				super(true, false);
 			}
 
 
@@ -272,9 +273,9 @@ enum Internals {
 			}
 			catch (final ClassCastException e) {
 				if (!visits) {
-					called.set(false);
 					throw new IllegalArgumentException("input does not fit");
 				}
+				called.set(false);
 			}
 			return null;
 		}
