@@ -1,8 +1,7 @@
 package cmd4j;
 
 import cmd4j.Chains.ILink;
-import cmd4j.ICommand.ICommand3;
-import cmd4j.ICommand.ICommand4;
+import cmd4j.ICommand.IInvokable;
 import cmd4j.Observers.IObservable;
 
 /**
@@ -24,7 +23,7 @@ import cmd4j.Observers.IObservable;
  *
  */
 public interface IChain<O>
-	extends ICommand3<O>, ICommand4<Object, O> {
+	extends IInvokable<O> {
 
 	/**
 	 * the first {@link ILink} that will be called when this chain executes.

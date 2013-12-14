@@ -145,6 +145,22 @@ public interface ICommand {
 
 
 	/**
+	 * Marks a {@link ICommand command} as being able to be executed.  Generally non-invokable interfaces to a command
+	 * are used, eg. {@link ICommand}, {@link IReturningCommand}, {@link IUndoCommand}, but in case where you want to
+	 * want a handle to allow command invocation, use this.
+	 * 
+	 * Future development will remove {@link IChain} from the public API and this will be the replacement.  So prefer
+	 * using this interface in the place of IChain.
+	 *
+	 * @author wassj
+	 * @param <O>
+	 */
+	public interface IInvokable<O>
+		extends ICommand3<O>, ICommand4<Object, O> {
+	}
+
+
+	/**
 	 * Marks a {@link ICommand command} as being able to be undone.  It is entirely up to the Command implementation
 	 * to provide the capability to reverse the Command, this interface simply provides the calling
 	 * capability to run that reversing logic in the Command framework.
