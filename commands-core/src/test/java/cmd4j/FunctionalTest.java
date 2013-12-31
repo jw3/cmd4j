@@ -93,6 +93,33 @@ public class FunctionalTest {
 	}
 
 
+	/*
+	 * validate that the else command is executed when the predicate fails, and ignored when it passes
+	 */
+	@Test
+	public void fn2()
+		throws Exception {
+
+		{
+			final boolean runs = true;
+			final TestVariable<Boolean> var = TestVariable.create(false);
+			final TestVariable<Boolean> var2 = TestVariable.create(false);
+			Chains.create(Commands.invokeIf(Does.set(var, true), Predicates.alwaysTrue(), Does.set(var2, true))).invoke();
+			var.assertEquals(runs);
+			var2.assertEquals(!runs);
+		}
+
+		{
+			final boolean runs = false;
+			final TestVariable<Boolean> var = TestVariable.create(false);
+			final TestVariable<Boolean> var2 = TestVariable.create(false);
+			Chains.create(Commands.invokeIf(Does.set(var, true), Predicates.alwaysFalse(), Does.set(var2, true))).invoke();
+			var.assertEquals(runs);
+			var2.assertEquals(!runs);
+		}
+	}
+
+
 	@Test
 	public void transform1()
 		throws Exception {

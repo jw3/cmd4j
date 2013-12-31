@@ -242,9 +242,21 @@ public class Commands {
 	 * @return
 	 */
 	public static <I> IStateCommand2<I> invokeIf(final ICommand command, final Predicate<I> condition) {
+		return invokeIf(command, condition, null);
+	}
+
+
+	/**
+	 * invoke the {@link ICommand} if the {@link Predicate} applies to the input object, invoke the onElse if not
+	 * @param command
+	 * @param onElse
+	 * @param condition
+	 * @return
+	 */
+	public static <I> IStateCommand2<I> invokeIf(final ICommand command, final Predicate<I> condition, final ICommand onElse) {
 		return new IStateCommand2<I>() {
 			public ICommand invoke(final I input) {
-				return condition.apply(input) ? command : null;
+				return condition.apply(input) ? command : onElse;
 			}
 		};
 	}
