@@ -17,6 +17,9 @@ import cmd4j.Internals.Chain.UndoableChainDecorator;
 import cmd4j.Internals.Chain.VisitingChainDecorator;
 import cmd4j.Internals.Link;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
+
 /**
  * Utility methods for {@link IChain chains}
  *
@@ -138,24 +141,24 @@ public class Chains {
 
 
 	/**
-	 * submit a {@link IChain} to the {@link ExecutorService} returning the resulting {@link Future}
+	 * submit a {@link IChain} to the {@link ExecutorService} returning the resulting {@link ListenableFuture}
 	 * @param chain
 	 * @param executor
 	 * @return
 	 */
-	public static <O> Future<O> submit(final IChain<O> chain, final ExecutorService executor) {
-		return executor.submit(Commands.callable(chain));
+	public static <O> ListenableFuture<O> submit(final IChain<O> chain, final ExecutorService executor) {
+		return MoreExecutors.listeningDecorator(executor).submit(Commands.callable(chain));
 	}
 
 
 	/**
-	 * submit a {@link IChain} with input to the {@link ExecutorService} returning the resulting {@link Future}
+	 * submit a {@link IChain} with input to the {@link ExecutorService} returning the resulting {@link ListenableFuture}
 	 * @param chain
 	 * @param executor
 	 * @return
 	 */
-	public static <O> Future<O> submit(final IChain<O> chain, final Object input, final ExecutorService executor) {
-		return executor.submit(Commands.callable(chain, input));
+	public static <O> ListenableFuture<O> submit(final IChain<O> chain, final Object input, final ExecutorService executor) {
+		return MoreExecutors.listeningDecorator(executor).submit(Commands.callable(chain, input));
 	}
 
 
