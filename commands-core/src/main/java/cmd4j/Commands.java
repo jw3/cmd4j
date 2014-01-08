@@ -207,7 +207,7 @@ public class Commands {
 	 * @param function
 	 * @return
 	 */
-	public static <I, O> ICommand4<I, O> from(final Function<I, O> function) {
+	public static <I, O> ICommand4<I, O> function(final Function<I, O> function) {
 		return new ICommand4<I, O>() {
 			public O invoke(final I input) {
 				return function.apply(input);
@@ -221,7 +221,7 @@ public class Commands {
 	 * @param command
 	 * @return
 	 */
-	public static <I, O> Function<I, O> asFunction(final ICommand4<I, O> command) {
+	public static <I, O> Function<I, O> function(final ICommand4<I, O> command) {
 		return new Function<I, O>() {
 			public O apply(final I input) {
 				try {
