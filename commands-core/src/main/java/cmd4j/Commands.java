@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommand4;
+import cmd4j.ICommand.IFunction;
 import cmd4j.ICommand.IPipeIO;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.ICommand.IStateCommand.IStateCommand2;
@@ -203,12 +204,12 @@ public class Commands {
 
 
 	/**
-	 * wrap a Guava {@link Function} in a {@link ICommand4}
+	 * wrap a Guava {@link Function} in a {@link IFunction}
 	 * @param function
 	 * @return
 	 */
-	public static <I, O> ICommand4<I, O> function(final Function<I, O> function) {
-		return new ICommand4<I, O>() {
+	public static <I, O> IFunction<I, O> function(final Function<I, O> function) {
+		return new IFunction<I, O>() {
 			public O invoke(final I input) {
 				return function.apply(input);
 			}
@@ -217,7 +218,7 @@ public class Commands {
 
 
 	/**
-	 * wrap a {@link ICommand} with a Guava {@link Function}
+	 * wrap a {@link ICommand4} with a Guava {@link Function}
 	 * @param command
 	 * @return
 	 */
