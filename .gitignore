@@ -1,2 +1,8 @@
 /.metadata/
-/.SynologyWorkingDirectory/
+**/target
+**/.settings/
+**/test-output/
+**/.classpath
+**/.project
+**/*.log
+**/coverage-report/
