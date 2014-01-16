@@ -93,19 +93,6 @@ enum Internals {
 
 
 		/**
-		 * {@link ICommand command} that delegates to another
-		 *
-		 * @author wassj
-		 * @param <C>
-		 */
-		interface ICommandProxy<C extends ICommand>
-			extends ICommand {
-
-			IInputCommand<C> command();
-		}
-
-
-		/**
 		 * factory for {@link Callable} implementation that will execute the specified {@link ICommand}
 		 * @author wassj
 		 * @param <O>
@@ -232,11 +219,7 @@ enum Internals {
 			called.set(true);
 
 			try {
-				if (command instanceof ICommandProxy) {
-					called.set(false);
-					return ((ICommandProxy)command).command();
-				}
-				else if (!undo) {
+				if (!undo) {
 					if (command instanceof IStateCommand2<?>) {
 						return ((IStateCommand2)command).invoke(input);
 					}
