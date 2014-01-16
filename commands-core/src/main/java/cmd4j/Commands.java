@@ -237,6 +237,23 @@ public class Commands {
 
 
 	/**
+	 * composites two 
+	 * @param f1
+	 * @param f2
+	 * @return
+	 */
+	public static <I, OI, O> IFunction<I, O> function(final IFunction<I, ? extends OI> f1, final IFunction<OI, O> f2) {
+		return new IFunction<I, O>() {
+			public O invoke(final I input)
+				throws Exception {
+
+				return f2.invoke(f1.invoke(input));
+			}
+		};
+	}
+
+
+	/**
 	 * invoke the {@link ICommand} if the {@link Predicate} applies to the input object
 	 * @param command
 	 * @param condition
