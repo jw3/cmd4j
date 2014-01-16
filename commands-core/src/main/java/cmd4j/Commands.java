@@ -10,8 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand3;
-import cmd4j.ICommand.ICommand4;
-import cmd4j.ICommand.IFunction;
 import cmd4j.ICommand.IPipeIO;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.ICommand.IStateCommand.IStateCommand2;
@@ -21,7 +19,6 @@ import cmd4j.Internals.Command.CommandCallable;
 import cmd4j.Internals.Command.RunOneCallFactory;
 import cmd4j.Internals.Executor.EventDispatchExecutor;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 
 /**
@@ -36,7 +33,7 @@ public class Commands {
 	 * no-operation command
 	 * @return
 	 */
-	public static ICommand nop() {
+	public static IReturningCommand<Void> nop() {
 		return new ICommand1() {
 			public void invoke() {
 			}
@@ -204,56 +201,6 @@ public class Commands {
 
 
 	/**
-	 * wrap a Guava {@link Function} in a {@link IFunction}
-	 * @param function
-	 * @return
-	 */
-	public static <I, O> IFunction<I, O> function(final Function<I, O> function) {
-		return new IFunction<I, O>() {
-			public O invoke(final I input) {
-				return function.apply(input);
-			}
-		};
-	}
-
-
-	/**
-	 * wrap a {@link ICommand4} with a Guava {@link Function}
-	 * @param command
-	 * @return
-	 */
-	public static <I, O> Function<I, O> function(final ICommand4<I, O> command) {
-		return new Function<I, O>() {
-			public O apply(final I input) {
-				try {
-					return command.invoke(input);
-				}
-				catch (final Exception e) {
-					throw new RuntimeException("command invocation failed", e);
-				}
-			}
-		};
-	}
-
-
-	/**
-	 * composites two 
-	 * @param f1
-	 * @param f2
-	 * @return
-	 */
-	public static <I, OI, O> IFunction<I, O> function(final IFunction<I, ? extends OI> f1, final IFunction<OI, O> f2) {
-		return new IFunction<I, O>() {
-			public O invoke(final I input)
-				throws Exception {
-
-				return f2.invoke(f1.invoke(input));
-			}
-		};
-	}
-
-
-	/**
 	 * invoke the {@link ICommand} if the {@link Predicate} applies to the input object
 	 * @param command
 	 * @param condition
@@ -374,7 +321,7 @@ public class Commands {
 		public int hashCode() {
 			if (hashCode == null) {
 				if (!isNull()) {
-					return -31 * value.hashCode();
+					return hashCode = -31 * value.hashCode();
 				}
 				hashCode = super.hashCode();
 			}

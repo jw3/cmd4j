@@ -6,6 +6,8 @@ import cmd4j.Chains;
 import cmd4j.ICommand;
 import cmd4j.testing.Does.TestVariable;
 
+import com.google.common.base.Predicate;
+
 /**
  * Utility factory class for making assertions about what thread a given point in a chain is executing on
  *
@@ -16,6 +18,15 @@ public class Asserts
 	implements ICommand {
 
 	private final Thread expected;
+
+
+	public static <I> ICommand predicate(final Predicate<I> predicate) {
+		return new ICommand2<I>() {
+			public void invoke(final I input) {
+				Assert.assertTrue(predicate.apply(input));
+			}
+		};
+	}
 
 
 	public static <T> ICommand is(final TestVariable<T> v, final T value) {

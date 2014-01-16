@@ -22,11 +22,8 @@ import cmd4j.ICommand.IReturningCommand;
 public enum Does {
 	/*singleton-enum*/;
 
-	public static ICommand1 nothing() {
-		return new ICommand1() {
-			public void invoke() {
-			}
-		};
+	public static IReturningCommand<Void> nothing() {
+		return Commands.nop();
 	}
 
 
@@ -92,7 +89,7 @@ public enum Does {
 	}
 
 
-	public static <T> ICommand set(final TestVariable<T> v, final T value) {
+	public static <T> IReturningCommand<Void> set(final TestVariable<T> v, final T value) {
 		return new ICommand1() {
 			public void invoke() {
 				v.set(value);
@@ -101,7 +98,7 @@ public enum Does {
 	}
 
 
-	public static <T> ICommand set(final TestVariable<T> v) {
+	public static <T> IReturningCommand<Void> set(final TestVariable<T> v) {
 		return new ICommand2<T>() {
 			public void invoke(final T value) {
 				v.set(value);
@@ -129,22 +126,35 @@ public enum Does {
 
 
 	public static <T> ICommand undoableSet(final TestVariable<T> v, final T value) {
-		return new UndodoableSetter<T>(v, value);
+		return new UndoableSetter1<T>(v, value);
 	}
 
 
-	private static class UndodoableSetter<T>
-		implements ICommand1, ICommand1.IUndo {
-
-		private final T original;
-		private final T modified;
-		private final TestVariable<T> var;
+	public static <T> ICommand undoableSet2(final TestVariable<T> v, final T value) {
+		return new UndoableSetter2<T>(v, value);
+	}
 
 
-		public UndodoableSetter(final TestVariable<T> var, final T modified) {
+	private abstract static class BaseUndodoableSetter<T> {
+		protected final T original;
+		protected final T modified;
+		protected final TestVariable<T> var;
+
+
+		public BaseUndodoableSetter(final TestVariable<T> var, final T modified) {
 			this.original = var.get();
 			this.modified = modified;
 			this.var = var;
+		}
+	}
+
+
+	private static class UndoableSetter1<T>
+		extends BaseUndodoableSetter<T>
+		implements ICommand1, ICommand1.IUndo {
+
+		public UndoableSetter1(final TestVariable<T> var, final T modified) {
+			super(var, modified);
 		}
 
 
@@ -154,6 +164,26 @@ public enum Does {
 
 
 		public void undo() {
+			var.set(original);
+		}
+	}
+
+
+	private static class UndoableSetter2<T>
+		extends BaseUndodoableSetter<T>
+		implements ICommand2<Object>, ICommand2.IUndo<Object> {
+
+		public UndoableSetter2(final TestVariable<T> var, final T modified) {
+			super(var, modified);
+		}
+
+
+		public void invoke(Object o) {
+			var.set(modified);
+		}
+
+
+		public void undo(Object o) {
 			var.set(original);
 		}
 	}

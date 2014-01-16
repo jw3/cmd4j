@@ -15,6 +15,7 @@ import cmd4j.testing.Asserts;
 import cmd4j.testing.Does;
 import cmd4j.testing.Does.TestVariable;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 
 /**
@@ -24,6 +25,16 @@ import com.google.common.base.Predicates;
  *
  */
 public class FunctionalTest {
+
+	@Test
+	public void compose()
+		throws Exception {
+
+		final int value = 10101;
+		final int result = Functions2.function(doubleIt(), doubleIt()).invoke(value);
+		Assert.assertEquals(result, value * 4);
+	}
+
 
 	/*
 	 * pipes dont work on the dto, the dto is already the input
@@ -142,6 +153,41 @@ public class FunctionalTest {
 	}
 
 
+	@Test
+	public void toGuavaTransform1() {
+		final String lower = "this is some lower case text";
+		final String actual = Functions2.function(transformStringToUppercase()).apply(lower);
+		Assert.assertEquals(actual, lower.toUpperCase());
+	}
+
+
+	@Test
+	public void fromGuavaTransform1()
+		throws Exception {
+
+		final String lower = "this is some lower case text";
+		final String actual = Chains.create(Functions2.function(new Function<String, String>() {
+			public String apply(String input) {
+				return input.toUpperCase();
+			}
+		})).invoke(lower);
+		Assert.assertEquals(actual, lower.toUpperCase());
+	}
+
+
+	@Test(expectedExceptions = RuntimeException.class)
+	public void fromGuavaTransform_withException()
+		throws Exception {
+
+		Functions2.function(new ICommand4<Object, Object>() {
+			public Object invoke(Object input)
+				throws Exception {
+				throw new Exception();
+			}
+		}).apply("");
+	}
+
+
 	/*
 	 * fails due to the string value not being an integer
 	 */
@@ -183,7 +229,7 @@ public class FunctionalTest {
 	}
 
 
-	private static IReturningCommand<String> transformStringToUppercase() {
+	private static ICommand4<String, String> transformStringToUppercase() {
 		return new IPipeIO<String>() {
 			public String invoke(final String input) {
 				return input != null ? input.toUpperCase() : null;

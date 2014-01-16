@@ -1,12 +1,19 @@
 package cmd4j;
 
+import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import cmd4j.testing.Asserts;
+import cmd4j.testing.Does;
 import cmd4j.testing.Does.TestVariable;
 import cmd4j.testing.Services;
+
+import com.google.common.base.Predicate;
 
 /**
  *
@@ -33,6 +40,54 @@ public class ConcurrentCallablesTest {
 
 
 	@Test
+	public void wrapCommand()
+		throws Exception {
+
+		final ExecutorService executor = Executors.newSingleThreadExecutor();
+		try {
+			{
+				final String expected = UUID.randomUUID().toString().substring(0, 7);
+				final String actual = executor.submit(Commands.callable(Does.returns(expected))).get();
+				Assert.assertEquals(actual, expected);
+			}
+			{
+				final TestVariable<String> var = TestVariable.create(null);
+				final String expected = UUID.randomUUID().toString().substring(0, 7);
+				executor.submit(Commands.callable(Does.set(var), expected)).get();
+				Assert.assertEquals(var.get(), expected);
+			}
+		}
+		finally {
+			Chains.create(Commands.shutdownExecutor(executor), Asserts.predicate(new IsShutdown())).invoke(executor);
+		}
+	}
+
+
+	@Test
+	public void wrapChain()
+		throws Exception {
+
+		final ExecutorService executor = Executors.newSingleThreadExecutor();
+		try {
+			{
+				final String expected = UUID.randomUUID().toString().substring(0, 7);
+				final String actual = executor.submit(Chains.callable(Chains.create(Does.returns(expected)))).get();
+				Assert.assertEquals(actual, expected);
+			}
+			{
+				final TestVariable<String> var = TestVariable.create(null);
+				final String expected = UUID.randomUUID().toString().substring(0, 7);
+				executor.submit(Chains.callable(Chains.create(Does.set(var)), expected)).get();
+				Assert.assertEquals(var.get(), expected);
+			}
+		}
+		finally {
+			Chains.create(Commands.shutdownExecutor(executor), Asserts.predicate(new IsShutdown())).invoke(executor);
+		}
+	}
+
+
+	@Test
 	public void wrapLongRunning()
 		throws Exception {
 
@@ -51,6 +106,38 @@ public class ConcurrentCallablesTest {
 
 			.build()
 			.invoke();
+	}
+
+
+	@Test
+	public void submitCommand()
+		throws Exception {
+
+		final ExecutorService executor = Executors.newSingleThreadExecutor();
+		try {
+			{
+				final String expected = UUID.randomUUID().toString().substring(0, 7);
+				final String actual = Chains.submit(Chains.create(Does.returns(expected)), executor).get();
+				Assert.assertEquals(actual, expected);
+			}
+			{
+				final TestVariable<String> var = TestVariable.create(null);
+				final String expected = UUID.randomUUID().toString().substring(0, 7);
+				Chains.submit(Chains.create(Does.set(var)), expected, executor).get();
+				Assert.assertEquals(var.get(), expected);
+			}
+		}
+		finally {
+			Chains.create(Commands.shutdownExecutor(executor), Asserts.predicate(new IsShutdown())).invoke(executor);
+		}
+	}
+
+
+	static class IsShutdown
+		implements Predicate<ExecutorService> {
+		public boolean apply(final ExecutorService input) {
+			return input.isShutdown();
+		}
 	}
 
 
