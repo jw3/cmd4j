@@ -13,7 +13,7 @@ import com.google.common.util.concurrent.MoreExecutors;
  * @author wassj
  *
  */
-public class ConcurrentExecutorSpecificationTest2 {
+public class ConcurrentExecutorSpecification2Test {
 
 	/**
 	 * test running a single command on the EDT

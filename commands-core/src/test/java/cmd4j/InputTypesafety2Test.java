@@ -14,7 +14,7 @@ import cmd4j.testing.Does.TestVariable;
 *
 */
 
-public class InputTypesafetyTest2 {
+public class InputTypesafety2Test {
 
 	/*
 	* test commands are designed to represent a situation where a top level command

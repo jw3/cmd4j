@@ -14,7 +14,7 @@ import cmd4j.testing.Does.TestVariable;
  * @author wassj
  *
  */
-public class VisitingTest2 {
+public class Visiting2Test {
 
 	/*
 	 * basic expected behvaior on dto value 

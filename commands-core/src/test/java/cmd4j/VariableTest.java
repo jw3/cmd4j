@@ -12,7 +12,7 @@ import cmd4j.Commands.Variable;
  * @author wassj
  *
  */
-public class VariableTests {
+public class VariableTest {
 
 	@Test
 	public void isNull() {

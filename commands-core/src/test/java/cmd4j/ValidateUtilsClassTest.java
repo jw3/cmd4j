@@ -11,7 +11,7 @@ import org.testng.annotations.Test;
  * @author wassj
  *
  */
-public class ValidateUtilsClassTests {
+public class ValidateUtilsClassTest {
 
 	@DataProvider
 	public static Object[][] types() {

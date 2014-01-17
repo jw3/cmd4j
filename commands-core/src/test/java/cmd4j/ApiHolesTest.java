@@ -12,7 +12,7 @@ import cmd4j.testing.Does;
  * @author wassj
  *
  */
-public class ApiHoles {
+public class ApiHolesTest {
 	/*
 	 * this is a demonstration of an api detail that is in flux at the moment (11-28-2013)
 	 * 
