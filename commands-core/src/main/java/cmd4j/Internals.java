@@ -31,6 +31,7 @@ import cmd4j.ICommand.ICommand4;
 import cmd4j.ICommand.IFunction;
 import cmd4j.ICommand.IObservableCommand;
 import cmd4j.ICommand.IObservableStateCommand;
+import cmd4j.ICommand.IPipe;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.ICommand.IStateCommand;
 import cmd4j.ICommand.IStateCommand.IStateCommand1;
@@ -44,6 +45,8 @@ import cmd4j.Internals.Command.DefaultCallFactory;
 import cmd4j.Internals.Command.ICommandCallFactory;
 import cmd4j.Internals.Link.LinkBuilder;
 import cmd4j.Observers.IObservable;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Non-API Implementations; Not for public consumption
@@ -1221,6 +1224,17 @@ enum Internals {
 			}
 
 
+			public IChainBuilder pipe() {
+				return add(Commands.pipe());
+			}
+
+
+			public IChainBuilder pipe(final IPipe pipe) {
+				Preconditions.checkNotNull(pipe);
+				return add(pipe);
+			}
+
+
 			/**
 			 * init the builder with the passed builder as head (and tail for now)
 			 * @param builder
@@ -1354,6 +1368,17 @@ enum Internals {
 					add(command);
 				}
 				return this;
+			}
+
+
+			public IReturningChainBuilder<O> pipe() {
+				return add(Commands.pipe());
+			}
+
+
+			public IReturningChainBuilder<O> pipe(final IPipe pipe) {
+				Preconditions.checkNotNull(pipe);
+				return add(pipe);
 			}
 
 

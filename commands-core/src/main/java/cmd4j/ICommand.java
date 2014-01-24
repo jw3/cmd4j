@@ -242,12 +242,21 @@ public interface ICommand {
 
 
 	/**
+	 * base interface for a pipe command
+	 * @author wassj
+	 */
+	public interface IPipe
+		extends ICommand {
+	}
+
+
+	/**
 	 * A {@link IReturningCommand} that will set its return value as the input value for the following execution scope 
 	 * @author wassj
 	 * @param <O> output type
 	 */
 	public interface IInputPipe<O>
-		extends IReturningCommand<O> {
+		extends IPipe, IReturningCommand<O> {
 	}
 
 
@@ -268,7 +277,7 @@ public interface ICommand {
 	 * @param <I> input type
 	 */
 	public interface IOutputPipe<I>
-		extends IInputCommand<I> {
+		extends IPipe, IInputCommand<I> {
 	}
 
 

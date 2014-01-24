@@ -9,6 +9,7 @@ import java.util.concurrent.Future;
 import cmd4j.IChain.IUndoChain;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.IFunction;
+import cmd4j.ICommand.IPipeIO;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Internals.Builder;
 import cmd4j.Internals.Chain.ChainCallable;
@@ -199,6 +200,19 @@ public class Chains {
 		 */
 		<R> B add(Future<R> future);
 
+
+		/**
+		 * add a {@link IPipeIO}
+		 * @return
+		 */
+		B pipe();
+
+
+		/**
+		 * add the specified {@link IPipe}
+		 * @return
+		 */
+		//B pipe(IPipe pipe);
 
 		/**
 		 * specify an executor for the previously added command 

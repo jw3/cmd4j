@@ -4,6 +4,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import cmd4j.ICommand.IFunction;
+import cmd4j.testing.Asserts;
 import cmd4j.testing.Does;
 import cmd4j.testing.Does.TestVariable;
 
@@ -64,6 +65,36 @@ public class FluentBuilderTest {
 		final IChain<Object> chain = Chains.returns(Chains.builder().add(Does.returns(new Object())).add(Does.returns(expected)).build());
 		final Object actual = chain.invoke();
 		Assert.assertEquals(actual, expected);
+	}
+
+
+	/*
+	 * verify the behavior of the pipe() method on the builder
+	 */
+	@Test
+	public void testDefaultPipe()
+		throws Exception {
+
+		final Object expected = new Object();
+		Chains.builder().add(Does.returns(expected)).pipe().add(Asserts.is(expected)).build().invoke();
+	}
+
+
+	@Test(expectedExceptions = AssertionError.class)
+	public void testDefaultPipe_missingPipe()
+		throws Exception {
+
+		final Object expected = new Object();
+		Chains.builder().add(Does.returns(expected))/*.pipe()*/.add(Asserts.is(expected)).build().invoke();
+	}
+
+
+	@Test(expectedExceptions = AssertionError.class)
+	public void testInputPipe_missingPipe()
+		throws Exception {
+
+		final Object expected = new Object();
+		Chains.builder().add(Does.returns(expected))/*.pipe()*/.add(Asserts.is(expected)).build().invoke();
 	}
 
 
