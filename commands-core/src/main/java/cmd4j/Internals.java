@@ -47,6 +47,7 @@ import cmd4j.Internals.Link.LinkBuilder;
 import cmd4j.Observers.IObservable;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 
 /**
  * Non-API Implementations; Not for public consumption
@@ -68,6 +69,28 @@ enum Internals {
 	 ******************************************************************************/
 	enum Command {
 		/*noinstance*/;
+
+		static class CommandRunnable
+			implements Runnable {
+
+			private final ICommand command;
+
+
+			public CommandRunnable(final ICommand command) {
+				this.command = command;
+			}
+
+
+			public void run() {
+				try {
+					Chains.create(command).invoke();
+				}
+				catch (final Exception e) {
+					Throwables.propagate(e);
+				}
+			}
+		}
+
 
 		static class CommandCallable<R>
 			implements Callable<R> {

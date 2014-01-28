@@ -16,6 +16,7 @@ import cmd4j.ICommand.IStateCommand.IStateCommand2;
 import cmd4j.Internals.Builder.BaseBuilder;
 import cmd4j.Internals.Builder.ReturningBuilder;
 import cmd4j.Internals.Command.CommandCallable;
+import cmd4j.Internals.Command.CommandRunnable;
 import cmd4j.Internals.Command.RunOneCallFactory;
 import cmd4j.Internals.Executor.EventDispatchExecutor;
 
@@ -154,6 +155,16 @@ public class Commands {
 				return callable.call();
 			}
 		};
+	}
+
+
+	/**
+	 * {@link ICommand} to {@link Runnable} wrapper
+	 * @param command
+	 * @return
+	 */
+	public static Runnable runnable(final ICommand command) {
+		return new CommandRunnable(command);
 	}
 
 
