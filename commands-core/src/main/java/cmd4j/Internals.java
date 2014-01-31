@@ -36,6 +36,8 @@ import cmd4j.ICommand.IReturningCommand;
 import cmd4j.ICommand.IStateCommand;
 import cmd4j.ICommand.IStateCommand.IStateCommand1;
 import cmd4j.ICommand.IStateCommand.IStateCommand2;
+import cmd4j.ICommand.IStateCommand.IStateCommand3;
+import cmd4j.ICommand.IStateCommand.IStateCommand4;
 import cmd4j.Internals.Chain.DefaultChain;
 import cmd4j.Internals.Chain.DefaultChain.ReturningChain;
 import cmd4j.Internals.Chain.EmptyChain;
@@ -246,7 +248,14 @@ enum Internals {
 
 			try {
 				if (!undo) {
-					if (command instanceof IStateCommand2<?>) {
+					// a potential optimization; bump state commands after non-states
+					if (command instanceof IStateCommand4<?, ?>) {
+						return ((IStateCommand4)command).invoke(input);
+					}
+					else if (command instanceof IStateCommand3<?>) {
+						return ((IStateCommand3)command).invoke();
+					}
+					else if (command instanceof IStateCommand2<?>) {
 						return ((IStateCommand2)command).invoke(input);
 					}
 					else if (command instanceof IStateCommand1) {

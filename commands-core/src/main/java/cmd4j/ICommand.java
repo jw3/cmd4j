@@ -194,7 +194,7 @@ public interface ICommand {
 		extends ICommand {
 
 		/**
-		 * a non-{@link IInputCommand} {@link IStateCommand}
+		 * a {@link IStateCommand}
 		 * 
 		 * @author wassj
 		 */
@@ -212,7 +212,7 @@ public interface ICommand {
 
 
 		/**
-		 * {@link IStateCommand} that supports {@link IInputCommand}
+		 * {@link IStateCommand} that implements {@link IInputCommand}
 		 * @author wassj
 		 * @param <I>
 		 */
@@ -226,6 +226,43 @@ public interface ICommand {
 			 * @throws Exception
 			 */
 			ICommand invoke(I input)
+				throws Exception;
+		}
+
+
+		/**
+		 * a {@link IStateCommand} that returns a typed {@link IReturningCommand}
+		 * 
+		 * @author wassj
+		 */
+		public interface IStateCommand3<O>
+			extends ICommand, IStateCommand, IReturningCommand<O> {
+
+			/**
+			 * 
+			 * @return {@link IReturningCommand} to be executed after the successful completion of this command
+			 * @throws Exception
+			 */
+			IReturningCommand<O> invoke()
+				throws Exception;
+		}
+
+
+		/**
+		 * {@link IStateCommand} that implements {@link IInputCommand} and returns a typed {@link IReturningCommand}
+		 * @author wassj
+		 * @param <I>
+		 */
+		public interface IStateCommand4<I, O>
+			extends ICommand, IStateCommand, IInputCommand<I>, IReturningCommand<O> {
+
+			/**
+			 * 
+			 * @param input
+			 * @return Command to be executed after the successful completion of this command
+			 * @throws Exception
+			 */
+			IReturningCommand<O> invoke(I input)
 				throws Exception;
 		}
 	}
