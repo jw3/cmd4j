@@ -21,6 +21,27 @@ import com.google.common.base.Preconditions;
 public class ReturningStateCommandsTest {
 
 	@Test
+	// validate the returning command returning null
+	public void nulls1()
+		throws Exception {
+
+		final Object actual = Chains.builder().add(returns(null)).returns().build().invoke();
+		Assert.assertNull(actual);
+	}
+
+
+	@Test
+	// validate the state command returning null
+	public void nulls2()
+		throws Exception {
+
+		final Object actual = Chains.builder().add(noState()).returns().build().invoke();
+		Assert.assertNull(actual);
+	}
+
+
+	@Test
+	// validate the state command returning a value which is piped to another command
 	public void piped()
 		throws Exception {
 
@@ -31,6 +52,7 @@ public class ReturningStateCommandsTest {
 
 
 	@Test
+	// validate a chainbuilder returing a value from a IStateCommand3
 	public void chainBuilder3()
 		throws Exception {
 
@@ -41,6 +63,7 @@ public class ReturningStateCommandsTest {
 
 
 	@Test
+	// validate a chainbuilder returing a value from a IStateCommand3
 	public void chainBuilder4()
 		throws Exception {
 
@@ -51,6 +74,7 @@ public class ReturningStateCommandsTest {
 
 
 	@Test
+	// validate a state command that returns a state command which returns a value
 	public void stepped()
 		throws Exception {
 
@@ -62,6 +86,10 @@ public class ReturningStateCommandsTest {
 
 	//
 
+	/**
+	 * function; toUpper a string
+	 * @return
+	 */
 	private static IFunction<String, String> toUpper() {
 		return new IFunction<String, String>() {
 			public String invoke(final String input) {
@@ -107,6 +135,20 @@ public class ReturningStateCommandsTest {
 		return new IStateCommand3<O>() {
 			public IReturningCommand<O> invoke() {
 				return returns(value);
+			}
+		};
+	}
+
+
+	/**
+	 * create a {@link IStateCommand3} which returns a {@link IStateCommand} as the {@link IReturningCommand}
+	 * @param value
+	 * @return
+	 */
+	private static <O> IReturningCommand<O> noState() {
+		return new IStateCommand3<O>() {
+			public IReturningCommand<O> invoke() {
+				return null;
 			}
 		};
 	}

@@ -45,7 +45,7 @@ public class StateMachineTest {
 		final TestVariable<Integer> var = TestVariable.create(0);
 		final TestVariable<Integer> otherVar = TestVariable.create(0);
 
-		final IObservableStateCommand cmd = Observers.observable(repeat(expected, var)).after(Does.add(otherVar, 1));
+		final IObservableStateCommand cmd = Observers.observable(repeat(expected, var)).after(Does.increment(otherVar));
 		Chains.create(cmd).invoke();
 
 		var.assertEquals(expected);

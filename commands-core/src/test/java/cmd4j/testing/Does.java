@@ -13,6 +13,8 @@ import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.IReturningCommand;
 
+import com.google.common.base.Preconditions;
+
 /**
  * Cmd4j Test Utils
  *
@@ -67,23 +69,18 @@ public enum Does {
 	public static ICommand toggle(final TestVariable<Boolean> v) {
 		return new ICommand1() {
 			public void invoke() {
-				if (v.get() == null) {
-					throw new NullPointerException("variable was not initialized");
-				}
+				Preconditions.checkArgument(!v.isNull(), "variable not initialized");
 				v.set(!v.get());
 			}
 		};
 	}
 
 
-	public static ICommand add(final TestVariable<Integer> v, final int amount) {
+	public static ICommand increment(final TestVariable<Integer> v) {
 		return new ICommand1() {
 			public void invoke() {
-				if (v.get() == null) {
-					throw new NullPointerException("variable was not initialized");
-				}
-				v.set(v.get() + amount);
-				System.out.println(v.get());
+				Preconditions.checkArgument(!v.isNull(), "variable not initialized");
+				v.set(v.get() + 1);
 			}
 		};
 	}
