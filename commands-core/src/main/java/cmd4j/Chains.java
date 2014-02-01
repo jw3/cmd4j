@@ -18,6 +18,7 @@ import cmd4j.Internals.Chain.UndoableChainDecorator;
 import cmd4j.Internals.Chain.VisitingChainDecorator;
 import cmd4j.Internals.Link;
 
+import com.google.common.base.Supplier;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -169,12 +170,24 @@ public class Chains {
 	 * @param <O> return type
 	 * @param <B> active type
 	 */
-	interface IBaseFluentChainBuilder<O, B extends IBaseFluentChainBuilder<O, ?>> {
+	interface IBaseFluentChainBuilder<O, B extends IBaseFluentChainBuilder<O, ?>>
+		extends Supplier<IChain<O>> {
+
 		/**
 		 * construct the chain
+		 * same as {@link #get()}
+		 * will deprecate build in a future version and get() will remain
 		 * @return
 		 */
 		IChain<O> build();
+
+
+		/**
+		 * construct the chain
+		 * (duplication of build for {@link Supplier})
+		 * @return
+		 */
+		public IChain<O> get();
 
 
 		/**

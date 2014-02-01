@@ -8,8 +8,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import cmd4j.Chains.IChainBuilder;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand3;
+import cmd4j.ICommand.IInvokable;
 import cmd4j.ICommand.IPipeIO;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.ICommand.IStateCommand.IStateCommand2;
@@ -21,6 +23,7 @@ import cmd4j.Internals.Command.RunOneCallFactory;
 import cmd4j.Internals.Executor.EventDispatchExecutor;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Supplier;
 
 /**
  * General {@link ICommand} related utilities
@@ -257,6 +260,15 @@ public class Commands {
 		final BaseBuilder builder = new BaseBuilder();
 		builder.add(commands);
 		return new ReturningBuilder<Object>(builder).build(new RunOneCallFactory<Object>());
+	}
+
+
+	public static <I> IInvokable<Void> forEach(final Collection<I> inputs, final Supplier<? extends ICommand> supplier) {
+		final IChainBuilder builder = Chains.builder();
+		for (final I input : inputs) {
+			builder.add(supplier.get()).input(input);
+		}
+		return builder.build();
 	}
 
 

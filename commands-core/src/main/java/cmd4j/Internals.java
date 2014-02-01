@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -312,13 +313,31 @@ enum Internals {
 	enum Link {
 		/*noinstance*/;
 
+		static ILink build(final LinkBuilder head) {
+			final Stack<LinkBuilder> builders = new Stack<LinkBuilder>();
+
+			LinkBuilder current = head;
+			while (null != current) {
+				builders.push(current);
+				current = current.next;
+			}
+
+			ILink link = null;
+			while (!builders.isEmpty()) {
+				final LinkBuilder builder = builders.pop();
+				link = new DefaultLink(builder.command, link).executor(builder.executor).input(builder.input);
+			}
+			return link;
+		}
+
+
 		static ILink empty() {
 			return new EmptyLink();
 		}
 
 
 		static ILink create(final ICommand command) {
-			return new LinkBuilder(command).build();
+			return build(new LinkBuilder(command));
 		}
 
 
@@ -420,11 +439,6 @@ enum Internals {
 			LinkBuilder input(final Object input) {
 				this.input = input;
 				return this;
-			}
-
-
-			ILink build() {
-				return new DefaultLink(command, next != null ? next.build() : null).executor(executor).input(input);
 			}
 		}
 
@@ -1307,18 +1321,23 @@ enum Internals {
 			}
 
 
+			public IChain<Void> build() {
+				return get();
+			}
+
+
 			/**
 			 * construct an {@link IChain} object from the {@link ICommand}s that have been added to this builder
 			 * @return
 			 */
-			public IChain<Void> build() {
+			public IChain<Void> get() {
 				return build(new DefaultCallFactory<Void>(visits, false));
 			}
 
 
 			public IChain<Void> build(final ICommandCallFactory<Void> callFactory) {
 				if (head != null) {
-					return new DefaultChain<Void>(head.build()).callFactory(callFactory);
+					return new DefaultChain<Void>(Link.build(head)).callFactory(callFactory);
 				}
 				return new EmptyChain<Void>();
 			}
@@ -1415,6 +1434,11 @@ enum Internals {
 
 
 			public IChain<O> build() {
+				return get();
+			}
+
+
+			public IChain<O> get() {
 				return build(new DefaultCallFactory<O>(base.visits, false));
 			}
 
@@ -1431,7 +1455,7 @@ enum Internals {
 						final IChain<Object> returnFunctionChain = Chains.builder().visits(true).add(returnFunction).returns().build();
 						base.add(Commands.pipe()).add(returnFunctionChain);
 					}
-					return new ReturningChain<O>(base.head.build()).callFactory(callFactory);
+					return new ReturningChain<O>(Link.build(base.head)).callFactory(callFactory);
 				}
 				return new EmptyChain<O>();
 			}
