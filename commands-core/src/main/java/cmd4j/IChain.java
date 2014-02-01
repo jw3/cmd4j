@@ -32,6 +32,9 @@ public interface IChain<O>
 	ILink head();
 
 
+	boolean visits();
+
+
 	/**
 	 * 
 	 * @author wassj

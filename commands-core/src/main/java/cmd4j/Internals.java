@@ -526,12 +526,24 @@ enum Internals {
 
 			private final Returns returns = new Returns();
 			private final ILink link;
+			private boolean visits;
 
 			private ICommandCallFactory<?> callFactory = new DefaultCallFactory<O>();
 
 
 			DefaultChain(final ILink link) {
 				this.link = link;
+			}
+
+
+			public DefaultChain<O> visits(final boolean visits) {
+				this.visits = visits;
+				return this;
+			}
+
+
+			public boolean visits() {
+				return visits;
 			}
 
 
@@ -748,9 +760,15 @@ enum Internals {
 				final Input inputs = new Input(input);
 				final Called called = new Called();
 				final Returns returns = new Returns();
+				boolean visits = this.visits();
 				ILink next = head();
 				while (next != null) {
-					next = callImpl(next, inputs, returns, called, new DefaultCallFactory<O>(false, true));
+					if (next.cmd() instanceof IChain<?>) {
+						final IChain<?> chain = (IChain<?>)next.cmd();
+						next = Chains.undoable(chain).head();
+						visits = chain.visits();
+					}
+					next = callImpl(next, inputs, returns, called, new DefaultCallFactory<O>(visits, true));
 				}
 				return (O)returns.get();
 			}
@@ -939,6 +957,11 @@ enum Internals {
 
 			public ObservableChainDecorator(final IChain<O> chain) {
 				super(chain);
+			}
+
+
+			public boolean visits() {
+				return this.decorating().visits();
 			}
 
 
@@ -1337,7 +1360,7 @@ enum Internals {
 
 			public IChain<Void> build(final ICommandCallFactory<Void> callFactory) {
 				if (head != null) {
-					return new DefaultChain<Void>(Link.build(head)).callFactory(callFactory);
+					return new DefaultChain<Void>(Link.build(head)).callFactory(callFactory).visits(visits);
 				}
 				return new EmptyChain<Void>();
 			}
