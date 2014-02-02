@@ -249,7 +249,6 @@ enum Internals {
 
 			try {
 				if (!undo) {
-					// a potential optimization; bump state commands after non-states
 					if (command instanceof IStateCommand4<?, ?>) {
 						return ((IStateCommand4)command).invoke(input);
 					}
@@ -276,7 +275,19 @@ enum Internals {
 					}
 				}
 				else {
-					if (command instanceof ICommand4.IUndo<?, ?>) {
+					if (command instanceof IStateCommand4.IUndo<?, ?>) {
+						return ((IStateCommand4.IUndo)command).undo(input);
+					}
+					else if (command instanceof IStateCommand3.IUndo<?>) {
+						return ((IStateCommand3.IUndo)command).undo();
+					}
+					else if (command instanceof IStateCommand2.IUndo<?>) {
+						return ((IStateCommand2.IUndo)command).undo(input);
+					}
+					else if (command instanceof IStateCommand1.IUndo) {
+						return ((IStateCommand1.IUndo)command).undo();
+					}
+					else if (command instanceof ICommand4.IUndo<?, ?>) {
 						output.set(((ICommand4.IUndo)command).undo(input));
 					}
 					else if (command instanceof ICommand2.IUndo<?>) {

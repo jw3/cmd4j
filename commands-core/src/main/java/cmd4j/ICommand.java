@@ -208,6 +208,17 @@ public interface ICommand {
 			 */
 			ICommand invoke()
 				throws Exception;
+
+
+			/**
+			 * @author wassj
+			 */
+			public interface IUndo
+				extends IStateCommand1, IUndoCommand {
+
+				ICommand undo()
+					throws Exception;
+			}
 		}
 
 
@@ -227,6 +238,17 @@ public interface ICommand {
 			 */
 			ICommand invoke(I input)
 				throws Exception;
+
+
+			/**
+			 * @author wassj
+			 */
+			public interface IUndo<I>
+				extends IStateCommand2<I>, IUndoCommand {
+
+				ICommand undo(I input)
+					throws Exception;
+			}
 		}
 
 
@@ -245,6 +267,17 @@ public interface ICommand {
 			 */
 			IReturningCommand<O> invoke()
 				throws Exception;
+
+
+			/**
+			 * @author wassj
+			 */
+			public interface IUndo<O>
+				extends IStateCommand3<O>, IUndoCommand {
+
+				IReturningCommand<O> undo()
+					throws Exception;
+			}
 		}
 
 
@@ -264,6 +297,17 @@ public interface ICommand {
 			 */
 			IReturningCommand<O> invoke(I input)
 				throws Exception;
+
+
+			/**
+			 * @author wassj
+			 */
+			public interface IUndo<I, O>
+				extends IStateCommand4<I, O>, IUndoCommand {
+
+				IReturningCommand<O> undo(I input)
+					throws Exception;
+			}
 		}
 	}
 
