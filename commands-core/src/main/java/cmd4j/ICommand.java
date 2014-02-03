@@ -374,22 +374,12 @@ public interface ICommand {
 
 
 	/**
-	 * {@link IFunction} which has the same type of input as output
-	 * @author wassj
-	 * @param <T>
-	 */
-	public interface IUnaryFunction<T>
-		extends IFunction<T, T> {
-	}
-
-
-	/**
-	 * a {@link IUnaryFunction}  which will redirect the previous command output into the next commands input
+	 * a {@link IFunction}  which will redirect the previous command output into the next commands input
 	 * @author wassj
 	 * @param <T>
 	 */
 	public interface IPipeIO<T>
-		extends IUnaryFunction<T>, IInputPipe<T>, IOutputPipe<T> {
+		extends IFunction<T, T>, IInputPipe<T>, IOutputPipe<T> {
 	}
 
 
