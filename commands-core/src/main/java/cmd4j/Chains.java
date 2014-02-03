@@ -9,6 +9,7 @@ import java.util.concurrent.Future;
 import cmd4j.IChain.IUndoChain;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.IFunction;
+import cmd4j.ICommand.IInputCommand;
 import cmd4j.ICommand.IPipeIO;
 import cmd4j.ICommand.IReturningCommand;
 import cmd4j.Internals.Builder;
@@ -279,13 +280,16 @@ public class Chains {
 
 		/**
 		 * obtain a {@link IReturningChainBuilder builder} that specifies a return type based on the
-		 * return type of the specified {@link IFunction}.  the chain will apply the function to the 
-		 * chain result value and return the result. if the function cannot run (ie the result object
-		 * does not fit) the chain will return null
+		 * return type of the specified {@link IReturningCommand}.  if the the specified command supports
+		 * {@link IInputCommand} the chain will supply the chain result value, and the result of the
+		 * specified command will be returned. 
+		 * 
+		 * if the command cannot run (ie the result object does not fit) the chain will return null
+		 * 
 		 * @param function
 		 * @return
 		 */
-		<O> IReturningChainBuilder<O> returns(final IFunction<?, O> function);
+		<O> IReturningChainBuilder<O> returns(final IReturningCommand<O> command);
 	}
 
 

@@ -1254,8 +1254,8 @@ enum Internals {
 			}
 
 
-			public <O> IReturningChainBuilder<O> returns(final IFunction<?, O> function) {
-				return new ReturningBuilder<O>(this, function);
+			public <O> IReturningChainBuilder<O> returns(final IReturningCommand<O> command) {
+				return new ReturningBuilder<O>(this, command);
 			}
 
 
@@ -1388,7 +1388,7 @@ enum Internals {
 			implements IReturningChainBuilder<O> {
 
 			private final BaseBuilder base;
-			private final IFunction<?, O> returnFunction;
+			private final IReturningCommand<O> returnCommand;
 
 
 			public ReturningBuilder(final BaseBuilder base) {
@@ -1396,9 +1396,9 @@ enum Internals {
 			}
 
 
-			public ReturningBuilder(final BaseBuilder base, final IFunction<?, O> returnFunction) {
+			public ReturningBuilder(final BaseBuilder base, final IReturningCommand<O> returnCommand) {
 				this.base = base;
-				this.returnFunction = returnFunction;
+				this.returnCommand = returnCommand;
 			}
 
 
@@ -1479,14 +1479,14 @@ enum Internals {
 
 			public IChain<O> build(final ICommandCallFactory<O> callFactory) {
 				if (base.head != null) {
-					if (returnFunction != null) {
+					if (returnCommand != null) {
 						/*
 						 * Use a visiting chain containing the return function to implement the return behavior.
 						 * An IO pipe will transfer the main chain result value into the returning function chain. 
 						 * The returning function chain will then be responsible for returning the final result value.
 						 * We avoid recursion here because the returning chain can just return type of object.
 						 */
-						final IChain<Object> returnFunctionChain = Chains.builder().visits(true).add(returnFunction).returns().build();
+						final IChain<Object> returnFunctionChain = Chains.builder().visits(true).add(returnCommand).returns().build();
 						base.add(Commands.pipe()).add(returnFunctionChain);
 					}
 					return new ReturningChain<O>(Link.build(base.head)).callFactory(callFactory);

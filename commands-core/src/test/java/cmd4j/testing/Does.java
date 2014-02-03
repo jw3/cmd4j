@@ -104,6 +104,15 @@ public enum Does {
 	}
 
 
+	public static <R> IReturningCommand<R> returnsNull() {
+		return new ICommand3<R>() {
+			public R invoke() {
+				return null;
+			}
+		};
+	}
+
+
 	public static <R> IReturningCommand<R> returns(final R val) {
 		return new ICommand3<R>() {
 			public R invoke() {

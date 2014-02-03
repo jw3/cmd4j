@@ -179,6 +179,27 @@ public class FluentBuilderTest {
 	}
 
 
+	@Test
+	public void testNonInputFunctionReturnCommand_null()
+		throws Exception {
+
+		final IChain<Object> chain = Chains.builder().add(Does.returns(new Object())).returns(Does.returnsNull()).build();
+		final Object actual = chain.invoke();
+		Assert.assertNull(actual);
+	}
+
+
+	@Test
+	public void testNonInputFunctionReturnCommand_staticValue()
+		throws Exception {
+
+		final Object expected = new Object();
+		final IChain<Object> chain = Chains.builder().add(Does.returns(new Object())).returns(Does.returns(expected)).build();
+		final Object actual = chain.invoke();
+		Assert.assertEquals(actual, expected);
+	}
+
+
 	/*
 	 * verify that a transform return function returns the correct value
 	 */
