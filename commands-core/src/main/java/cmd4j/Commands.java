@@ -263,6 +263,16 @@ public class Commands {
 	}
 
 
+	// untested
+	public static ICommand forEach(final Supplier<? extends ICommand> supplier) {
+		return new IStateCommand2<Collection<?>>() {
+			public ICommand invoke(final Collection<?> input) {
+				return forEach(input, supplier);
+			}
+		};
+	}
+
+
 	public static <I> IInvokable<Void> forEach(final Collection<I> inputs, final Supplier<? extends ICommand> supplier) {
 		final IChainBuilder builder = Chains.builder();
 		for (final I input : inputs) {
