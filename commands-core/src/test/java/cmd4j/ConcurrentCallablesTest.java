@@ -56,6 +56,12 @@ public class ConcurrentCallablesTest {
 				executor.submit(Commands.callable(Does.set(var), expected)).get();
 				Assert.assertEquals(var.get(), expected);
 			}
+			{
+				final TestVariable<String> var = TestVariable.create(null);
+				final String expected = UUID.randomUUID().toString().substring(0, 7);
+				executor.submit(Commands.runnable(Does.set(var, expected))).get();
+				Assert.assertEquals(var.get(), expected);
+			}
 		}
 		finally {
 			Chains.create(Commands.shutdownExecutor(executor), Asserts.predicate(new IsShutdown())).invoke(executor);

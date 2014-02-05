@@ -793,10 +793,8 @@ enum Internals {
 		 * @Beta
 		 */
 		static IPeekable assertPeekable(final IChain<?> chain) {
-			if (chain instanceof IPeekable) {
-				return (IPeekable)chain;
-			}
-			throw new IllegalArgumentException("unsupported chain impl, not peekable");
+			Preconditions.checkArgument(chain instanceof IPeekable, "unsupported chain impl, not peekable");
+			return (IPeekable)chain;
 		}
 
 
@@ -1271,9 +1269,7 @@ enum Internals {
 			 * @return
 			 */
 			public IChainBuilder add(final ICommand command) {
-				if (command == null) {
-					throw new IllegalArgumentException("command cannot be null");
-				}
+				Preconditions.checkNotNull(command, "command cannot be null");
 
 				// if created with the noarg create() method it will need initd on the first add
 				if (head == null) {
@@ -1333,9 +1329,7 @@ enum Internals {
 			 * @return
 			 */
 			public IChainBuilder executor(final ExecutorService executor) {
-				if (tail == null) {
-					throw new NullPointerException("chain builder was not initialized, tail is null");
-				}
+				Preconditions.checkNotNull(tail, "chain builder was not initialized, tail is null");
 				tail.executor(executor);
 				return this;
 			}
@@ -1347,9 +1341,7 @@ enum Internals {
 			 * @return
 			 */
 			public IChainBuilder input(final Object input) {
-				if (tail == null) {
-					throw new NullPointerException("chain builder was not initialized, tail is null");
-				}
+				Preconditions.checkNotNull(tail, "chain builder was not initialized, tail is null");
 				tail.input(input);
 				return this;
 			}
@@ -1414,9 +1406,7 @@ enum Internals {
 			 * @return
 			 */
 			public IReturningChainBuilder<O> executor(final ExecutorService executor) {
-				if (base.tail == null) {
-					throw new NullPointerException("chain builder was not initialized, tail is null");
-				}
+				Preconditions.checkNotNull(base.tail, "chain builder was not initialized, tail is null");
 				base.tail.executor(executor);
 				return this;
 			}
@@ -1428,9 +1418,7 @@ enum Internals {
 			 * @return
 			 */
 			public IReturningChainBuilder<O> input(final Object input) {
-				if (base.tail == null) {
-					throw new NullPointerException("chain builder was not initialized, tail is null");
-				}
+				Preconditions.checkNotNull(base.tail, "chain builder was not initialized, tail is null");
 				base.tail.input(input);
 				return this;
 			}
@@ -1558,9 +1546,7 @@ enum Internals {
 
 		@Override
 		public void set(final Boolean value) {
-			if (value == null) {
-				throw new IllegalArgumentException("called cannot be null");
-			}
+			Preconditions.checkNotNull(value, "called cannot be null");
 			super.set(value);
 		}
 	}
