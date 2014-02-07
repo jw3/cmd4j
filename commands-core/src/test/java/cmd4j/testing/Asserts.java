@@ -1,5 +1,7 @@
 package cmd4j.testing;
 
+import javax.annotation.Nullable;
+
 import org.testng.Assert;
 
 import cmd4j.Chains;
@@ -29,7 +31,7 @@ public class Asserts
 	}
 
 
-	public static <T> ICommand is(final TestVariable<T> v, final T value) {
+	public static <T> ICommand is(final TestVariable<T> v, @Nullable final T value) {
 		return new ICommand1() {
 			public void invoke() {
 				Assert.assertEquals(v.get(), value);
@@ -42,7 +44,7 @@ public class Asserts
 	* test the input against the passed value
 	*/
 
-	public static <T> ICommand is(final T value) {
+	public static <T> ICommand is(@Nullable final T value) {
 		final TestVariable<Boolean> invoked = Does.var(false);
 		return Chains.builder()//
 			.add(new ICommand2<T>() {
@@ -82,7 +84,7 @@ public class Asserts
 	}
 
 
-	public static <T> ICommand isEquals(final TestVariable<T> var, final T val) {
+	public static <T> ICommand isEquals(final TestVariable<T> var, @Nullable final T val) {
 		return new ICommand1() {
 			public void invoke() {
 				Assert.assertEquals(val, var.get());

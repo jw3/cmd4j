@@ -6,6 +6,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import javax.annotation.Nullable;
+
 import cmd4j.IChain.IUndoChain;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.IFunction;
@@ -138,7 +140,7 @@ public class Chains {
 	 * @param input
 	 * @return
 	 */
-	public static <O> Callable<O> callable(final IChain<O> chain, final Object input) {
+	public static <O> Callable<O> callable(final IChain<O> chain, @Nullable final Object input) {
 		return new ChainCallable<O>(chain, input);
 	}
 
@@ -160,7 +162,7 @@ public class Chains {
 	 * @param executor
 	 * @return
 	 */
-	public static <O> ListenableFuture<O> submit(final IChain<O> chain, final Object input, final ExecutorService executor) {
+	public static <O> ListenableFuture<O> submit(final IChain<O> chain, @Nullable final Object input, final ExecutorService executor) {
 		return MoreExecutors.listeningDecorator(executor).submit(Commands.callable(chain, input));
 	}
 
@@ -233,7 +235,7 @@ public class Chains {
 		 * @param executor
 		 * @return
 		 */
-		B executor(ExecutorService executor);
+		B executor(@Nullable ExecutorService executor);
 
 
 		/**
@@ -242,7 +244,7 @@ public class Chains {
 		 * @param input
 		 * @return
 		 */
-		B input(Object input);
+		B input(@Nullable Object input);
 
 
 		/**

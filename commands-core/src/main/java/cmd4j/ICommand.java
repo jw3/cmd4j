@@ -1,5 +1,7 @@
 package cmd4j;
 
+import javax.annotation.Nullable;
+
 import cmd4j.Chains.ILink;
 import cmd4j.Observers.IObservable;
 
@@ -64,7 +66,7 @@ public interface ICommand {
 		 * @param input Data Transfer Object
 		 * @throws Exception
 		 */
-		void invoke(I input)
+		void invoke(@Nullable I input)
 			throws Exception;
 
 
@@ -76,7 +78,7 @@ public interface ICommand {
 		public interface IUndo<I>
 			extends ICommand2<I>, IUndoCommand {
 
-			void undo(I input)
+			void undo(@Nullable I input)
 				throws Exception;
 		}
 	}
@@ -91,6 +93,7 @@ public interface ICommand {
 	public interface ICommand3<O>
 		extends ICommand, IReturningCommand<O> {
 
+		@Nullable
 		O invoke()
 			throws Exception;
 
@@ -103,6 +106,7 @@ public interface ICommand {
 		public interface IUndo<O>
 			extends ICommand3<O>, IUndoCommand {
 
+			@Nullable
 			O undo()
 				throws Exception;
 		}
@@ -125,7 +129,8 @@ public interface ICommand {
 		 * @return the return value
 		 * @throws Exception
 		 */
-		O invoke(I input)
+		@Nullable
+		O invoke(@Nullable I input)
 			throws Exception;
 
 
@@ -138,7 +143,8 @@ public interface ICommand {
 		public interface IUndo<I, O>
 			extends ICommand4<I, O>, IUndoCommand {
 
-			O undo(I input)
+			@Nullable
+			O undo(@Nullable I input)
 				throws Exception;
 		}
 	}
@@ -206,6 +212,7 @@ public interface ICommand {
 			 * @return Command to be executed after the successful completion of this command
 			 * @throws Exception
 			 */
+			@Nullable
 			ICommand invoke()
 				throws Exception;
 
@@ -216,6 +223,7 @@ public interface ICommand {
 			public interface IUndo
 				extends IStateCommand1, IUndoCommand {
 
+				@Nullable
 				ICommand undo()
 					throws Exception;
 			}
@@ -236,7 +244,8 @@ public interface ICommand {
 			 * @return Command to be executed after the successful completion of this command
 			 * @throws Exception
 			 */
-			ICommand invoke(I input)
+			@Nullable
+			ICommand invoke(@Nullable I input)
 				throws Exception;
 
 
@@ -246,7 +255,8 @@ public interface ICommand {
 			public interface IUndo<I>
 				extends IStateCommand2<I>, IUndoCommand {
 
-				ICommand undo(I input)
+				@Nullable
+				ICommand undo(@Nullable I input)
 					throws Exception;
 			}
 		}
@@ -265,6 +275,7 @@ public interface ICommand {
 			 * @return {@link IReturningCommand} to be executed after the successful completion of this command
 			 * @throws Exception
 			 */
+			@Nullable
 			IReturningCommand<O> invoke()
 				throws Exception;
 
@@ -275,6 +286,7 @@ public interface ICommand {
 			public interface IUndo<O>
 				extends IStateCommand3<O>, IUndoCommand {
 
+				@Nullable
 				IReturningCommand<O> undo()
 					throws Exception;
 			}
@@ -295,7 +307,8 @@ public interface ICommand {
 			 * @return Command to be executed after the successful completion of this command
 			 * @throws Exception
 			 */
-			IReturningCommand<O> invoke(I input)
+			@Nullable
+			IReturningCommand<O> invoke(@Nullable I input)
 				throws Exception;
 
 
@@ -305,7 +318,8 @@ public interface ICommand {
 			public interface IUndo<I, O>
 				extends IStateCommand4<I, O>, IUndoCommand {
 
-				IReturningCommand<O> undo(I input)
+				@Nullable
+				IReturningCommand<O> undo(@Nullable I input)
 					throws Exception;
 			}
 		}

@@ -8,6 +8,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nullable;
+
 import cmd4j.Chains.IChainBuilder;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand3;
@@ -50,7 +52,7 @@ public class Commands {
 	 * @param output
 	 * @return
 	 */
-	public static <O> IReturningCommand<O> returns(final O output) {
+	public static <O> IReturningCommand<O> returns(@Nullable final O output) {
 		return new ICommand3<O>() {
 			public O invoke() {
 				return output;
@@ -186,7 +188,7 @@ public class Commands {
 	 * @param command
 	 * @return
 	 */
-	public static <O> Callable<O> callable(final IReturningCommand<O> command, final Object input) {
+	public static <O> Callable<O> callable(final IReturningCommand<O> command, @Nullable final Object input) {
 		return new CommandCallable<O>(command, input);
 	}
 
@@ -232,7 +234,7 @@ public class Commands {
 	 * @param condition
 	 * @return
 	 */
-	public static <I> IStateCommand2<I> invokeIf(final ICommand command, final Predicate<I> condition, final ICommand onElse) {
+	public static <I> IStateCommand2<I> invokeIf(final ICommand command, final Predicate<I> condition, @Nullable final ICommand onElse) {
 		return new IStateCommand2<I>() {
 			public ICommand invoke(final I input) {
 				return condition.apply(input) ? command : onElse;
@@ -299,7 +301,7 @@ public class Commands {
 		 * set the value of this variable
 		 * @param value
 		 */
-		public Variable(final T value) {
+		public Variable(@Nullable final T value) {
 			this.value = value;
 		}
 
@@ -317,7 +319,7 @@ public class Commands {
 		 * set the value of this variable
 		 * @param value
 		 */
-		public void set(final T value) {
+		public void set(@Nullable final T value) {
 			this.value = value;
 		}
 
@@ -338,7 +340,7 @@ public class Commands {
 
 
 		@Override
-		public boolean equals(final Object other) {
+		public boolean equals(@Nullable final Object other) {
 			if (this == other) return true;
 			// danger! if (isNull() && null == other) return true;
 

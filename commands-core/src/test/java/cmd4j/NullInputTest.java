@@ -1,5 +1,7 @@
 package cmd4j;
 
+import javax.annotation.Nullable;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -44,7 +46,7 @@ public class NullInputTest {
 	}
 
 
-	public static <T> IStateCommand set(final TestVariable<T> v, final T value) {
+	public static <T> IStateCommand set(final TestVariable<T> v, @Nullable final T value) {
 		return new IStateCommand1() {
 			public ICommand invoke() {
 				v.set(value);

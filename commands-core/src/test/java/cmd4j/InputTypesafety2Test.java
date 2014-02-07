@@ -2,6 +2,10 @@ package cmd4j;
 
 import java.io.InputStream;
 
+import javax.annotation.Nullable;
+
+import org.testng.annotations.Test;
+
 import cmd4j.ICommand.ICommand4;
 import cmd4j.ICommand.IInputCommand;
 import cmd4j.ICommand.IReturningCommand;
@@ -40,7 +44,7 @@ public class InputTypesafety2Test {
 	}
 
 
-	public static ISub<InputStream> inputStreamReturningSub(final TestVariable<Boolean> ran) {
+	public static ISub<InputStream> inputStreamReturningSub(@Nullable final TestVariable<Boolean> ran) {
 		return new ISub<InputStream>() {
 			public InputStream invoke(final String input) {
 				if (ran != null) {
@@ -61,56 +65,56 @@ public class InputTypesafety2Test {
 	*/
 
 	// input does not fit expect an exception
-	//@Test(expectedExceptions = ExecutionException.class, dataProvider = "failure")
-	public void failure_setVisitImplicit(final Object input)
+	@Test(expectedExceptions = Exception.class)
+	public void failure_setVisitImplicit()
 		throws Exception {
 
-		Chains.builder().add(inputStreamReturningSub()).build().invoke(input);
+		Chains.builder().add(inputStreamReturningSub()).build().invoke(1);
 	}
 
 
-	//@Test(dataProvider = "success")
-	public void success_setVisitImplicit(final Object input)
+	@Test
+	public void success_setVisitImplicit()
 		throws Exception {
 
 		final TestVariable<Boolean> ran = TestVariable.create();
-		Chains.builder().add(inputStreamReturningSub(ran)).build().invoke(input);
+		Chains.builder().add(inputStreamReturningSub(ran)).build().invoke("");
 		ran.assertEquals(true);
 	}
 
 
-	//@Test(expectedExceptions = ExecutionException.class, dataProvider = "failure")
-	public void failure_setVisitExplicit(final Object input)
+	@Test
+	public void failure_setVisitExplicit()
 		throws Exception {
 
-		Chains.builder().add(inputStreamReturningSub()).visits(true).build().invoke(input);
+		Chains.builder().add(inputStreamReturningSub()).visits(true).build().invoke(1);
 	}
 
 
-	//@Test(dataProvider = "success")
-	public void success_setVisitExplicit(final Object input)
+	@Test
+	public void success_setVisitExplicit()
 		throws Exception {
 
 		final TestVariable<Boolean> ran = TestVariable.create();
-		Chains.builder().add(inputStreamReturningSub(ran)).visits(true).build().invoke(input);
+		Chains.builder().add(inputStreamReturningSub(ran)).visits(true).build().invoke("");
 		ran.assertEquals(true);
 	}
 
 
-	//@Test(expectedExceptions = ExecutionException.class, dataProvider = "failure")
-	public void failure_setNotVisitExplicit(final Object input)
+	@Test(expectedExceptions = Exception.class)
+	public void failure_setNotVisitExplicit()
 		throws Exception {
 
-		Chains.builder().add(inputStreamReturningSub()).visits(false).build().invoke(input);
+		Chains.builder().add(inputStreamReturningSub()).visits(false).build().invoke(1);
 	}
 
 
-	//@Test(dataProvider = "success")
-	public void success_setNotVisitExplicit(final Object input)
+	@Test
+	public void success_setNotVisitExplicit()
 		throws Exception {
 
 		final TestVariable<Boolean> ran = TestVariable.create();
-		Chains.builder().add(inputStreamReturningSub(ran)).visits(false).build().invoke(input);
+		Chains.builder().add(inputStreamReturningSub(ran)).visits(false).build().invoke("");
 		ran.assertEquals(true);
 	}
 }

@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nullable;
 import javax.swing.SwingUtilities;
 
 import org.slf4j.Logger;
@@ -107,7 +108,7 @@ enum Internals {
 			}
 
 
-			public CommandCallable(final IReturningCommand<R> command, final Object input) {
+			public CommandCallable(final IReturningCommand<R> command, @Nullable final Object input) {
 				this.command = command;
 				this.input = input;
 			}
@@ -369,7 +370,7 @@ enum Internals {
 			private ExecutorService executor;
 
 
-			public DefaultLink(final ICommand command, final ILink next) {
+			public DefaultLink(final ICommand command, @Nullable final ILink next) {
 				this.command = command;
 				this.next = next;
 			}
@@ -380,7 +381,7 @@ enum Internals {
 			}
 
 
-			public DefaultLink input(final Object input) {
+			public DefaultLink input(@Nullable final Object input) {
 				this.input = input;
 				return this;
 			}
@@ -401,7 +402,7 @@ enum Internals {
 			}
 
 
-			public DefaultLink executor(final ExecutorService executor) {
+			public DefaultLink executor(@Nullable final ExecutorService executor) {
 				this.executor = executor;
 				return this;
 			}
@@ -435,7 +436,7 @@ enum Internals {
 			 * @param executor
 			 * @return
 			 */
-			LinkBuilder executor(final ExecutorService executor) {
+			LinkBuilder executor(@Nullable final ExecutorService executor) {
 				this.executor = executor;
 				return this;
 			}
@@ -447,7 +448,7 @@ enum Internals {
 			}
 
 
-			LinkBuilder input(final Object input) {
+			LinkBuilder input(@Nullable final Object input) {
 				this.input = input;
 				return this;
 			}
@@ -473,7 +474,7 @@ enum Internals {
 			}
 
 
-			public ILink input(Object input) {
+			public ILink input(@Nullable final Object input) {
 				return this;
 			}
 
@@ -581,7 +582,7 @@ enum Internals {
 			}
 
 
-			public O invoke(final Object input)
+			public O invoke(@Nullable final Object input)
 				throws Exception {
 
 				final Input inputs = new Input(input);
@@ -634,7 +635,7 @@ enum Internals {
 				}
 
 
-				public O invoke(final Object input)
+				public O invoke(@Nullable final Object input)
 					throws Exception {
 
 					super.invoke(input);
@@ -666,7 +667,7 @@ enum Internals {
 			}
 
 
-			public ChainCallable(final IChain<O> chain, final Object input) {
+			public ChainCallable(final IChain<O> chain, @Nullable final Object input) {
 				this.chain = chain;
 				this.input = input;
 			}
@@ -722,7 +723,7 @@ enum Internals {
 			}
 
 
-			protected ILink callImpl(ILink link, Input inputs, Returns returns, Called called, ICommandCallFactory<?> callFactory)
+			protected ILink callImpl(final ILink link, final Input inputs, final Returns returns, final Called called, final ICommandCallFactory<?> callFactory)
 				throws Exception {
 
 				return super.callImpl(link, inputs, returns, called, callFactory.visits(true));
@@ -765,7 +766,7 @@ enum Internals {
 			}
 
 
-			public O undo(final Object input)
+			public O undo(@Nullable final Object input)
 				throws Exception {
 
 				final Input inputs = new Input(input);
@@ -882,14 +883,14 @@ enum Internals {
 			}
 
 
-			protected ICommand invokeImpl(final Object input)
+			protected ICommand invokeImpl(@Nullable final Object input)
 				throws Exception {
 
 				return Command.invoke(executing, input, Returns.VOID, Called.nop, true);
 			}
 
 
-			protected ICommand undoImpl(Object input)
+			protected ICommand undoImpl(@Nullable final Object input)
 				throws Exception {
 
 				return Command.invoke(executing, input, Returns.VOID, Called.nop, true, true);
@@ -897,7 +898,7 @@ enum Internals {
 
 
 			@Override
-			public ICommand invoke(final Object input)
+			public ICommand invoke(@Nullable final Object input)
 				throws Exception {
 
 				executing = this.decorating();
@@ -938,14 +939,14 @@ enum Internals {
 			}
 
 
-			protected O invokeImpl(final Object input)
+			protected O invokeImpl(@Nullable final Object input)
 				throws Exception {
 
 				return Chains.create(this.decorating()).invoke(input);
 			}
 
 
-			protected O undoImpl(Object input)
+			protected O undoImpl(@Nullable final Object input)
 				throws Exception {
 
 				if (this.decorating() instanceof IUndoCommand) {
@@ -979,7 +980,7 @@ enum Internals {
 			}
 
 
-			protected O invokeImpl(final Object input)
+			protected O invokeImpl(@Nullable final Object input)
 				throws Exception {
 
 				this.decorating().invoke(input);
@@ -987,7 +988,7 @@ enum Internals {
 			}
 
 
-			protected O undoImpl(Object input)
+			protected O undoImpl(@Nullable final Object input)
 				throws Exception {
 
 				if (this.decorating() instanceof IUndoChain<?>) {
@@ -1047,7 +1048,7 @@ enum Internals {
 			}
 
 
-			public O invoke(final Object input)
+			public O invoke(@Nullable final Object input)
 				throws Exception {
 
 				try {
@@ -1079,7 +1080,7 @@ enum Internals {
 			}
 
 
-			public O undo(final Object input)
+			public O undo(@Nullable final Object input)
 				throws Exception {
 
 				try {
@@ -1134,7 +1135,7 @@ enum Internals {
 			}
 
 
-			protected void executeHandlers(final List<ICommand> commands, final Object input) {
+			protected void executeHandlers(final List<ICommand> commands, @Nullable final Object input) {
 				try {
 					Chains.builder().add(commands).visits(true).build().invoke(input);
 				}
@@ -1328,7 +1329,7 @@ enum Internals {
 			 * @param executor
 			 * @return
 			 */
-			public IChainBuilder executor(final ExecutorService executor) {
+			public IChainBuilder executor(@Nullable final ExecutorService executor) {
 				Preconditions.checkNotNull(tail, "chain builder was not initialized, tail is null");
 				tail.executor(executor);
 				return this;
@@ -1340,7 +1341,7 @@ enum Internals {
 			 * @param input
 			 * @return
 			 */
-			public IChainBuilder input(final Object input) {
+			public IChainBuilder input(@Nullable final Object input) {
 				Preconditions.checkNotNull(tail, "chain builder was not initialized, tail is null");
 				tail.input(input);
 				return this;
@@ -1388,7 +1389,7 @@ enum Internals {
 			}
 
 
-			public ReturningBuilder(final BaseBuilder base, final IReturningCommand<O> returnCommand) {
+			public ReturningBuilder(final BaseBuilder base, @Nullable final IReturningCommand<O> returnCommand) {
 				this.base = base;
 				this.returnCommand = returnCommand;
 			}
@@ -1405,7 +1406,7 @@ enum Internals {
 			 * @param executor
 			 * @return
 			 */
-			public IReturningChainBuilder<O> executor(final ExecutorService executor) {
+			public IReturningChainBuilder<O> executor(@Nullable final ExecutorService executor) {
 				Preconditions.checkNotNull(base.tail, "chain builder was not initialized, tail is null");
 				base.tail.executor(executor);
 				return this;
@@ -1417,7 +1418,7 @@ enum Internals {
 			 * @param input
 			 * @return
 			 */
-			public IReturningChainBuilder<O> input(final Object input) {
+			public IReturningChainBuilder<O> input(@Nullable final Object input) {
 				Preconditions.checkNotNull(base.tail, "chain builder was not initialized, tail is null");
 				base.tail.input(input);
 				return this;
@@ -1500,7 +1501,7 @@ enum Internals {
 
 
 			@Override
-			public void set(Object value) {
+			public void set(@Nullable final Object value) {
 			}
 		};
 	}
@@ -1518,7 +1519,7 @@ enum Internals {
 		}
 
 
-		public Input(Object value) {
+		public Input(@Nullable final Object value) {
 			super(value);
 		}
 	}
