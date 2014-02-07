@@ -304,7 +304,8 @@ enum Internals {
 			}
 			catch (final ClassCastException e) {
 				if (!visits) {
-					throw new IllegalArgumentException("input does not fit");
+					final String message = new StringBuilder().append("input [").append(input).append("] ").append("does not fit [").append(command).append("]").toString();
+					throw new IllegalArgumentException(message);
 				}
 				called.set(false);
 			}
