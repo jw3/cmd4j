@@ -18,6 +18,20 @@ import com.google.common.collect.Multimap;
  *
  */
 public class Functions2 {
+
+	/**
+	 * function which returns its input
+	 * @return
+	 */
+	public static <T> IFunction<T, T> returns() {
+		return new IFunction<T, T>() {
+			public T invoke(final T input) {
+				return input;
+			}
+		};
+	}
+
+
 	/**
 	 * wrap a Guava {@link Function} in a {@link IFunction}
 	 * @param function
