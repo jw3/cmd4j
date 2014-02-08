@@ -33,6 +33,6 @@ public class ValidateUtilsClassTest {
 
 	@Test
 	public void internalEnums() {
-		String.valueOf(Internals.Command.values());
+		Assert.assertNotNull(String.valueOf(Internals.Command.values()));
 	}
 }
