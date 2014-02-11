@@ -80,6 +80,18 @@ public class FluentBuilderTest {
 	}
 
 
+	/*
+	 * verify the pipeAll mode
+	 */
+	@Test
+	public void testDefaultPipeAll()
+		throws Exception {
+
+		final Object expected = new Object();
+		Chains.builder().pipeAll(true).add(Does.returns(expected)).add(Asserts.is(expected)).build().invoke();
+	}
+
+
 	@Test(expectedExceptions = AssertionError.class)
 	public void testDefaultPipe_missingPipe()
 		throws Exception {

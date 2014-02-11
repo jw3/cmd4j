@@ -253,6 +253,15 @@ public class Chains {
 		* @return
 		*/
 		B visits(boolean visits);
+
+
+		/**
+		 * enable Pipe-All mode; which when enabled will implicitly pipe 
+		 * each command into the following command by default
+		 * @param pipeAll
+		 * @return
+		 */
+		B pipeAll(boolean pipeAll);
 	}
 
 
@@ -268,6 +277,10 @@ public class Chains {
 		 * obtain a {@link IReturningChainBuilder builder} that specifies a return type of {@link Object} 
 		 * @return
 		 */
+		//////////
+		// NOTE the signature here could have went this way:	<O> IReturningChainBuilder<O> returns()
+		// however i wanted to avoid that implicit cast for now, as there is no way to guarantee safety
+		// there is no way to guarantee this way either, however it atleast makes client think about it
 		IReturningChainBuilder<Object> returns();
 
 

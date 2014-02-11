@@ -1238,6 +1238,7 @@ enum Internals {
 			private LinkBuilder head;
 			private LinkBuilder tail;
 			private boolean visits;
+			private boolean pipeAll;
 
 
 			public IReturningChainBuilder<Object> returns() {
@@ -1265,6 +1266,12 @@ enum Internals {
 			}
 
 
+			public IChainBuilder pipeAll(final boolean pipeAll) {
+				this.pipeAll = pipeAll;
+				return this;
+			}
+
+
 			/**
 			 * add the {@link ICommand} to the end of the chain
 			 * @param command
@@ -1280,6 +1287,11 @@ enum Internals {
 				else {
 					tail = tail != null ? tail.add(command) : new LinkBuilder(command);
 				}
+
+				if (pipeAll) {
+					tail = tail.add(Commands.pipe());
+				}
+
 				return this;
 			}
 
@@ -1398,6 +1410,12 @@ enum Internals {
 
 			public IReturningChainBuilder<O> visits(final boolean visits) {
 				base.visits(true);
+				return this;
+			}
+
+
+			public IReturningChainBuilder<O> pipeAll(final boolean pipeAll) {
+				base.pipeAll(pipeAll);
 				return this;
 			}
 
