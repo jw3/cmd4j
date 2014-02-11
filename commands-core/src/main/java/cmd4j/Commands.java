@@ -92,10 +92,15 @@ public class Commands {
 	 */
 	public static ICommand waitFor(final long timeout, final TimeUnit unit) {
 		return new ICommand1() {
+
+			@SuppressWarnings("unused" /*keeping this around for later use*/)
+			private boolean timedout;
+
+
 			public void invoke()
 				throws Exception {
 
-				new CountDownLatch(1).await(timeout, unit);
+				timedout = !new CountDownLatch(1).await(timeout, unit);
 			}
 		};
 	}
