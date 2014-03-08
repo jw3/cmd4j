@@ -40,6 +40,11 @@ public enum Does {
 	}
 
 
+	public static Counts counts() {
+		return new Counts();
+	}
+
+
 	public static ICommand submits(final IReturningCommand<Void> command, final ExecutorService executor) {
 		return new ICommand2<Object>() {
 			public void invoke(final Object input)
@@ -241,6 +246,23 @@ public enum Does {
 
 		public Boom() {
 			super("boom");
+		}
+	}
+
+
+	public static class Counts
+		implements ICommand1 {
+
+		private int count;
+
+
+		public void invoke() {
+			++count;
+		}
+
+
+		public int count() {
+			return count;
 		}
 	}
 }
