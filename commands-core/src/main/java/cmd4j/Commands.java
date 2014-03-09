@@ -16,6 +16,7 @@ import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.IInvokable;
 import cmd4j.ICommand.IPipeIO;
 import cmd4j.ICommand.IReturningCommand;
+import cmd4j.ICommand.IStateCommand.IStateCommand1;
 import cmd4j.ICommand.IStateCommand.IStateCommand2;
 import cmd4j.Internals.Builder.BaseBuilder;
 import cmd4j.Internals.Builder.ReturningBuilder;
@@ -24,6 +25,7 @@ import cmd4j.Internals.Command.CommandRunnable;
 import cmd4j.Internals.Command.RunOneCallFactory;
 import cmd4j.Internals.Executor.EventDispatchExecutor;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
 
@@ -286,6 +288,41 @@ public class Commands {
 			builder.add(supplier.get()).input(input);
 		}
 		return builder.build();
+	}
+
+
+	/**
+	 * @author wassj
+	 */
+	public static class ForwardingCommand
+		implements IStateCommand1 {
+
+		private ICommand command;
+
+
+		public ForwardingCommand() {
+		}
+
+
+		public ForwardingCommand(final ICommand command) {
+			this.command = command;
+		}
+
+
+		public ICommand getCommand() {
+			return command;
+		}
+
+
+		public void setCommand(ICommand command) {
+			this.command = command;
+		}
+
+
+		public ICommand invoke() {
+			Preconditions.checkState(this != command, "cannot forward self");
+			return command;
+		}
 	}
 
 
