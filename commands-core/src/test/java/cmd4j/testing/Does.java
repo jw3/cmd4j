@@ -57,7 +57,7 @@ public enum Does {
 	}
 
 
-	public static ICommand invoked(final TestVariable<Boolean> called) {
+	public static ICommand invoked(final Variable<Boolean> called) {
 		return new ICommand2<Object>() {
 			public void invoke(final Object input) {
 				called.set(true);
@@ -71,7 +71,7 @@ public enum Does {
 	}
 
 
-	public static ICommand toggle(final TestVariable<Boolean> v) {
+	public static ICommand toggle(final Variable<Boolean> v) {
 		return new ICommand1() {
 			public void invoke() {
 				Preconditions.checkArgument(!v.isNull(), "variable not initialized");
@@ -81,7 +81,7 @@ public enum Does {
 	}
 
 
-	public static ICommand increment(final TestVariable<Integer> v) {
+	public static ICommand increment(final Variable<Integer> v) {
 		return new ICommand1() {
 			public void invoke() {
 				Preconditions.checkArgument(!v.isNull(), "variable not initialized");
@@ -91,7 +91,7 @@ public enum Does {
 	}
 
 
-	public static <T> IReturningCommand<Void> set(final TestVariable<T> v, final T value) {
+	public static <T> IReturningCommand<Void> set(final Variable<T> v, final T value) {
 		return new ICommand1() {
 			public void invoke() {
 				v.set(value);
@@ -100,7 +100,7 @@ public enum Does {
 	}
 
 
-	public static <T> IReturningCommand<Void> set(final TestVariable<T> v) {
+	public static <T> IReturningCommand<Void> set(final Variable<T> v) {
 		return new ICommand2<T>() {
 			public void invoke(final T value) {
 				v.set(value);
@@ -136,12 +136,12 @@ public enum Does {
 	}
 
 
-	public static <T> ICommand undoableSet(final TestVariable<T> v, final T value) {
+	public static <T> ICommand undoableSet(final Variable<T> v, final T value) {
 		return new UndoableSetter1<T>(v, value);
 	}
 
 
-	public static <T> ICommand undoableSet2(final TestVariable<T> v, final T value) {
+	public static <T> ICommand undoableSet2(final Variable<T> v, final T value) {
 		return new UndoableSetter2<T>(v, value);
 	}
 
@@ -149,10 +149,10 @@ public enum Does {
 	private abstract static class BaseUndodoableSetter<T> {
 		protected final T original;
 		protected final T modified;
-		protected final TestVariable<T> var;
+		protected final Variable<T> var;
 
 
-		public BaseUndodoableSetter(final TestVariable<T> var, final T modified) {
+		public BaseUndodoableSetter(final Variable<T> var, final T modified) {
 			this.original = var.get();
 			this.modified = modified;
 			this.var = var;
@@ -164,7 +164,7 @@ public enum Does {
 		extends BaseUndodoableSetter<T>
 		implements ICommand1, ICommand1.IUndo {
 
-		public UndoableSetter1(final TestVariable<T> var, final T modified) {
+		public UndoableSetter1(final Variable<T> var, final T modified) {
 			super(var, modified);
 		}
 
@@ -184,7 +184,7 @@ public enum Does {
 		extends BaseUndodoableSetter<T>
 		implements ICommand2<Object>, ICommand2.IUndo<Object> {
 
-		public UndoableSetter2(final TestVariable<T> var, final T modified) {
+		public UndoableSetter2(final Variable<T> var, final T modified) {
 			super(var, modified);
 		}
 
