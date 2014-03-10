@@ -52,7 +52,7 @@ public class Chains {
 	/**
 	 * create a {@link IChain chain} that contains the given {@link ICommand commands}
 	 */
-	public static IChain<Void> create(final Collection<ICommand> commands) {
+	public static IChain<Void> create(final Collection<? extends ICommand> commands) {
 		final IChainBuilder builder = builder();
 		for (final ICommand command : commands) {
 			builder.add(command);
