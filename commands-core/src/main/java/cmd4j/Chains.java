@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 
 import cmd4j.IChain.IUndoChain;
 import cmd4j.ICommand.ICommand3;
+import cmd4j.ICommand.ICommand4;
 import cmd4j.ICommand.IFunction;
 import cmd4j.ICommand.IInputCommand;
 import cmd4j.ICommand.IPipeIO;
@@ -164,6 +165,38 @@ public class Chains {
 	 */
 	public static <O> ListenableFuture<O> submit(final IChain<O> chain, @Nullable final Object input, final ExecutorService executor) {
 		return MoreExecutors.listeningDecorator(executor).submit(Commands.callable(chain, input));
+	}
+
+
+	/**
+	 * create a command that will submit a {@link IChain} to the {@link ExecutorService} returning the resulting {@link ListenableFuture}
+	 * the input value can be passed through the input object
+	 * @param chain
+	 * @param executor
+	 * @return
+	 */
+	public static <O> IReturningCommand<ListenableFuture<O>> submitLater(final IChain<O> chain, final ExecutorService executor) {
+		return new ICommand4<Object, ListenableFuture<O>>() {
+			public ListenableFuture<O> invoke(final Object input) {
+				return MoreExecutors.listeningDecorator(executor).submit(Commands.callable(chain, input));
+			}
+		};
+	}
+
+
+	/**
+	 * create a command that will submit a {@link IChain} to the {@link ExecutorService} returning the resulting {@link ListenableFuture}
+	 * @param chain
+	 * @param input
+	 * @param executor
+	 * @return
+	 */
+	public static <O> IReturningCommand<ListenableFuture<O>> submitLater(final IChain<O> chain, @Nullable final Object input, final ExecutorService executor) {
+		return new ICommand3<ListenableFuture<O>>() {
+			public ListenableFuture<O> invoke() {
+				return MoreExecutors.listeningDecorator(executor).submit(Commands.callable(chain, input));
+			}
+		};
 	}
 
 
