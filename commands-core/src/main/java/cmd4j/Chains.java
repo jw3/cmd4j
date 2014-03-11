@@ -177,8 +177,8 @@ public class Chains {
 	 */
 	public static <O> IReturningCommand<ListenableFuture<O>> submitLater(final IChain<O> chain, final ExecutorService executor) {
 		return new ICommand4<Object, ListenableFuture<O>>() {
-			public ListenableFuture<O> invoke(final Object input) {
-				return MoreExecutors.listeningDecorator(executor).submit(Commands.callable(chain, input));
+			public ListenableFuture<O> invoke(@Nullable final Object input) {
+				return submit(chain, input, executor);
 			}
 		};
 	}
@@ -194,7 +194,7 @@ public class Chains {
 	public static <O> IReturningCommand<ListenableFuture<O>> submitLater(final IChain<O> chain, @Nullable final Object input, final ExecutorService executor) {
 		return new ICommand3<ListenableFuture<O>>() {
 			public ListenableFuture<O> invoke() {
-				return MoreExecutors.listeningDecorator(executor).submit(Commands.callable(chain, input));
+				return submit(chain, input, executor);
 			}
 		};
 	}
