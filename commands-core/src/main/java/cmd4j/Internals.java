@@ -51,6 +51,7 @@ import cmd4j.Internals.Link.LinkBuilder;
 import cmd4j.Observers.IObservable;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 
 /**
@@ -187,14 +188,21 @@ enum Internals {
 		}
 
 
-		static class RunOneCallFactory<O>
+		/**
+		 * {@link ICommandCallFactory} which short circuits after the {@link Predicate} is satisfied
+		 * @author wassj
+		 * @param <O>
+		 */
+		static class RunUntilCallFactory<O>
 			extends DefaultCallFactory<O> {
 
-			private boolean ran;
+			private final Predicate<Object> until;
+			private boolean done;
 
 
-			public RunOneCallFactory() {
+			public RunUntilCallFactory(final Predicate<? extends Object> until) {
 				super(true, false);
+				this.until = (Predicate<Object>)Preconditions.checkNotNull(until);
 			}
 
 
@@ -204,17 +212,29 @@ enum Internals {
 					public O call()
 						throws Exception {
 
-						if (!ran) {
+						if (!done) {
 							ICommand command = head;
 							while (command != null) {
 								command = invoke(command, input.get(), returns, called, true, false);
-								ran = called.was();
-								// dont break on ran; allows state commands to run to completion if they are the one-run
+
+								// dont break on done; this allows state commands to run to completion if they are the one-run
+								done = done || satisfied(returns);
 							}
 						}
 						return null;
 					}
 				};
+			}
+
+
+			private boolean satisfied(final Returns returns) {
+				try {
+					return until.apply(returns.get());
+				}
+				catch (final Exception e) {
+					// ignore; a mismatch on the predicate and return type is a valid state
+					return false;
+				}
 			}
 		}
 

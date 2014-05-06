@@ -1,6 +1,5 @@
 package cmd4j;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -22,7 +21,7 @@ import cmd4j.Internals.Builder.BaseBuilder;
 import cmd4j.Internals.Builder.ReturningBuilder;
 import cmd4j.Internals.Command.CommandCallable;
 import cmd4j.Internals.Command.CommandRunnable;
-import cmd4j.Internals.Command.RunOneCallFactory;
+import cmd4j.Internals.Command.RunUntilCallFactory;
 import cmd4j.Internals.Executor.EventDispatchExecutor;
 
 import com.google.common.base.Preconditions;
@@ -251,24 +250,16 @@ public class Commands {
 
 
 	/**
-	 * execute no more than one of the passed commands
+	 * execute the commands in order until the condition is met
+	 * the specified {@link Predicate} will check the return value of each command for satisfaction
 	 * @param commands
+	 * @param condition
 	 * @return
 	 */
-	public static ICommand onlyOne(final ICommand... commands) {
-		return onlyOne(Arrays.asList(commands));
-	}
-
-
-	/**
-	 * execute no more than one of the passed commands
-	 * @param commands
-	 * @return
-	 */
-	public static ICommand onlyOne(final Collection<? extends ICommand> commands) {
+	public static ICommand until(final Collection<? extends ICommand> commands, final Predicate<? extends Object> condition) {
 		final BaseBuilder builder = new BaseBuilder();
 		builder.add(commands);
-		return new ReturningBuilder<Object>(builder).build(new RunOneCallFactory<Object>());
+		return new ReturningBuilder<Object>(builder).build(new RunUntilCallFactory<Object>(condition));
 	}
 
 
