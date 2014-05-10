@@ -40,6 +40,15 @@ public enum Does {
 	}
 
 
+	public static Says runtimeBoom() {
+		return new Says() {
+			public void invoke(final Object input) {
+				throw new RuntimeBoom();
+			}
+		};
+	}
+
+
 	public static Counts counts() {
 		return new Counts();
 	}
@@ -246,6 +255,15 @@ public enum Does {
 
 		public Boom() {
 			super("boom");
+		}
+	}
+
+
+	public static class RuntimeBoom
+		extends RuntimeException {
+
+		public RuntimeBoom() {
+			super("runtime-boom");
 		}
 	}
 

@@ -23,6 +23,9 @@ import cmd4j.Internals.Chain.VisitingChainDecorator;
 import cmd4j.Internals.Link;
 
 import com.google.common.base.Supplier;
+import com.google.common.base.Throwables;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -153,7 +156,7 @@ public class Chains {
 	 * @return
 	 */
 	public static <O> ListenableFuture<O> submit(final IChain<O> chain, final ExecutorService executor) {
-		return MoreExecutors.listeningDecorator(executor).submit(Commands.callable(chain));
+		return submit(chain, null, executor);
 	}
 
 
@@ -164,7 +167,9 @@ public class Chains {
 	 * @return
 	 */
 	public static <O> ListenableFuture<O> submit(final IChain<O> chain, @Nullable final Object input, final ExecutorService executor) {
-		return MoreExecutors.listeningDecorator(executor).submit(Commands.callable(chain, input));
+		final ListenableFuture<O> future = MoreExecutors.listeningDecorator(executor).submit(Commands.callable(chain, input));
+		Futures.addCallback(future, new PropogatingFutureCallback<O>());
+		return future;
 	}
 
 
@@ -394,6 +399,24 @@ public class Chains {
 
 
 		ExecutorService executor();
+	}
+
+
+	/**
+	 * {@link FutureCallback} implementation which will propogate exceptions
+	 * @author wassj
+	 */
+	public static class PropogatingFutureCallback<V>
+		implements FutureCallback<V> {
+
+		public void onSuccess(final V result) {
+			// nop on success
+		}
+
+
+		public void onFailure(final Throwable t) {
+			Throwables.propagate(t);
+		}
 	}
 
 
