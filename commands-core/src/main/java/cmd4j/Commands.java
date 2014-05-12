@@ -27,6 +27,7 @@ import cmd4j.Internals.Executor.EventDispatchExecutor;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
+import com.google.common.base.Throwables;
 
 /**
  * General {@link ICommand} related utilities
@@ -35,6 +36,21 @@ import com.google.common.base.Supplier;
  *
  */
 public class Commands {
+
+	public static <O> O uncheckedInvoke(final IReturningCommand<O> command) {
+		return uncheckedInvoke(command, null);
+	}
+
+
+	public static <O> O uncheckedInvoke(final IReturningCommand<O> command, final Object input) {
+		try {
+			return Chains.create(command).invoke(input);
+		}
+		catch (final Exception e) {
+			throw Throwables.propagate(e);
+		}
+	}
+
 
 	/**
 	 * no-operation command
