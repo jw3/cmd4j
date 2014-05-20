@@ -619,11 +619,12 @@ enum Internals {
 			protected ILink callImpl(final ILink link, final Input inputs, final Returns returns, final Called called, final ICommandCallFactory<?> callFactory)
 				throws Exception {
 
-				if (!inputs.isNull() && link.input() == null) {
-					link.input(inputs.get());
+				Object linkDotInput = link.input();
+				if (!inputs.isNull() && linkDotInput == null) {
+					linkDotInput = inputs.get();
 				}
+				final Input input = linkDotInput != null ? new Input(linkDotInput) : inputs;
 				final ICommand command = link.cmd();
-				final Input input = link.input() != null ? new Input(link.input()) : inputs;
 
 				// output pipes redirect the current output value as their input 
 				if (command instanceof IOutputPipe<?>) {

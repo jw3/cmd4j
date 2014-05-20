@@ -385,9 +385,6 @@ public class Chains {
 		Object input();
 
 
-		ILink input(Object input);
-
-
 		/**
 		 * the {@link ICommand command} in this link.  The actual command type will be inspected 
 		 * at execution time.  It is possible that through the use of {@link ICommand3 command3}
