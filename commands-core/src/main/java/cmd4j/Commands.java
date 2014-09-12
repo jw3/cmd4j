@@ -37,6 +37,21 @@ import com.google.common.base.Throwables;
  */
 public class Commands {
 
+	public static void uncheckedInvoke(final ICommand command) {
+		uncheckedInvoke(command, null);
+	}
+
+
+	public static void uncheckedInvoke(final ICommand command, final Object input) {
+		try {
+			Chains.create(command).invoke(input);
+		}
+		catch (final Exception e) {
+			throw Throwables.propagate(e);
+		}
+	}
+
+
 	public static <O> O uncheckedInvoke(final IReturningCommand<O> command) {
 		return uncheckedInvoke(command, null);
 	}
