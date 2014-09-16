@@ -4,14 +4,14 @@
 	<parent>
 		<groupId>cmd4j</groupId>
 		<artifactId>super-pom</artifactId>
-		<version>2.5-SNAPSHOT</version>
+		<version>2.6-SNAPSHOT</version>
 		<relativePath><!-- see http://stackoverflow.com/a/6006098 --></relativePath>
 	</parent>
 
 	<name>Commands Core</name>
 	<groupId>cmd4j</groupId>
 	<artifactId>commands-core</artifactId>
-	<version>0.0.20-SNAPSHOT</version>
+	<version>0.0.21-SNAPSHOT</version>
 
 
 	<properties>
