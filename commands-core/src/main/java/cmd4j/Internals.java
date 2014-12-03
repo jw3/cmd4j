@@ -1,5 +1,7 @@
 package cmd4j;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,6 +33,7 @@ import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommand4;
 import cmd4j.ICommand.IFunction;
+import cmd4j.ICommand.IInputCommand;
 import cmd4j.ICommand.IObservableCommand;
 import cmd4j.ICommand.IObservableStateCommand;
 import cmd4j.ICommand.IPipe;
@@ -50,9 +53,11 @@ import cmd4j.Internals.Command.ICommandCallFactory;
 import cmd4j.Internals.Link.LinkBuilder;
 import cmd4j.Observers.IObservable;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
+import com.google.common.reflect.TypeToken;
 
 /**
  * Non-API Implementations; Not for public consumption
@@ -265,75 +270,85 @@ enum Internals {
 		static ICommand invoke(final ICommand command, final Object input, final Returns output, final Called called, final boolean visits, final boolean undo)
 			throws Exception {
 
-			// will unset later if calling does not occur
-			called.set(true);
-
-			try {
-				if (!undo) {
-					if (command instanceof IStateCommand4<?, ?>) {
-						return ((IStateCommand4)command).invoke(input);
-					}
-					else if (command instanceof IStateCommand3<?>) {
-						return ((IStateCommand3)command).invoke();
-					}
-					else if (command instanceof IStateCommand2<?>) {
-						return ((IStateCommand2)command).invoke(input);
-					}
-					else if (command instanceof IStateCommand1) {
-						return ((IStateCommand1)command).invoke();
-					}
-					else if (command instanceof ICommand4<?, ?>) {
-						output.set(((ICommand4)command).invoke(input));
-					}
-					else if (command instanceof ICommand2<?>) {
-						((ICommand2)command).invoke(input);
-					}
-					else if (command instanceof ICommand3<?>) {
-						output.set(((ICommand3)command).invoke());
-					}
-					else if (command instanceof ICommand1) {
-						((ICommand1)command).invoke();
-					}
-					else {
-						handleAbstractCommand(command);
-					}
-				}
-				else {
-					if (command instanceof IStateCommand4.IUndo<?, ?>) {
-						return ((IStateCommand4.IUndo)command).undo(input);
-					}
-					else if (command instanceof IStateCommand3.IUndo<?>) {
-						return ((IStateCommand3.IUndo)command).undo();
-					}
-					else if (command instanceof IStateCommand2.IUndo<?>) {
-						return ((IStateCommand2.IUndo)command).undo(input);
-					}
-					else if (command instanceof IStateCommand1.IUndo) {
-						return ((IStateCommand1.IUndo)command).undo();
-					}
-					else if (command instanceof ICommand4.IUndo<?, ?>) {
-						output.set(((ICommand4.IUndo)command).undo(input));
-					}
-					else if (command instanceof ICommand2.IUndo<?>) {
-						((ICommand2.IUndo)command).undo(input);
-					}
-					else if (command instanceof ICommand3.IUndo<?>) {
-						output.set(((ICommand3.IUndo)command).undo());
-					}
-					else if (command instanceof ICommand1.IUndo) {
-						((ICommand1.IUndo)command).undo();
-					}
-					else {
-						handleAbstractCommand(command);
+			/*
+			 * check the input and command for compatibility
+			 * if the input does not fit in the command and visiting mode is not enabled
+			 * throw an exception which short circuits the execution of the command.
+			 */
+			if (input != null && command instanceof IInputCommand<?>) {
+				final Optional<Class<?>> acceptedInput = acceptedInput(command);
+				if (acceptedInput.isPresent()) {
+					final Class<?> acceptedType = acceptedInput.get();
+					if (!acceptedType.isAssignableFrom(input.getClass())) {
+						if (!visits) {
+							final String message = new StringBuilder().append("input [").append(input).append("] ").append("does not fit [").append(command).append("]").toString();
+							throw new IllegalArgumentException(message);
+						}
+						return null;
 					}
 				}
 			}
-			catch (final ClassCastException e) {
-				if (!visits) {
-					final String message = new StringBuilder().append("input [").append(input).append("] ").append("does not fit [").append(command).append("]").toString();
-					throw new IllegalArgumentException(message);
+
+			// will unset later if calling does not occur
+			called.set(true);
+
+			if (!undo) {
+				if (command instanceof IStateCommand4<?, ?>) {
+					return ((IStateCommand4)command).invoke(input);
 				}
-				called.set(false);
+				else if (command instanceof IStateCommand3<?>) {
+					return ((IStateCommand3)command).invoke();
+				}
+				else if (command instanceof IStateCommand2<?>) {
+					return ((IStateCommand2)command).invoke(input);
+				}
+				else if (command instanceof IStateCommand1) {
+					return ((IStateCommand1)command).invoke();
+				}
+				else if (command instanceof ICommand4<?, ?>) {
+					output.set(((ICommand4)command).invoke(input));
+				}
+				else if (command instanceof ICommand2<?>) {
+					((ICommand2)command).invoke(input);
+				}
+				else if (command instanceof ICommand3<?>) {
+					output.set(((ICommand3)command).invoke());
+				}
+				else if (command instanceof ICommand1) {
+					((ICommand1)command).invoke();
+				}
+				else {
+					handleAbstractCommand(command);
+				}
+			}
+			else {
+				if (command instanceof IStateCommand4.IUndo<?, ?>) {
+					return ((IStateCommand4.IUndo)command).undo(input);
+				}
+				else if (command instanceof IStateCommand3.IUndo<?>) {
+					return ((IStateCommand3.IUndo)command).undo();
+				}
+				else if (command instanceof IStateCommand2.IUndo<?>) {
+					return ((IStateCommand2.IUndo)command).undo(input);
+				}
+				else if (command instanceof IStateCommand1.IUndo) {
+					return ((IStateCommand1.IUndo)command).undo();
+				}
+				else if (command instanceof ICommand4.IUndo<?, ?>) {
+					output.set(((ICommand4.IUndo)command).undo(input));
+				}
+				else if (command instanceof ICommand2.IUndo<?>) {
+					((ICommand2.IUndo)command).undo(input);
+				}
+				else if (command instanceof ICommand3.IUndo<?>) {
+					output.set(((ICommand3.IUndo)command).undo());
+				}
+				else if (command instanceof ICommand1.IUndo) {
+					((ICommand1.IUndo)command).undo();
+				}
+				else {
+					handleAbstractCommand(command);
+				}
 			}
 			// all non-returning/non-state commands fall through to here 
 			return null;
@@ -342,6 +357,27 @@ enum Internals {
 
 		static void handleAbstractCommand(final ICommand command) {
 			throw new IllegalStateException("abstract command instance, " + command.getClass());
+		}
+
+
+		/**
+		 * capture the type specified by {@link IInputCommand}, if any
+		 * @param command
+		 * @return
+		 */
+		static Optional<Class<?>> acceptedInput(final ICommand command) {
+			if (command instanceof IInputCommand<?>) {
+				final Type type = TypeToken.of(((IInputCommand<?>)command).getClass()).getSupertype(IInputCommand.class).getType();
+				if (type instanceof ParameterizedType) {
+					final Type[] args = ((ParameterizedType)type).getActualTypeArguments();
+					if (args.length > 0 && args[0] instanceof Class<?>) {
+						return Optional.<Class<?>> of((Class<?>)((ParameterizedType)type).getActualTypeArguments()[0]);
+					}
+				}
+				// if there was no parameter available, return Object
+				return Optional.<Class<?>> of(Object.class);
+			}
+			return Optional.absent();
 		}
 	}
 
