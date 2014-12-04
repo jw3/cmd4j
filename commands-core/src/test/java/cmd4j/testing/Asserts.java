@@ -6,6 +6,8 @@ import org.testng.Assert;
 
 import cmd4j.Chains;
 import cmd4j.ICommand;
+import cmd4j.ICommand.ICommand1;
+import cmd4j.ICommand.ICommand2;
 import cmd4j.testing.Does.TestVariable;
 
 import com.google.common.base.Predicate;
@@ -17,7 +19,7 @@ import com.google.common.base.Predicate;
  *
  */
 public class Asserts
-	implements ICommand {
+	implements ICommand1 {
 
 	private final Thread expected;
 

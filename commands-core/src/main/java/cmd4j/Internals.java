@@ -294,6 +294,9 @@ enum Internals {
 					else if (command instanceof ICommand1) {
 						((ICommand1)command).invoke();
 					}
+					else {
+						handleAbstractCommand(command);
+					}
 				}
 				else {
 					if (command instanceof IStateCommand4.IUndo<?, ?>) {
@@ -320,6 +323,9 @@ enum Internals {
 					else if (command instanceof ICommand1.IUndo) {
 						((ICommand1.IUndo)command).undo();
 					}
+					else {
+						handleAbstractCommand(command);
+					}
 				}
 			}
 			catch (final ClassCastException e) {
@@ -329,7 +335,13 @@ enum Internals {
 				}
 				called.set(false);
 			}
+			// all non-returning/non-state commands fall through to here 
 			return null;
+		}
+
+
+		static void handleAbstractCommand(final ICommand command) {
+			throw new IllegalStateException("abstract command instance, " + command.getClass());
 		}
 	}
 

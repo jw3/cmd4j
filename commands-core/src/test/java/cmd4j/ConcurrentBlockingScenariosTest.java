@@ -37,7 +37,6 @@ public class ConcurrentBlockingScenariosTest {
 
 		final TestVariable<Boolean> var = new TestVariable<Boolean>();
 		Chains.builder()//
-			.add(Asserts.isRunningIn(Services.t1))
 			.add(Does.set(var, true))
 			.build()
 			.invoke();
@@ -160,7 +159,7 @@ public class ConcurrentBlockingScenariosTest {
 				throws Exception {
 
 				final IChain<Void> chain = Chains.builder()//
-					.add(Asserts.isRunningIn(Services.t1))
+					.add(Asserts.isRunningIn(Services.multi1))
 					.add(Does.set(var, true))
 					.build();
 				Chains.submit(chain, Services.multi1.executor()).get();

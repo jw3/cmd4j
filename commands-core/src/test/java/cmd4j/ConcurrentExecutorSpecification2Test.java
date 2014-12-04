@@ -68,7 +68,7 @@ public class ConcurrentExecutorSpecification2Test {
 			.add(Asserts.isRunningIn(Services.t1))
 			.executor(Services.t1.executor())
 
-			.add(Asserts.isCurrent())
+			.add(Asserts.isRunningIn(Services.edt))
 			.executor(Services.edt.executor())
 
 			.add(Asserts.isRunningIn(Services.t2))
