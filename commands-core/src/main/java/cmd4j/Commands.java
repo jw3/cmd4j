@@ -37,11 +37,20 @@ import com.google.common.base.Throwables;
  */
 public class Commands {
 
+	/**
+	 * invoke the specified {@link ICommand} converting any resulting exception to a {@link Runtime} exception 
+	 * @param command
+	 */
 	public static void uncheckedInvoke(final ICommand command) {
 		uncheckedInvoke(command, null);
 	}
 
 
+	/**
+	 * invoke the specified {@link ICommand} with the specified input converting any resulting exception to a {@link Runtime} exception
+	 * @param command
+	 * @param input
+	 */
 	public static void uncheckedInvoke(final ICommand command, final Object input) {
 		try {
 			Chains.create(command).invoke(input);
@@ -52,11 +61,22 @@ public class Commands {
 	}
 
 
+	/**
+	 * invoke the specified {@link IReturningCommand} converting any resulting exception to a {@link Runtime} exception 
+	 * @param command
+	 * @return
+	 */
 	public static <O> O uncheckedInvoke(final IReturningCommand<O> command) {
 		return uncheckedInvoke(command, null);
 	}
 
 
+	/**
+	 * invoke the specified {@link IReturningCommand} with the specified input converting any resulting exception to a {@link Runtime} exception
+	 * @param command
+	 * @param input
+	 * @return
+	 */
 	public static <O> O uncheckedInvoke(final IReturningCommand<O> command, final Object input) {
 		try {
 			return Chains.create(command).invoke(input);
@@ -294,7 +314,6 @@ public class Commands {
 	}
 
 
-	// untested
 	public static ICommand forEach(final Supplier<? extends ICommand> supplier) {
 		return new IStateCommand2<Collection<?>>() {
 			public ICommand invoke(final Collection<?> input) {
