@@ -318,7 +318,7 @@ enum Internals {
 					((ICommand1)command).invoke();
 				}
 				else {
-					handleAbstractCommand(command);
+					throw new IllegalStateException("abstract command instance, " + command.getClass());
 				}
 			}
 			else {
@@ -347,16 +347,11 @@ enum Internals {
 					((ICommand1.IUndo)command).undo();
 				}
 				else {
-					handleAbstractCommand(command);
+					throw new IllegalStateException("abstract command instance, " + command.getClass());
 				}
 			}
 			// all non-returning/non-state commands fall through to here 
 			return null;
-		}
-
-
-		static void handleAbstractCommand(final ICommand command) {
-			throw new IllegalStateException("abstract command instance, " + command.getClass());
 		}
 
 
@@ -367,10 +362,11 @@ enum Internals {
 		 */
 		static Optional<Class<?>> acceptedInput(final ICommand command) {
 			if (command instanceof IInputCommand<?>) {
-				final Type type = TypeToken.of(((IInputCommand<?>)command).getClass()).getSupertype(IInputCommand.class).getType();
+				final TypeToken<? extends IInputCommand> token = TypeToken.of(((IInputCommand<?>)command).getClass());
+				final Type type = token.getSupertype(IInputCommand.class).getType();
 				if (type instanceof ParameterizedType) {
 					final Type[] args = ((ParameterizedType)type).getActualTypeArguments();
-					if (args.length > 0 && args[0] instanceof Class<?>) {
+					if (args.length == 1 && args[0] instanceof Class<?>) {
 						return Optional.<Class<?>> of((Class<?>)((ParameterizedType)type).getActualTypeArguments()[0]);
 					}
 				}
