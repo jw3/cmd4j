@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import javax.annotation.Nullable;
+
 import cmd4j.ICommand.ICommand2;
 
 /**
@@ -39,7 +41,7 @@ abstract public class Says
 
 	public static Says input(final Writer... into) {
 		return new Says() {
-			public void invoke(final Object input)
+			public void invoke(@Nullable final Object input)
 				throws Exception {
 
 				if (into.length == 0) {
@@ -57,7 +59,7 @@ abstract public class Says
 
 	public static Says threadInput(final Writer... into) {
 		return new Says() {
-			public void invoke(final Object input)
+			public void invoke(@Nullable final Object input)
 				throws IOException {
 
 				final StringBuilder buffer = new StringBuilder();
@@ -81,7 +83,7 @@ abstract public class Says
 
 	public static Says thread(final Writer... into) {
 		return new Says() {
-			public void invoke(final Object input)
+			public void invoke(@Nullable final Object input)
 				throws IOException {
 
 				final StringBuilder buffer = new StringBuilder();
@@ -102,7 +104,7 @@ abstract public class Says
 
 	public static Says what(final Object toSay, final Object... into) {
 		return new Says() {
-			public void invoke(final Object input)
+			public void invoke(@Nullable final Object input)
 				throws IOException {
 
 				if (into.length == 0) {

@@ -1,5 +1,7 @@
 package cmd4j;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -34,6 +36,7 @@ import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommand4;
 import cmd4j.ICommand.IFunction;
 import cmd4j.ICommand.IInputCommand;
+import cmd4j.ICommand.IInvokable;
 import cmd4j.ICommand.IObservableCommand;
 import cmd4j.ICommand.IObservableStateCommand;
 import cmd4j.ICommand.IPipe;
@@ -57,6 +60,8 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 
 /**
@@ -275,17 +280,23 @@ enum Internals {
 			 * if the input does not fit in the command and visiting mode is not enabled
 			 * throw an exception which short circuits the execution of the command.
 			 */
-			if (input != null && command instanceof IInputCommand<?>) {
-				final Optional<Class<?>> acceptedInput = acceptedInput(command);
-				if (acceptedInput.isPresent()) {
-					final Class<?> acceptedType = acceptedInput.get();
-					if (!acceptedType.isAssignableFrom(input.getClass())) {
-						if (!visits) {
-							final String message = new StringBuilder().append("input [").append(input).append("] ").append("does not fit [").append(command).append("]").toString();
-							throw new IllegalArgumentException(message);
+			if (command instanceof IInputCommand<?>) {
+				if (input != null) {
+					final Optional<Class<?>> acceptedInput = acceptedInput(command);
+					if (acceptedInput.isPresent()) {
+						final Class<?> acceptedType = acceptedInput.get();
+						if (!acceptedType.isAssignableFrom(input.getClass())) {
+							if (!visits) {
+								final String message = new StringBuilder().append("input [").append(input).append("] ").append("does not fit [").append(command).append("]").toString();
+								throw new IllegalArgumentException(message);
+							}
+							return null;
 						}
-						return null;
 					}
+				}
+				// the following expensive check is reason for breaking the invocation implementation into separate strategies 
+				else if (!IInvokable.class.isInstance(command) && !isInputNullable((IInputCommand<?>)command)) {
+					return null;
 				}
 			}
 
@@ -375,6 +386,32 @@ enum Internals {
 			}
 			return Optional.absent();
 		}
+
+
+		/**
+		 * check the input parameter for {@link Nullable nullability}
+		 * @param command
+		 * @return
+		 */
+		static boolean isInputNullable(final IInputCommand<?> command) {
+			for (final Method method : Iterables.filter(Lists.newArrayList(command.getClass().getMethods()), findInvoke)) {
+				final Annotation[][] annotations = method.getParameterAnnotations();
+				if (annotations.length > 0) {
+					for (final Annotation annotation : annotations[0]) {
+						if (Nullable.class.isInstance(annotation)) {
+							return true;
+						}
+					}
+				}
+			}
+			return false;
+		}
+
+		static final Predicate<Method> findInvoke = new Predicate<Method>() {
+			public boolean apply(final Method method) {
+				return method.getName().equals("invoke");
+			}
+		};
 	}
 
 

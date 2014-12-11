@@ -293,7 +293,7 @@ public class Commands {
 	 */
 	public static <I> IStateCommand2<I> invokeIf(final ICommand command, final Predicate<I> condition, @Nullable final ICommand onElse) {
 		return new IStateCommand2<I>() {
-			public ICommand invoke(final I input) {
+			public ICommand invoke(@Nullable final I input) {
 				return condition.apply(input) ? command : onElse;
 			}
 		};

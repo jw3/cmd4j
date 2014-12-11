@@ -7,7 +7,6 @@ import org.testng.Assert;
 import cmd4j.Chains;
 import cmd4j.ICommand;
 import cmd4j.ICommand.ICommand1;
-import cmd4j.ICommand.ICommand2;
 import cmd4j.testing.Does.TestVariable;
 
 import com.google.common.base.Predicate;
@@ -50,7 +49,7 @@ public class Asserts
 		final TestVariable<Boolean> invoked = Does.var(false);
 		return Chains.builder()//
 			.add(new ICommand2<T>() {
-				public void invoke(final T input) {
+				public void invoke(@Nullable final T input) {
 					invoked.set(true);
 					Assert.assertEquals(input, value);
 				}
@@ -89,7 +88,7 @@ public class Asserts
 	public static <T> ICommand isEquals(final TestVariable<T> var, @Nullable final T val) {
 		return new ICommand1() {
 			public void invoke() {
-				Assert.assertEquals(val, var.get());
+				Assert.assertEquals(var.get(), val);
 			}
 		};
 	}

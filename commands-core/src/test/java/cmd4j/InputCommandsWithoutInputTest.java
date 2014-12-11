@@ -35,7 +35,7 @@ public class InputCommandsWithoutInputTest {
 
 
 	/**
-	 * if an input is not specified the command will be invoked with null as the parameter
+	 * if a non nullable input command is specified, it will not be invoked without input
 	 */
 	@Test
 	public void without()
@@ -44,9 +44,16 @@ public class InputCommandsWithoutInputTest {
 		new Expectations() {
 			{
 				a.invoke(null);
-				times = 1;
+				times = 0;
 			}
 		};
 		Chains.create(a).invoke();
+	}
+
+
+	// need to figure out how to mock this test
+	public void nullableWithout() {
+		// same as without, but using an ICommand2 that has @Nullable on the parameter
+		// execution times would == 1 on this test
 	}
 }

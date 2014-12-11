@@ -3,6 +3,8 @@ package cmd4j.testing;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
+import javax.annotation.Nullable;
+
 import org.testng.Assert;
 
 import cmd4j.Commands;
@@ -31,7 +33,7 @@ public enum Does {
 
 	public static Says boom() {
 		return new Says() {
-			public void invoke(final Object input)
+			public void invoke(@Nullable final Object input)
 				throws Exception {
 
 				throw new Boom();
@@ -42,7 +44,7 @@ public enum Does {
 
 	public static Says runtimeBoom() {
 		return new Says() {
-			public void invoke(final Object input) {
+			public void invoke(@Nullable final Object input) {
 				throw new RuntimeBoom();
 			}
 		};
@@ -56,7 +58,7 @@ public enum Does {
 
 	public static ICommand submits(final IReturningCommand<Void> command, final ExecutorService executor) {
 		return new ICommand2<Object>() {
-			public void invoke(final Object input)
+			public void invoke(@Nullable final Object input)
 				throws Exception {
 
 				final Callable<Void> callable = Commands.callable(command, input);
@@ -68,7 +70,7 @@ public enum Does {
 
 	public static ICommand invoked(final Variable<Boolean> called) {
 		return new ICommand2<Object>() {
-			public void invoke(final Object input) {
+			public void invoke(@Nullable final Object input) {
 				called.set(true);
 			}
 		};
@@ -112,6 +114,15 @@ public enum Does {
 	public static <T> IReturningCommand<Void> set(final Variable<T> v) {
 		return new ICommand2<T>() {
 			public void invoke(final T value) {
+				v.set(value);
+			}
+		};
+	}
+
+
+	public static <T> IReturningCommand<Void> nullableSet(final Variable<T> v) {
+		return new ICommand2<T>() {
+			public void invoke(@Nullable final T value) {
 				v.set(value);
 			}
 		};
@@ -198,12 +209,12 @@ public enum Does {
 		}
 
 
-		public void invoke(Object o) {
+		public void invoke(@Nullable Object o) {
 			var.set(modified);
 		}
 
 
-		public void undo(Object o) {
+		public void undo(@Nullable Object o) {
 			var.set(original);
 		}
 	}
