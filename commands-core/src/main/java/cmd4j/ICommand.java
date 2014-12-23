@@ -1,9 +1,16 @@
 package cmd4j;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import javax.annotation.Nullable;
 
 import cmd4j.Chains.ILink;
 import cmd4j.Observers.IObservable;
+
+import com.google.common.annotations.Beta;
 
 /**
  * A block of execution as detailed in the <a href="http://en.wikipedia.org/wiki/Command_pattern">Command Pattern</a>.
@@ -147,6 +154,49 @@ public interface ICommand {
 			O undo(@Nullable I input)
 				throws Exception;
 		}
+	}
+
+
+	/**
+	 * tagging annotation for {@link ICommandM} implementations
+	 * optional (but encouraged) for {@link ICommandM} invoke implementations
+	 * @author wassj
+	 */
+	@Beta
+	@Target(ElementType.METHOD)
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface CommandM {
+	}
+
+
+	/**
+	 * base multi-input command
+	 * @author wassj
+	 */
+	@Beta
+	public interface ICommandM
+		extends ICommand {
+	}
+
+
+	/**
+	 * multi-input
+	 * @author wassj
+	 */
+	@Beta
+	public interface ICommand2M
+		extends ICommandM, IInputCommand<Object[]> {
+	}
+
+
+	/**
+	 * multi-input, single output
+	 * @author wassj
+	 * @param <O> output type
+	 */
+	@Beta
+	public interface ICommand4M<O>
+		extends ICommandM, IInputCommand<Object[]>, IReturningCommand<O> {
 	}
 
 

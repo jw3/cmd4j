@@ -30,10 +30,14 @@ import cmd4j.Chains.IReturningChainBuilder;
 import cmd4j.Commands.Variable;
 import cmd4j.IChain.IObservableChain;
 import cmd4j.IChain.IUndoChain;
+import cmd4j.ICommand.CommandM;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
+import cmd4j.ICommand.ICommand2M;
 import cmd4j.ICommand.ICommand3;
 import cmd4j.ICommand.ICommand4;
+import cmd4j.ICommand.ICommand4M;
+import cmd4j.ICommand.ICommandM;
 import cmd4j.ICommand.IFunction;
 import cmd4j.ICommand.IInputCommand;
 import cmd4j.ICommand.IInvokable;
@@ -60,6 +64,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
@@ -328,6 +333,28 @@ enum Internals {
 				else if (command instanceof ICommand1) {
 					((ICommand1)command).invoke();
 				}
+
+				/*
+				 * 0) @CommandM must be present
+				 * 1) input length and parameter count must match
+				 * 2) input must be assigable to parameter type
+				 * 3) @Nullable is supported if the input contains null
+				 * 
+				 * future enhancement is to allow #3 to handle @Nullable without
+				 * the null being present in the input
+				 * 
+				 * non-array input is allowed if the method takes one arg
+				 * 
+				 */
+				else if (command instanceof ICommand2M) {
+					invokeMultiInput((ICommandM)command, input, called);
+				}
+				else if (command instanceof ICommand4M) {
+					final Object result = invokeMultiInput((ICommandM)command, input, called);
+					if (called.get()) {
+						output.set(result);
+					}
+				}
 				else {
 					throw new IllegalStateException("abstract command instance, " + command.getClass());
 				}
@@ -363,6 +390,17 @@ enum Internals {
 			}
 			// all non-returning/non-state commands fall through to here 
 			return null;
+		}
+
+
+		static boolean parametersMatch(final Class<?>[] paramTypes, final Object[] inputs) {
+			Preconditions.checkArgument(paramTypes.length == inputs.length, "differing array lengths");
+			for (int i = 0; i < paramTypes.length; ++i) {
+				if (inputs[i] == null || !paramTypes[i].isAssignableFrom(inputs[i].getClass())) {
+					return false;
+				}
+			}
+			return true;
 		}
 
 
@@ -407,11 +445,64 @@ enum Internals {
 			return false;
 		}
 
+
+		/**
+		 * locate the invoke method that is annotated with {@link CommandM}
+		 * @param command
+		 * @return
+		 */
+		static Optional<Method> findMultiInputInvoke(final ICommandM command) {
+			final Collection<Method> found = Collections2.filter(Lists.newArrayList(command.getClass().getMethods()), findInvoke);
+			if (!found.isEmpty()) {
+				if (found.size() == 1) {
+					return Optional.of(Iterables.getOnlyElement(found));
+				}
+				else {
+					for (final Method method : found) {
+						if (method.isAnnotationPresent(CommandM.class)) {
+							return Optional.of(method);
+						}
+					}
+				}
+			}
+			return Optional.absent();
+		}
+
 		static final Predicate<Method> findInvoke = new Predicate<Method>() {
 			public boolean apply(final Method method) {
 				return method.getName().equals("invoke");
 			}
 		};
+
+
+		static Object invokeMultiInput(final ICommandM command, final Object input, final Called called)
+			throws Exception {
+
+			final Optional<Method> optionalInvoke = findMultiInputInvoke(command);
+			if (optionalInvoke.isPresent()) {
+				final Method method = optionalInvoke.get();
+				final int paramCount = method.getParameterTypes().length;//annotation.value().length;
+
+				if (input instanceof Object[]) {
+					final Object[] inputs = (Object[])input;
+					final int inputCount = inputs.length;
+					if (paramCount == inputCount) {
+						final Class<?>[] parameterTypes = method.getParameterTypes();
+						if (parametersMatch(parameterTypes, inputs)) {
+							return method.invoke(command, inputs);
+						}
+					}
+				}
+				else if (paramCount == 1) {
+					final Class<?> paramType = method.getParameterTypes()[0];
+					if (paramType.isAssignableFrom(input.getClass())) {
+						return method.invoke(command, input);
+					}
+				}
+			}
+			called.set(false);
+			return null;
+		}
 	}
 
 
