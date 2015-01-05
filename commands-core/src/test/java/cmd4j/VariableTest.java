@@ -2,7 +2,7 @@ package cmd4j;
 
 import java.util.UUID;
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import cmd4j.Commands.Variable;

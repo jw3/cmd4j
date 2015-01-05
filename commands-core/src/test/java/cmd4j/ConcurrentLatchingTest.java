@@ -3,42 +3,45 @@ package cmd4j;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
-import junit.framework.Assert;
+import mockit.Expectations;
+import mockit.Mocked;
 
 import org.testng.annotations.Test;
 
-import cmd4j.testing.Says;
+import cmd4j.ICommand.ICommand1;
 import cmd4j.testing.Services;
 
+import com.google.common.util.concurrent.MoreExecutors;
+
 /**
- *
- *
+ * validate command execution blocking using latches
  * @author wassj
  *
  */
 public class ConcurrentLatchingTest {
 
 	@Test
-	public void firstTest()
+	public void test(@Mocked final ICommand1 a, @Mocked final ICommand1 b, @Mocked final ICommand1 c)
 		throws Exception {
 
+		// use a latch to block b until c is complete
+		new Expectations() {
+			{
+				a.invoke();
+				c.invoke();
+				b.invoke();
+			}
+		};
+
 		final CountDownLatch latch = new CountDownLatch(1);
-		final StringBuilder buffer = new StringBuilder();
 
-		final IChain<Void> chain = Chains.builder().add(Says.what("0", buffer)).add(Commands.waitFor(latch)).add(Says.what("2", buffer)).build();
-		final IChain<Void> chain2 = Chains.builder().add(Commands.waitFor(100)).add(Says.what("1", buffer)).add(Commands.countDown(latch)).build();
+		final IChain<Void> chain = Chains.builder().add(a).add(Commands.waitFor(latch)).add(b).build();
+
+		// add a wait just to illustrate that b is actually stopped for a bit
+		final IChain<Void> chain2 = Chains.builder().add(Commands.waitFor(100)).add(c).add(Commands.countDown(latch)).build();
+
 		final Future<Void> f = Chains.submit(chain, Services.multi1.executor());
-		Chains.submit(chain2, Services.multi1.executor());
+		Chains.submit(chain2, MoreExecutors.sameThreadExecutor());
 		f.get();
-
-		final String result = buffer.toString();
-		Assert.assertFalse(result.isEmpty());
-
-		// not planning on double digit results strings, will revisit if needed
-		Assert.assertTrue(result.length() < 10);
-
-		for (int i = 0; i < result.length(); ++i) {
-			Assert.assertEquals(String.valueOf(i), String.valueOf(result.charAt(i)));
-		}
 	}
 }

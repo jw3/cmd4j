@@ -216,48 +216,54 @@ public class FluentBuilderTest {
 	 * verify that a transform return function returns the correct value
 	 */
 	@Test
-	public void testTransformReturnFunction()
+	public void testTransformReturnFunction1()
 		throws Exception {
 
-		{
-			final TestVariable<Boolean> ran = TestVariable.create(false);
-			final Object expected = "expected";
-			final IChain<String> chain = Chains.builder().add(Does.returns(expected)).returns(stringify(ran)).build();
-			final Object actual = chain.invoke();
-			Assert.assertEquals(actual, expected);
-			ran.assertEquals(true);
-		}
-		{
-			final TestVariable<Boolean> ran = TestVariable.create(false);
-			final Object expected = 100;
-			final IChain<String> chain = Chains.builder().add(Does.returns(expected)).returns(stringify(ran)).build();
-			final Object actual = chain.invoke();
-			Assert.assertEquals(actual, String.valueOf(expected));
-			ran.assertEquals(true);
-		}
+		final TestVariable<Boolean> ran = TestVariable.create(false);
+		final Object expected = "expected";
+		final IChain<String> chain = Chains.builder().add(Does.returns(expected)).returns(stringify(ran)).build();
+		final Object actual = chain.invoke();
+		Assert.assertEquals(actual, expected);
+		ran.assertEquals(true);
 	}
 
 
 	@Test
-	public void testTransformReturnFunctionWithUtils()
+	public void testTransformReturnFunction2()
 		throws Exception {
 
-		{
-			final TestVariable<Boolean> ran = TestVariable.create(false);
-			final Object expected = "expected";
-			final IChain<String> chain = Chains.returns(Chains.builder().add(Does.returns(expected)).build(), stringify(ran));
-			final Object actual = chain.invoke();
-			Assert.assertEquals(actual, expected);
-			ran.assertEquals(true);
-		}
-		{
-			final TestVariable<Boolean> ran = TestVariable.create(false);
-			final Object expected = 100;
-			final IChain<String> chain = Chains.returns(Chains.builder().add(Does.returns(expected)).build(), stringify(ran));
-			final Object actual = chain.invoke();
-			Assert.assertEquals(actual, String.valueOf(expected));
-			ran.assertEquals(true);
-		}
+		final TestVariable<Boolean> ran = TestVariable.create(false);
+		final Object expected = 100;
+		final IChain<String> chain = Chains.builder().add(Does.returns(expected)).returns(stringify(ran)).build();
+		final Object actual = chain.invoke();
+		Assert.assertEquals(actual, String.valueOf(expected));
+		ran.assertEquals(true);
+	}
+
+
+	@Test
+	public void testTransformReturnFunctionWithUtils1()
+		throws Exception {
+
+		final TestVariable<Boolean> ran = TestVariable.create(false);
+		final Object expected = "expected";
+		final IChain<String> chain = Chains.returns(Chains.builder().add(Does.returns(expected)).build(), stringify(ran));
+		final Object actual = chain.invoke();
+		Assert.assertEquals(actual, expected);
+		ran.assertEquals(true);
+	}
+
+
+	@Test
+	public void testTransformReturnFunctionWithUtils2()
+		throws Exception {
+
+		final TestVariable<Boolean> ran = TestVariable.create(false);
+		final Object expected = 100;
+		final IChain<String> chain = Chains.returns(Chains.builder().add(Does.returns(expected)).build(), stringify(ran));
+		final Object actual = chain.invoke();
+		Assert.assertEquals(actual, String.valueOf(expected));
+		ran.assertEquals(true);
 	}
 
 
@@ -321,48 +327,57 @@ public class FluentBuilderTest {
 	 * verify that a transform return function returns null when the result does not fit the function
 	 */
 	@Test
-	public void testTransformReturnFunctionDoesNotFit()
+	public void testTransformReturnFunctionDoesNotFit1()
 		throws Exception {
 
-		{
-			final TestVariable<Boolean> ran = TestVariable.create(false);
-			final Object expected = "expected";
-			final IChain<String> chain = Chains.builder().add(Does.returns(expected)).returns(stringifyNumber(ran)).build();
-			final Object actual = chain.invoke();
-			Assert.assertNull(actual);
-			ran.assertEquals(false);
-		}
-		{
-			final TestVariable<Boolean> ran = TestVariable.create(false);
-			final Object expected = new Object();
-			final IChain<String> chain = Chains.builder().add(Does.returns(expected)).returns(stringifyNumber(ran)).build();
-			final Object actual = chain.invoke();
-			Assert.assertNull(actual);
-			ran.assertEquals(false);
-		}
+		final TestVariable<Boolean> ran = TestVariable.create(false);
+		final Object expected = "expected";
+		final IChain<String> chain = Chains.builder().add(Does.returns(expected)).returns(stringifyNumber(ran)).build();
+		final Object actual = chain.invoke();
+		Assert.assertNull(actual);
+		ran.assertEquals(false);
+	}
+
+
+	/*
+	 * verify that a transform return function returns null when the result does not fit the function
+	 */
+	@Test
+	public void testTransformReturnFunctionDoesNotFit2()
+		throws Exception {
+
+		final TestVariable<Boolean> ran = TestVariable.create(false);
+		final Object expected = new Object();
+		final IChain<String> chain = Chains.builder().add(Does.returns(expected)).returns(stringifyNumber(ran)).build();
+		final Object actual = chain.invoke();
+		Assert.assertNull(actual);
+		ran.assertEquals(false);
 	}
 
 
 	@Test
-	public void testTransformReturnFunctionDoesNotFitWithUtils()
+	public void testTransformReturnFunctionDoesNotFitWithUtils1()
 		throws Exception {
 
-		{
-			final TestVariable<Boolean> ran = TestVariable.create(false);
-			final Object expected = "expected";
-			final IChain<String> chain = Chains.returns(Chains.builder().add(Does.returns(expected)).build(), stringifyNumber(ran));
-			final Object actual = chain.invoke();
-			Assert.assertNull(actual);
-			ran.assertEquals(false);
-		}
-		{
-			final TestVariable<Boolean> ran = TestVariable.create(false);
-			final Object expected = new Object();
-			final IChain<String> chain = Chains.returns(Chains.builder().add(Does.returns(expected)).build(), stringifyNumber(ran));
-			final Object actual = chain.invoke();
-			Assert.assertNull(actual);
-			ran.assertEquals(false);
-		}
+		final TestVariable<Boolean> ran = TestVariable.create(false);
+		final Object expected = "expected";
+		final IChain<String> chain = Chains.returns(Chains.builder().add(Does.returns(expected)).build(), stringifyNumber(ran));
+		final Object actual = chain.invoke();
+		Assert.assertNull(actual);
+		ran.assertEquals(false);
+	}
+
+
+	@Test
+	public void testTransformReturnFunctionDoesNotFitWithUtils2()
+		throws Exception {
+
+		final TestVariable<Boolean> ran = TestVariable.create(false);
+		final Object expected = new Object();
+		final IChain<String> chain = Chains.returns(Chains.builder().add(Does.returns(expected)).build(), stringifyNumber(ran));
+		final Object actual = chain.invoke();
+		Assert.assertNull(actual);
+		ran.assertEquals(false);
 	}
 
 

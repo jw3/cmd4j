@@ -2,8 +2,7 @@ package cmd4j.examples;
 
 import javax.swing.SwingUtilities;
 
-import junit.framework.Assert;
-
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import cmd4j.Chains;

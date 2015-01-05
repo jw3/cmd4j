@@ -2,6 +2,9 @@ package cmd4j;
 
 import java.io.StringWriter;
 
+import mockit.Expectations;
+import mockit.Mocked;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -23,32 +26,39 @@ public class ScopedLinksTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void inheritedLinkIsExecutionScoped()
+	public void inheritedLinkIsExecutionScoped(@Mocked final IChain<Void> reusable)
 		throws Exception {
 
-		final StringWriter writer = new StringWriter();
-		final IChain<Void> reusable = Chains.create(Says.input(writer));
+		new Expectations() {
+			{
+				reusable.invoke("1");
+				reusable.invoke("2");
+				reusable.invoke("3");
+			}
+		};
 
 		final IChain<Void> one = Chains.create(reusable);
 		one.invoke("1");
-		Assert.assertEquals(writer.toString(), "1");
 
 		final IChain<Void> two = Chains.create(reusable);
 		two.invoke("2");
-		Assert.assertEquals(writer.toString(), "12");
 
 		final IChain<Void> three = Chains.create(reusable);
 		three.invoke("3");
-		Assert.assertEquals(writer.toString(), "123");
 	}
 
 
 	@Test
-	public void inheritedLinkIsExecutionScoped2()
+	public void inheritedLinkIsExecutionScoped2(@Mocked final IChain<Void> reusable)
 		throws Exception {
 
-		final StringWriter writer = new StringWriter();
-		final IChain<Void> reusable = Chains.create(Says.input(writer));
+		new Expectations() {
+			{
+				reusable.invoke("1");
+				reusable.invoke("2");
+				reusable.invoke("3");
+			}
+		};
 
 		Chains.builder()//
 			.add(reusable)
@@ -59,8 +69,6 @@ public class ScopedLinksTest {
 			.input("3")
 			.build()
 			.invoke("x");
-
-		Assert.assertEquals(writer.toString(), "123");
 	}
 
 

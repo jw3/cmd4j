@@ -2,9 +2,13 @@ package cmd4j;
 
 import java.util.concurrent.ExecutorService;
 
+import mockit.Expectations;
+import mockit.Mocked;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import cmd4j.ICommand.ICommand1;
 import cmd4j.testing.IService;
 import cmd4j.testing.Says;
 import cmd4j.testing.Says.ISayFactory;
@@ -18,10 +22,28 @@ import cmd4j.testing.Services;
  */
 public class ConcurrentExecutorSpecificationTest {
 
+	/**
+	 * c2 is sandwiched and runs on different executor
+	 */
 	@Test
-	public void test()
+	public void test(@Mocked final ICommand1 c1, @Mocked final ICommand1 c2, @Mocked final ICommand1 c3)
 		throws Exception {
-		Chains.builder().add(Says.what(1)).add(Says.what("...")).executor(Services.t1.executor()).add(Says.what(2)).build().invoke("mississippi");
+
+		new Expectations() {
+			{
+				c1.invoke();
+				c2.invoke();
+				c3.invoke();
+			}
+		};
+
+		Chains.builder() //
+			.add(c1)
+			.add(c2)
+			.executor(Services.t1.executor())
+			.add(c3)
+			.build()
+			.invoke();
 	}
 
 

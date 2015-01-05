@@ -2,12 +2,15 @@ package cmd4j;
 
 import java.util.UUID;
 
+import mockit.Expectations;
+import mockit.Mocked;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import cmd4j.Commands.ForwardingCommand;
-import cmd4j.testing.Does;
-import cmd4j.testing.Does.TestVariable;
+import cmd4j.ICommand.ICommand1;
+import cmd4j.ICommand.ICommand3;
 
 /**
  *
@@ -36,21 +39,37 @@ public class ForwardingCommandTest {
 
 
 	@Test
-	public void noReturn()
+	public void noReturn(@Mocked final ICommand1 forwarded)
 		throws Exception {
 
-		final TestVariable<Boolean> var = TestVariable.create(false);
-		Chains.create(new ForwardingCommand(Does.toggle(var))).invoke();
-		var.assertEquals(true);
+		new Expectations() {
+			{
+				forwarded.invoke();
+			}
+		};
+
+		Chains.create(new ForwardingCommand(forwarded)).invoke();
 	}
 
 
 	@Test
-	public void returns()
+	public void returns(@Mocked final ICommand3<String> forwarded)
 		throws Exception {
 
 		final String expected = UUID.randomUUID().toString();
-		final String actual = Chains.builder().add(new ForwardingCommand(Commands.returns(expected))).returns(String.class).build().invoke();
+		new Expectations() {
+			{
+				forwarded.invoke();
+				result = expected;
+			}
+		};
+
+		final String actual = Chains.builder()//
+			.add(new ForwardingCommand(forwarded))
+			.returns(String.class)
+			.build()
+			.invoke();
+
 		Assert.assertEquals(actual, expected);
 	}
 }

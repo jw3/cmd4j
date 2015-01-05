@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import cmd4j.Chains.IChainBuilder;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand3;
+import cmd4j.ICommand.IInputCommand;
 import cmd4j.ICommand.IInvokable;
 import cmd4j.ICommand.IPipeIO;
 import cmd4j.ICommand.IReturningCommand;
@@ -27,7 +28,9 @@ import cmd4j.Internals.Executor.EventDispatchExecutor;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Lists;
 
 /**
  * General {@link ICommand} related utilities
@@ -314,6 +317,44 @@ public class Commands {
 	}
 
 
+	/**
+	 * execute the command until the condition is met
+	 * the specified {@link Predicate} will check the return value for satisfaction
+	 * @param command
+	 * @param condition
+	 * @return
+	 */
+	public static ICommand until(final ICommand command, final Predicate<? extends Object> condition) {
+		return until(Lists.newArrayList(command), condition);
+	}
+
+
+	/**
+	 * Execute the command for each object provided through {@link IInputCommand}
+	 * @param command
+	 * @return
+	 */
+	public static ICommand forEach(final ICommand command) {
+		return forEach(Suppliers.ofInstance(command));
+	}
+
+
+	/**
+	 * Execute the command for each of the objects in inputs
+	 * @param inputs
+	 * @param command
+	 * @return
+	 */
+	public static <I> IInvokable<Void> forEach(final Collection<I> inputs, final ICommand command) {
+		return forEach(inputs, Suppliers.ofInstance(command));
+	}
+
+
+	/**
+	 * Same function as {@link #forEach(Collection, Supplier)} with the input Collection being supplied through {@link IInputCommand}
+	 * @param supplier
+	 * @return
+	 */
 	public static ICommand forEach(final Supplier<? extends ICommand> supplier) {
 		return new IStateCommand2<Collection<?>>() {
 			public ICommand invoke(final Collection<?> input) {
@@ -323,6 +364,12 @@ public class Commands {
 	}
 
 
+	/**
+	 * Execute the command supplied by the supplier for each object with inputs; 
+	 * @param inputs
+	 * @param supplier
+	 * @return
+	 */
 	public static <I> IInvokable<Void> forEach(final Collection<I> inputs, final Supplier<? extends ICommand> supplier) {
 		final IChainBuilder builder = Chains.builder();
 		for (final I input : inputs) {

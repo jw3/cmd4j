@@ -1,6 +1,10 @@
 package cmd4j;
 
-import org.testng.Assert;
+import java.util.Collection;
+
+import mockit.Expectations;
+import mockit.Mocked;
+
 import org.testng.annotations.Test;
 
 import cmd4j.ICommand.ICommand3;
@@ -15,98 +19,118 @@ import com.google.common.collect.Lists;
  */
 public class RunUntilTest {
 
+	/**
+	 * first one satifies the condition, second one doesnt run
+	 */
 	@Test
-	public void single()
+	public void firstCommandSatisfies(@Mocked final ICommand3<Integer> c1, @Mocked final ICommand3<Integer> c2)
 		throws Exception {
 
-		final ICalled<Integer> c1 = called(1);
-		final ICommand until = Commands.until(Lists.<ICommand> newArrayList(c1), Predicates.equalTo(1));
+		new Expectations() {
+			{
+				c1.invoke();
+				result = 1;
+			}
+		};
+
+		final ICommand until = Commands.until(list(c1, c2), Predicates.equalTo(1));
 		Chains.create(until).invoke();
-		Assert.assertTrue(c1.called());
 	}
 
 
 	@Test
-	public void yesAndNo()
+	public void secondCommandSatisfies(@Mocked final ICommand3<Integer> c1, @Mocked final ICommand3<Integer> c2)
 		throws Exception {
 
-		final ICalled<Integer> c1 = called(1);
-		final ICalled<Integer> c2 = called(2);
-		final ICommand until = Commands.until(Lists.<ICommand> newArrayList(c1, c2), Predicates.equalTo(1));
-		Chains.create(until).invoke();
+		new Expectations() {
+			{
+				c1.invoke();
+				result = 1;
+				c2.invoke();
+				result = 2;
+			}
+		};
 
-		Assert.assertTrue(c1.called());
-		Assert.assertFalse(c2.called());
+		final ICommand until = Commands.until(list(c1, c2), Predicates.equalTo(2));
+		Chains.create(until).invoke();
 	}
 
 
 	@Test
-	public void both()
+	public void mixedTypeSecondCommandSatisfies(@Mocked final ICommand3<String> c1, @Mocked final ICommand3<Integer> c2)
 		throws Exception {
 
-		final ICalled<Integer> c1 = called(1);
-		final ICalled<Integer> c2 = called(2);
-		final ICommand until = Commands.until(Lists.<ICommand> newArrayList(c1, c2), Predicates.equalTo(2));
-		Chains.create(until).invoke();
+		new Expectations() {
+			{
+				c1.invoke();
+				result = "foo";
+				c2.invoke();
+				result = 1;
+			}
+		};
 
-		Assert.assertTrue(c1.called());
-		Assert.assertTrue(c2.called());
+		final ICommand until = Commands.until(list(c1, c2), Predicates.equalTo(1));
+		Chains.create(until).invoke();
 	}
 
 
 	@Test
-	public void mixed_yesAndNo()
+	public void mixedNeitherSatisfies(@Mocked final ICommand3<String> c1, @Mocked final ICommand3<Integer> c2)
 		throws Exception {
 
-		final ICalled<Integer> c1 = called(1);
-		final ICalled<String> c2 = called("foo");
-		final ICommand until = Commands.until(Lists.<ICommand> newArrayList(c1, c2), Predicates.equalTo(1));
-		Chains.create(until).invoke();
+		new Expectations() {
+			{
+				c1.invoke();
+				result = "foo";
+				c2.invoke();
+				result = 1;
+			}
+		};
 
-		Assert.assertTrue(c1.called());
-		Assert.assertFalse(c2.called());
+		final ICommand until = Commands.until(list(c1, c2), Predicates.equalTo(2));
+		Chains.create(until).invoke();
 	}
 
 
+	/**
+	 * wont match
+	 */
 	@Test
-	public void mixed_both()
+	public void noMatch(@Mocked final ICommand3<Integer> c1, @Mocked final ICommand3<Integer> c2)
 		throws Exception {
 
-		final ICalled<Integer> c1 = called(1);
-		final ICalled<String> c2 = called("foo");
-		final ICommand until = Commands.until(Lists.<ICommand> newArrayList(c1, c2), Predicates.equalTo(2));
-		Chains.create(until).invoke();
+		new Expectations() {
+			{
+				c1.invoke();
+				result = 1;
+				c2.invoke();
+				result = 2;
+			}
+		};
 
-		Assert.assertTrue(c1.called());
-		Assert.assertTrue(c2.called());
+		final ICommand until = Commands.until(list(c1, c2), Predicates.equalTo(10));
+		Chains.create(until).invoke();
 	}
 
 
+	/**
+	 * wont match / wrong type
+	 */
 	@Test
-	public void noMatch()
+	public void noMatch2(@Mocked final ICommand3<Integer> c1, @Mocked final ICommand3<Integer> c2)
 		throws Exception {
 
-		final ICalled<Integer> c1 = called(1);
-		final ICalled<Integer> c2 = called(2);
-		final ICommand until = Commands.until(Lists.<ICommand> newArrayList(c1, c2), Predicates.equalTo(10));
+		new Expectations() {
+			{
+				c1.invoke();
+				result = 1;
+				c2.invoke();
+				result = 2;
+			}
+		};
+
+		final ICommand until = Commands.until(list(c1, c2), Predicates.equalTo("different"));
 		Chains.create(until).invoke();
-
-		Assert.assertTrue(c1.called());
-		Assert.assertTrue(c2.called());
-	}
-
-
-	@Test
-	public void different()
-		throws Exception {
-
-		final ICalled<Integer> c1 = called(1);
-		final ICalled<Integer> c2 = called(2);
-		final ICommand until = Commands.until(Lists.<ICommand> newArrayList(c1, c2), Predicates.equalTo("different"));
-		Chains.create(until).invoke();
-
-		Assert.assertTrue(c1.called());
-		Assert.assertTrue(c2.called());
 	}
 
 
@@ -117,6 +141,11 @@ public class RunUntilTest {
 	 * 
 	 * 
 	 */
+
+	private static Collection<ICommand> list(final ICommand... commands) {
+		return Lists.newArrayList(commands);
+	}
+
 
 	private interface ICalled<O>
 		extends ICommand3<O> {

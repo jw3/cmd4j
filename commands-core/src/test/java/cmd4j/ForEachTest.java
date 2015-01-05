@@ -3,18 +3,19 @@ package cmd4j;
 import java.util.Collection;
 import java.util.List;
 
+import mockit.Expectations;
+import mockit.Mocked;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import cmd4j.Chains.IChainBuilder;
+import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand2;
 import cmd4j.ICommand.IFunction;
 import cmd4j.testing.CmdTests;
-import cmd4j.testing.Does;
-import cmd4j.testing.Does.TestVariable;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 
 /**
@@ -25,16 +26,24 @@ import com.google.common.collect.Lists;
 public class ForEachTest {
 
 	@Test
-	public void count()
+	public void iterationCount(@Mocked final ICommand1 command)
 		throws Exception {
 
-		final TestVariable<Integer> var = TestVariable.create(0);
-		final int expected = 101;
-		Chains.create(Commands.forEach(CmdTests.randoms(5, expected), Suppliers.ofInstance(Does.increment(var)))).invoke();
-		var.assertEquals(expected);
+		final List<Integer> inputs = Lists.newArrayList(1, 2, 3, 4, 5);
+		new Expectations() {
+			{
+				command.invoke();
+				times = inputs.size();
+			}
+		};
+		Chains.create(Commands.forEach(inputs, command)).invoke();
 	}
 
 
+	/**
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void function()
 		throws Exception {

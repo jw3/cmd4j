@@ -1,67 +1,94 @@
 package cmd4j;
 
-import org.testng.Assert;
+import mockit.Expectations;
+import mockit.Mocked;
+
 import org.testng.annotations.Test;
 
-import cmd4j.testing.Says;
-import cmd4j.testing.Says.ISayFactory;
+import cmd4j.ICommand.ICommand1;
 import cmd4j.testing.Services;
 
 /**
+ * validate some various chain building uses
  * @author wassj
  *
  */
 public class BuilderTest {
 
 	@Test
-	public void firstTest()
+	public void building1(@Mocked final ICommand1 a)
 		throws Exception {
 
-		Chains.builder().add(Says.what("hello")).executor(Services.edt.executor()).add(Says.what("world")).executor(Services.t2.executor()).add(Says.what("!")).executor(Services.t1.executor()).build().invoke();
+		new Expectations() {
+			{
+				a.invoke();
+			}
+		};
+		Chains.builder().add(a).build().invoke();
 	}
 
 
 	@Test
-	public void building1()
+	public void building2(@Mocked final ICommand1 a, @Mocked final ICommand1 b)
 		throws Exception {
 
-		final ISayFactory say = Says.factory();
-		Chains.builder().add(say.what("success")).build().invoke();
-		Assert.assertEquals(say.toString(), "success");
+		new Expectations() {
+			{
+				a.invoke();
+				b.invoke();
+			}
+		};
+		Chains.builder().add(a).add(b).build().invoke();
 	}
 
 
 	@Test
-	public void building2()
+	public void buildingOnDifferentExecutors1(@Mocked final ICommand1 a, @Mocked final ICommand1 b, @Mocked final ICommand1 c)
 		throws Exception {
 
-		final ISayFactory say = Says.factory();
-		Chains.builder().add(say.what("succ")).add(say.what("ess")).build().invoke();
-		Assert.assertEquals(say.toString(), "success");
-	}
+		new Expectations() {
+			{
+				a.invoke();
+				b.invoke();
+				c.invoke();
+			}
+		};
 
-
-	@Test
-	public void buildingOnDifferentExecutors()
-		throws Exception {
-
-		final ISayFactory say = Says.factory();
-		Chains.builder()//
-			.add(say.what("1"))
-			.executor(Services.t1.executor())
-
-			.add(say.what("2"))
-			.executor(Services.t2.executor())
-
-			.add(say.what("3"))
-			.executor(Services.multi1.executor())
-
-			.add(say.what("4"))
+		Chains.builder() //
+			.add(a)
 			.executor(Services.edt.executor())
-
+			.add(b)
+			.executor(Services.t2.executor())
+			.add(c)
+			.executor(Services.t1.executor())
 			.build()
 			.invoke();
+	}
 
-		Assert.assertEquals(say.toString(), "1234");
+
+	@Test
+	public void buildingOnDifferentExecutors2(@Mocked final ICommand1 a, @Mocked final ICommand1 b, @Mocked final ICommand1 c, @Mocked final ICommand1 d)
+		throws Exception {
+
+		new Expectations() {
+			{
+				a.invoke();
+				b.invoke();
+				c.invoke();
+				d.invoke();
+			}
+		};
+
+		Chains.builder()//
+			.add(a)
+			.executor(Services.t1.executor())
+			.add(b)
+			.executor(Services.t2.executor())
+			.add(c)
+			.executor(Services.multi1.executor())
+			.add(d)
+			.executor(Services.edt.executor())
+			.build()
+			.invoke();
 	}
 }
