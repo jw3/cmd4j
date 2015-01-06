@@ -25,7 +25,7 @@ public class ConcurrentReturnValuesTest {
 		final String value = UUID.randomUUID().toString().substring(0, 6);
 		final IChain<String> chain = Chains.create(Does.returns(value));
 
-		final Future<String> future = Chains.submit(chain, Services.t1.executor());
+		final Future<String> future = Commands.submit(chain, Services.t1.executor());
 		Assert.assertEquals(future.get(), value);
 	}
 }

@@ -111,7 +111,7 @@ public class ConcurrentExecutorSpecificationTest {
 
 		final ISayFactory say = Says.factory();
 		final IChain<Void> chain = Chains.builder().add(say.thread()).build();
-		Chains.submit(chain, Services.t1.executor()).get();
+		Commands.submit(chain, Services.t1.executor()).get();
 		Assert.assertEquals(say.toString(), name(Services.t1));
 	}
 
@@ -129,7 +129,7 @@ public class ConcurrentExecutorSpecificationTest {
 			.executor(Services.t2.executor())
 			.build();
 
-		Chains.submit(chain, Services.t1.executor()).get();
+		Commands.submit(chain, Services.t1.executor()).get();
 		Assert.assertEquals(say.toString(), name(Services.t1, Services.t2));
 	}
 
@@ -156,7 +156,7 @@ public class ConcurrentExecutorSpecificationTest {
 		final IChain<Void> b = Chains.builder().add(say.thread()).build();
 		final IChain<Void> c = Chains.builder().add(a).add(b).build();
 
-		Chains.submit(c, Services.t1.executor()).get();
+		Commands.submit(c, Services.t1.executor()).get();
 
 		Assert.assertEquals(say.toString(), name(Services.t1, Services.t1));
 	}
@@ -171,7 +171,7 @@ public class ConcurrentExecutorSpecificationTest {
 		final IChain<Void> b = Chains.builder().add(say.thread()).executor(Services.t2.executor()).build();
 		final IChain<Void> c = Chains.builder().add(a).add(b).build();
 
-		Chains.submit(c, Services.t1.executor()).get();
+		Commands.submit(c, Services.t1.executor()).get();
 
 		Assert.assertEquals(say.toString(), name(Services.t1, Services.t2));
 	}

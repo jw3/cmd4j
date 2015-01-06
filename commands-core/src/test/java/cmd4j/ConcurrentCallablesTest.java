@@ -123,13 +123,13 @@ public class ConcurrentCallablesTest {
 		try {
 			{
 				final String expected = UUID.randomUUID().toString().substring(0, 7);
-				final String actual = Chains.submit(Chains.create(Does.returns(expected)), executor).get();
+				final String actual = Commands.submit(Does.returns(expected), executor).get();
 				Assert.assertEquals(actual, expected);
 			}
 			{
 				final TestVariable<String> var = TestVariable.create(null);
 				final String expected = UUID.randomUUID().toString().substring(0, 7);
-				Chains.submit(Chains.create(Does.set(var)), expected, executor).get();
+				Commands.submit(Does.set(var), expected, executor).get();
 				Assert.assertEquals(var.get(), expected);
 			}
 		}

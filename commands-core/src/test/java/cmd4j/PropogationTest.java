@@ -25,7 +25,7 @@ public class PropogationTest {
 		throws Throwable {
 
 		try {
-			Chains.submit(Chains.create(Does.runtimeBoom()), executor).get();
+			Commands.submit(Chains.create(Does.runtimeBoom()), executor).get();
 		}
 		catch (final ExecutionException e) {
 			throw e.getCause();
@@ -41,7 +41,7 @@ public class PropogationTest {
 		throws Throwable {
 
 		try {
-			Chains.submit(Chains.create(Does.boom()), executor).get();
+			Commands.submit(Chains.create(Does.boom()), executor).get();
 		}
 		catch (final ExecutionException e) {
 			throw e.getCause();

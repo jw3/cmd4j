@@ -40,8 +40,8 @@ public class ConcurrentLatchingTest {
 		// add a wait just to illustrate that b is actually stopped for a bit
 		final IChain<Void> chain2 = Chains.builder().add(Commands.waitFor(100)).add(c).add(Commands.countDown(latch)).build();
 
-		final Future<Void> f = Chains.submit(chain, Services.multi1.executor());
-		Chains.submit(chain2, MoreExecutors.sameThreadExecutor());
+		final Future<Void> f = Commands.submit(chain, Services.multi1.executor());
+		Commands.submit(chain2, MoreExecutors.sameThreadExecutor());
 		f.get();
 	}
 }

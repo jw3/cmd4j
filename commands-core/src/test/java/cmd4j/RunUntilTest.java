@@ -134,40 +134,7 @@ public class RunUntilTest {
 	}
 
 
-	/*
-	 * 
-	 * 
-	 * 
-	 * 
-	 * 
-	 */
-
 	private static Collection<ICommand> list(final ICommand... commands) {
 		return Lists.newArrayList(commands);
-	}
-
-
-	private interface ICalled<O>
-		extends ICommand3<O> {
-
-		boolean called();
-	}
-
-
-	private static <T> ICalled<T> called(final T value) {
-		return new ICalled<T>() {
-			private boolean called;
-
-
-			public boolean called() {
-				return called;
-			}
-
-
-			public T invoke() {
-				called = true;
-				return value;
-			}
-		};
 	}
 }

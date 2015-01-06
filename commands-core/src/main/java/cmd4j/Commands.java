@@ -10,8 +10,10 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
 import cmd4j.Chains.IChainBuilder;
+import cmd4j.Chains.PropogatingFutureCallback;
 import cmd4j.ICommand.ICommand1;
 import cmd4j.ICommand.ICommand3;
+import cmd4j.ICommand.ICommand4;
 import cmd4j.ICommand.IInputCommand;
 import cmd4j.ICommand.IInvokable;
 import cmd4j.ICommand.IPipeIO;
@@ -31,6 +33,9 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 
 /**
  * General {@link ICommand} related utilities
@@ -167,6 +172,7 @@ public class Commands {
 	 * @return Command that is blocked until latch is released
 	 */
 	public static ICommand waitFor(final CountDownLatch latch) {
+		Preconditions.checkNotNull(latch);
 		return new ICommand1() {
 			public void invoke()
 				throws Exception {
@@ -183,6 +189,7 @@ public class Commands {
 	 * @return
 	 */
 	public static ICommand countDown(final CountDownLatch latch) {
+		Preconditions.checkNotNull(latch);
 		return new ICommand1() {
 			public void invoke() {
 				latch.countDown();
@@ -197,6 +204,7 @@ public class Commands {
 	 * @return
 	 */
 	public static <O> IReturningCommand<O> from(final Future<O> future) {
+		Preconditions.checkNotNull(future);
 		return new ICommand3<O>() {
 			public O invoke()
 				throws Exception {
@@ -213,6 +221,7 @@ public class Commands {
 	 * @return
 	 */
 	public static <O> IReturningCommand<O> from(final Callable<O> callable) {
+		Preconditions.checkNotNull(callable);
 		return new ICommand3<O>() {
 			public O invoke()
 				throws Exception {
@@ -376,6 +385,72 @@ public class Commands {
 			builder.add(supplier.get()).input(input);
 		}
 		return builder.build();
+	}
+
+
+	/**
+	 * submit a {@link IReturningCommand} to the {@link ExecutorService} returning the resulting {@link ListenableFuture}
+	 * @param chain
+	 * @param executor
+	 * @return
+	 */
+	public static <O> ListenableFuture<O> submit(final IReturningCommand<O> command, final ExecutorService executor) {
+		return submit(command, null, executor);
+	}
+
+
+	public static ListenableFuture<Void> submit(final ICommand command, final ExecutorService executor) {
+		return submit(Chains.create(command), executor);
+	}
+
+
+	/**
+	 * submit a {@link IReturningCommand} with input to the {@link ExecutorService} returning the resulting {@link ListenableFuture}
+	 * @param command
+	 * @param executor
+	 * @return
+	 */
+	public static <O> ListenableFuture<O> submit(final IReturningCommand<O> command, @Nullable final Object input, final ExecutorService executor) {
+		final ListenableFuture<O> future = MoreExecutors.listeningDecorator(executor).submit(Commands.callable(command, input));
+		Futures.addCallback(future, new PropogatingFutureCallback<O>());
+		return future;
+	}
+
+
+	public static ListenableFuture<Void> submit(final ICommand command, @Nullable final Object input, final ExecutorService executor) {
+		return submit(Chains.create(command), input, executor);
+	}
+
+
+	/**
+	 * create a command that will submit a {@link IReturningCommand} to the {@link ExecutorService} returning the resulting {@link ListenableFuture}
+	 * the input value can be passed through the input object
+	 * @param command
+	 * @param executor
+	 * @return
+	 */
+	public static <O> IReturningCommand<ListenableFuture<O>> submitLater(final IReturningCommand<O> command, final ExecutorService executor) {
+		return new ICommand4<Object, ListenableFuture<O>>() {
+			public ListenableFuture<O> invoke(@Nullable final Object input) {
+				return submit(command, input, executor);
+			}
+		};
+	}
+
+
+	/**
+	 * create a command that will submit a {@link IReturningCommand} to the {@link ExecutorService} returning the resulting {@link ListenableFuture}
+	 * @param command
+	 * @param input
+	 * @param executor
+	 * @return
+	 */
+	public static <O> IReturningCommand<ListenableFuture<O>> submitLater(final IReturningCommand<O> command, @Nullable final Object input, final ExecutorService executor) {
+		return new ICommand3<ListenableFuture<O>>() {
+			public ListenableFuture<O> invoke() {
+				return submit(command, input, executor);
+			}
+		};
 	}
 
 

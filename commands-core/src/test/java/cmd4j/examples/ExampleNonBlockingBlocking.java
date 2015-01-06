@@ -6,6 +6,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import cmd4j.Chains;
+import cmd4j.Commands;
 import cmd4j.IChain;
 import cmd4j.testing.Says;
 import cmd4j.testing.Services;
@@ -45,9 +46,9 @@ public class ExampleNonBlockingBlocking {
 			public void run() {
 				try {
 					buffer.append(3);
-					Chains.submit(chain1, Services.edt.executor());
+					Commands.submit(chain1, Services.edt.executor());
 					buffer.append(6);
-					Chains.submit(chain2, Services.edt.executor());
+					Commands.submit(chain2, Services.edt.executor());
 					buffer.append(9);
 				}
 				catch (Exception e) {
@@ -69,7 +70,7 @@ public class ExampleNonBlockingBlocking {
 			public void run() {
 				try {
 					buffer.append(13);
-					Chains.submit(chain3, Services.edt.executor());
+					Commands.submit(chain3, Services.edt.executor());
 					buffer.append(16);
 				}
 				catch (Exception e) {
