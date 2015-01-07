@@ -62,17 +62,10 @@
 		<dependency>
 			<groupId>org.jmockit</groupId>
 			<artifactId>jmockit</artifactId>
-			<version>${jmockit.version}</version>
+			<version>1.8</version>
 			<scope>test</scope>
 		</dependency>
 		
-		<dependency>
-			<groupId>org.jmockit</groupId>
-			<artifactId>jmockit-coverage</artifactId>
-			<version>${jmockit.version}</version>
-			<scope>runtime</scope>
-		</dependency>
-
 	</dependencies>
 
 	<build>
