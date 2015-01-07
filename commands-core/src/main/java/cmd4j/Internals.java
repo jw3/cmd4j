@@ -48,8 +48,10 @@ import cmd4j.ICommand.IReturningCommand;
 import cmd4j.ICommand.IStateCommand;
 import cmd4j.ICommand.IStateCommand.IStateCommand1;
 import cmd4j.ICommand.IStateCommand.IStateCommand2;
+import cmd4j.ICommand.IStateCommand.IStateCommand2M;
 import cmd4j.ICommand.IStateCommand.IStateCommand3;
 import cmd4j.ICommand.IStateCommand.IStateCommand4;
+import cmd4j.ICommand.IStateCommand.IStateCommand4M;
 import cmd4j.Internals.Chain.DefaultChain;
 import cmd4j.Internals.Chain.DefaultChain.ReturningChain;
 import cmd4j.Internals.Chain.EmptyChain;
@@ -354,6 +356,12 @@ enum Internals {
 					if (called.get()) {
 						output.set(result);
 					}
+				}
+				else if (command instanceof IStateCommand2M) {
+					return (ICommand)invokeMultiInput((ICommandM)command, input, called);
+				}
+				else if (command instanceof IStateCommand4M) {
+					return (ICommand)invokeMultiInput((ICommandM)command, input, called);
 				}
 				else {
 					throw new IllegalStateException("abstract command instance, " + command.getClass());

@@ -175,7 +175,7 @@ public interface ICommand {
 	 */
 	@Beta
 	public interface ICommandM
-		extends ICommand {
+		extends ICommand, IInputCommand<Object[]> {
 	}
 
 
@@ -185,7 +185,7 @@ public interface ICommand {
 	 */
 	@Beta
 	public interface ICommand2M
-		extends ICommandM, IInputCommand<Object[]> {
+		extends ICommandM {
 	}
 
 
@@ -196,7 +196,7 @@ public interface ICommand {
 	 */
 	@Beta
 	public interface ICommand4M<O>
-		extends ICommandM, IInputCommand<Object[]>, IReturningCommand<O> {
+		extends ICommandM, IReturningCommand<O> {
 	}
 
 
@@ -372,6 +372,36 @@ public interface ICommand {
 				IReturningCommand<O> undo(@Nullable I input)
 					throws Exception;
 			}
+		}
+
+
+		/**
+		 * multi-input state command
+		 * @author wassj
+		 */
+		public interface IStateCommandM
+			extends IStateCommand, ICommandM {
+		}
+
+
+		/**
+		 * multi-input
+		 * @author wassj
+		 */
+		@Beta
+		public interface IStateCommand2M
+			extends IStateCommandM {
+		}
+
+
+		/**
+		 * multi-input, single output
+		 * @author wassj
+		 * @param <O> output type
+		 */
+		@Beta
+		public interface IStateCommand4M<O>
+			extends IStateCommandM, IReturningCommand<O> {
 		}
 	}
 
